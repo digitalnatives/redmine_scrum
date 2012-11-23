@@ -15,7 +15,8 @@ class ScrumReportController < ApplicationController
     @report = SR::ScrumReporter.new(@project, @version, @from, @to)
 
     @issues = Issue.where(:project_id => @project.id).
-        joins("RIGHT JOIN time_entries ON (time_entries.issue_id = issues.id)").
+        where("issues.estimated_hours").
+        joins("LEFT JOIN time_entries ON (time_entries.issue_id = issues.id)").
         select("issues.*, sum(time_entries.hours) AS spent_time").
         group('issues.id').order('issues.parent_id DESC, issues.id ASC')
 
@@ -38,7 +39,7 @@ class ScrumReportController < ApplicationController
   end
 
   def find_version
-    @version = @project.versions.find(params[:version_id]) if params[:version_id]
+    @version = @project.versions.find(params[:version_id]) if params[:version_id].present?
   rescue ActiveRecord::RecordNotFound
     render_404
   end

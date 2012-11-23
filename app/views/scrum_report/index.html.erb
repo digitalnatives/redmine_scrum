@@ -15,7 +15,9 @@
 
   <p>
     <label for='version_id'><%= l(:label_version) %></label>:
-    <%= select_tag 'version_id', options_for_select(@versions.map {|v| ["#{v.name} (#{v.effective_date})", v.id] }, @version.id), :onchange => "this.form.submit();", :include_blank => true %>
+    <% if @versions.present? %>
+    <%= select_tag 'version_id', options_for_select(@versions.map {|v| ["#{v.name} (#{v.effective_date})", v.id] }, @version.try(:id)), :onchange => "this.form.submit();", :include_blank => true %>
+  <% end %>
   </p>
 <% end %>
 

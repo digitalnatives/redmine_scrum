@@ -15,7 +15,7 @@ class ScrumReportController < ApplicationController
     @report = SR::ScrumReporter.new(@project, @version, @from, @to)
 
     @issues = Issue.where(:project_id => @project.id).
-        where("issues.estimated_hours").
+        where("issues.estimated_hours IS NOT NULL").
         joins("LEFT JOIN time_entries ON (time_entries.issue_id = issues.id)").
         select("issues.*, sum(time_entries.hours) AS spent_time").
         group('issues.id').order('issues.parent_id DESC, issues.id ASC')

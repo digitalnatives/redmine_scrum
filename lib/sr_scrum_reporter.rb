@@ -6,10 +6,10 @@ module SR
       @project = project
       @version = version
 
-      @criteria = criteria || %w(version issue)
+      @criteria = criteria || %w(version status issue member activity)
       @criteria = @criteria.select {|criteria| available_criteria.has_key? criteria }
       @criteria.uniq!
-      @criteria = @criteria[0,3]
+      @criteria = @criteria[0,5]
 
       @columns = 'day'
       @from = from
@@ -113,6 +113,12 @@ module SR
                                              :klass => TimeEntryActivity,
                                              :label => :label_activity},
                                'issue' => {:sql => "#{TimeEntry.table_name}.issue_id",
+                                           :klass => Issue,
+                                           :label => :label_issue},
+                              'estimated_hours' => {:sql => "#{TimeEntry.table_name}.estimated_hours",
+                                           :klass => Issue,
+                                           :label => :label_issue},
+                              'remaining_hours' => {:sql => "#{TimeEntry.table_name}.remaining_hours",
                                            :klass => Issue,
                                            :label => :label_issue}
                              }

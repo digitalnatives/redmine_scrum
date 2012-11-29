@@ -77,15 +77,16 @@
         <% end %>
       <% end %>
       <tr class="total">
-        <td colspan="4">Total</td>
+        <td colspan="3">Total</td>
+        <td class="hours"><%= html_hours("%.2f" % @issues.sum(&:estimated_hours)) %></td>
         <% @days.each do |day| %>
           <% daily_total = @issues.map(&:time_entries).flatten.select{ |te| te.spent_on == day}.map(&:hours).sum %>
           <% total_spent_hours += daily_total %>
           <td class="hours"><%= html_hours("%.2f" % daily_total ) if daily_total > 0 %></td>
           <td class="hours"></td>
         <% end %>
-        <td class="hours"><%= html_hours("%.2f" % @issues.sum(&:estimated_hours)) %></td>
         <td class="hours"><%= html_hours("%.2f" % total_spent_hours) %></td>
+        <td class="hours"><%= html_hours("%.2f" % @issues.sum(&:remaining_hours)) %></td>
       </tr>
     </tbody>
   </table>

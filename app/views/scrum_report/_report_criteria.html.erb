@@ -6,10 +6,12 @@
     <%= ("<td></td>" * level).html_safe %>
     <td><%= h(format_criteria_value(@report.available_criteria[criterias[level]], value)) %></td>
     <%= ("<td></td>" * (criterias.length - level - 1)).html_safe -%>
-    <% total = 0 -%>
+    <% remain_total = total = 0 -%>
     <% @report.periods.each do |period| -%>
       <% sum = sum_hours(select_hours(hours_for_value, @report.columns, period.to_s)); total += sum -%>
+      <% sum_remain = sum_te_remaining_hours(select_hours(hours_for_value, @report.columns, period.to_s)); remain_total += sum_remain -%>
       <td class="hours"><%= html_hours("%.2f" % sum) if sum > 0 %></td>
+      <td class="hours"><%= html_hours("%.2f" % sum_remain) if sum_remain > 0 %></td>
     <% end -%>
     <% if criterias[level] == "version" %>
       <td class="hours"><%= @issues.select{ |issue| issue.fixed_version_id == value.to_i}.sum(&:estimated_hours) %></td>

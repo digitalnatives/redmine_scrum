@@ -6,7 +6,7 @@ module SR
       @project = project
       @version = version
 
-      @criteria = criteria || %w(version status issue member activity)
+      @criteria = criteria || %w(version status issue member)
       @criteria = @criteria.select {|criteria| available_criteria.has_key? criteria }
       @criteria.uniq!
       @criteria = @criteria[0,5]
@@ -32,7 +32,7 @@ module SR
         elsif @project
           scope = scope.on_project(@project, Setting.display_subprojects_issues?)
         end
-        time_columns = %w(tyear tmonth tweek spent_on)
+        time_columns = %w(tyear tmonth tweek spent_on te_remaining_hours)
         @hours = []
         scope.sum(:hours, :include => :issue, :group => @criteria.collect{|criteria| @available_criteria[criteria][:sql]} + time_columns).each do |hash, hours|
           h = {'hours' => hours}
@@ -113,12 +113,6 @@ module SR
                                              :klass => TimeEntryActivity,
                                              :label => :label_activity},
                                'issue' => {:sql => "#{TimeEntry.table_name}.issue_id",
-                                           :klass => Issue,
-                                           :label => :label_issue},
-                              'estimated_hours' => {:sql => "#{TimeEntry.table_name}.estimated_hours",
-                                           :klass => Issue,
-                                           :label => :label_issue},
-                              'remaining_hours' => {:sql => "#{TimeEntry.table_name}.remaining_hours",
                                            :klass => Issue,
                                            :label => :label_issue}
                              }

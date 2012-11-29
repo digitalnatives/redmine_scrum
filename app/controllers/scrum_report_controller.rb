@@ -25,7 +25,7 @@ class ScrumReportController < ApplicationController
 
     respond_to do |format|
       format.html { render :layout => !request.xhr? }
-      # format.csv  { send_data(report_to_csv(@report), :type => 'text/csv; header=present', :filename => 'timelog.csv') }
+      format.csv  { send_data(report_to_csv(@report), :type => 'text/csv; header=present', :filename => 'timelog.csv') }
     end
   end
 

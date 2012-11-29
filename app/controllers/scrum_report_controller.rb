@@ -7,25 +7,41 @@ class ScrumReportController < ApplicationController
   def index
     @free_period = false
     @from, @to = nil, nil
+
+    #@report = SR::ScrumReporter.new(@project, @version, @from, @to)
+
+    @issues = Issue.select("issues.id, 
+                           issues.parent_id,issues.status_id, 
+                           issues.subject, 
+                           issues.remaining_hours, 
+                           issues.estimated_hours, 
+                           sum(time_entries.hours) AS spent_time,
+                           min(time_entries.spent_on) AS first_time_entry,
+                           max(time_entries.spent_on) AS last_time_entry").
+        joins("LEFT JOIN time_entries ON (time_entries.issue_id = issues.id)").
+        includes(:status).
+        where(:project_id => @project.id).
+        where(:tracker_id => RbTask.tracker).
+        where("issues.estimated_hours IS NOT NULL").
+        group('issues.id').
+        order('issues.parent_id DESC, issues.id ASC')
+
     if @version
       @from = @version.try(:sprint_start_date) || @version.try(:created_on)
       @to = @version.effective_date
+      @issues = @issues.where(:time_entries => { :spent_on => @from..@to }) if @from && @to
+      @issues = @issues.where(:fixed_version_id => @version.id)
+    else
+      @from = @issues.map(&:first_time_entry).compact.min
+      @to = @issues.map(&:last_time_entry).compact.max
     end
 
-    @report = SR::ScrumReporter.new(@project, @version, @from, @to)
 
-    @issues = Issue.where(:project_id => @project.id).
-        where("issues.estimated_hours IS NOT NULL").
-        joins("LEFT JOIN time_entries ON (time_entries.issue_id = issues.id)").
-        select("issues.*, sum(time_entries.hours) AS spent_time").
-        group('issues.id').order('issues.parent_id DESC, issues.id ASC')
-
-    @issues = @issues.where(:fixed_version_id => @version.id) if @version
-    # @columns = %w(version id status tracker title)
+    @days = (@from..@to)
 
     respond_to do |format|
       format.html { render :layout => !request.xhr? }
-      format.csv  { send_data(report_to_csv(@report), :type => 'text/csv; header=present', :filename => 'timelog.csv') }
+      format.csv { render :type => 'text/csv; header=present', :filename => 'scrum_report.csv' }
     end
   end
 

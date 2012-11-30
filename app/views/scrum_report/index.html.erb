@@ -26,6 +26,7 @@
       <tr>
         <th rowspan="2">User Story</th>
         <th rowspan="2">Issue</th>
+        <th rowspan="2">Assignee</th>
         <th rowspan="2">Status</th>
         <th rowspan="2">Estimated</th>
         <% @days.each do |day| %>
@@ -48,6 +49,7 @@
           <td><%= tasks.first.try(:parent).try(:subject) %></td>
           <td></td>
           <td></td>
+          <td></td>
           <td class="hours"><%= html_hours("%.2f" % tasks.sum(&:estimated_hours)) %></td>
           <% @days.each do |day| %>
             <% story_total = tasks.map(&:time_entries).flatten.select{ |te| te.spent_on == day}.map(&:hours).sum %>
@@ -58,20 +60,20 @@
           <td class="hours"><%= html_hours("%.2f" % tasks.map(&:remaining_hours).sum) %></td>
         </tr>
         <% tasks.each do |task| %>
-          <% task_total = 0 %>
           <tr class="<%= cycle 'odd', 'even' %>">
             <td></td>
             <td><%= link_to task.subject, task %></td>
+            <td><%= task.assigned_to %></td>
             <td><%= task.status %></td>
             <td class="hours"><%= html_hours("%.2f" % task.estimated_hours) %></td>
             <% @days.each do |day| %>
               <% time_entries = task.time_entries.select{ |te| te.spent_on == day } %>
-              <% task_total += hours = time_entries.compact.sum(&:hours) %>
+              <% hours = time_entries.compact.sum(&:hours) %>
               <% remaining_hours = time_entries.last.te_remaining_hours if time_entries.present? %>
               <td class="hours"><%= html_hours("%.2f" % hours) if hours > 0 %></td>
               <td class="hours"><%= html_hours("%.2f" % remaining_hours) if remaining_hours.present? %></td>
             <% end %>
-            <td class="hours"><%= html_hours("%.2f" % task_total ) if task_total.to_f > 0 %></td>
+            <td class="hours"><%= html_hours("%.2f" % task.spent_time ) if task.spent_time.to_f > 0 %></td>
             <td class="hours"><%= html_hours("%.2f" % task.remaining_hours) if task.remaining_hours > 0 %></td>
           </tr>
         <% end %>

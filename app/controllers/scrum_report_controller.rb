@@ -15,12 +15,14 @@ class ScrumReportController < ApplicationController
                            issues.subject, 
                            issues.remaining_hours, 
                            issues.estimated_hours, 
+                           issues.assigned_to_id,
                            sum(time_entries.hours) AS spent_time,
                            min(time_entries.spent_on) AS first_time_entry,
                            max(time_entries.spent_on) AS last_time_entry").
         joins("LEFT JOIN time_entries ON (time_entries.issue_id = issues.id)").
-        includes(:status).
+        includes(:status, :assigned_to).
         where(:project_id => @project.id).
+        # only backlog tasks
         where(:tracker_id => RbTask.tracker).
         where("issues.estimated_hours IS NOT NULL").
         group('issues.id').

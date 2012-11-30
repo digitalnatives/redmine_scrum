@@ -4,25 +4,8 @@
 
 <h2><%= l(:label_scrum_report) %></h2>
 
-<div id="time-entry-dialog">
-  <p id="task-subject"></p>
-  <%= form_for TimeEntry.new, :url => '/scrum_report_time_entries', :remote => true, :html => { :id => 'set-time-entry-hours' } do |f| %> 
-    <div id="errorExplanation">
-      <ul>
-      </ul>
-    </div>
-    <p>
-    <%= f.text_field :hours, :size => 6, :required => true %>
-    <%= f.label :hours %>
-   </p>
-   <p>
-    <%= f.text_field :te_remaining_hours, :size => 6 %>
-    <%= f.label :te_remaining_hours %>
-    </p>
-     <p>
-     <%= f.submit 'Save' %>
-  <% end %>
-</div>
+<%= render "modal_dialog" %>
+
 <%= form_tag({:controller => 'scrum_report', :action => 'index', :project_id => @project},:method => :get, :id => 'query_form') do %>
   <%# @report.criteria.each do |criterion| %>
     <%#= hidden_field_tag 'criteria[]', criterion, :id => nil %>

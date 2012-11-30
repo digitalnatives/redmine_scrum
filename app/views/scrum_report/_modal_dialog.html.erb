@@ -1,0 +1,23 @@
+<div id="time-entry-dialog">
+  <p id="task-subject"></p>
+  <%= form_for TimeEntry.new, :url => '/scrum_report_time_entries', :remote => true, :html => { :id => 'set-time-entry-hours' } do |f| %> 
+    <div id="errorExplanation">
+      <ul></ul>
+    </div>
+    <p>
+    <%= f.text_field :hours, :size => 6, :required => true %>
+    <%= f.label :hours %>
+    </p>
+    <p>
+    <%= f.text_field :te_remaining_hours, :size => 6 %>
+    <%= f.label :te_remaining_hours %>
+    </p>
+    <p><%= f.select :activity_id, activity_collection_for_select_options(@time_entry), :required => true %>
+    <%= f.label :te_remaining_hours %>
+    </p>
+    <p>
+    <%= f.submit 'Save' %>
+    </p>
+  <% end %>
+</div>
+

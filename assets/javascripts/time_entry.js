@@ -8,9 +8,16 @@ jQuery(function() {
   TE.form = $('#set-time-entry-hours');
   TE.errorExplanation = TE.form.find("#errorExplanation ul");
 
-  TE.handle_errors = function(data) {
+  TE.form.bind("ajax:success", function(xhr, data, status) {
+    $('#time-entry-dialog').dialog('close');
+  })
+  .bind("ajax:error", function(xhr, data, status) {
+    console.log(data);
+    TE.handleErrors($.parseJSON(data.responseText));
+  });
+
+  TE.handleErrors = function(data) {
     TE.errorExplanation.html('');
-    TE.errorExplanation.parent().show();
     for(var prop in data.errors) {
       if(data.errors.hasOwnProperty(prop)) {
         TE.errorExplanation.append(
@@ -18,6 +25,7 @@ jQuery(function() {
           );
       }
     }
+    TE.errorExplanation.parent().show();
   }
   
   TE.formEdit = function(id, values){
@@ -40,8 +48,8 @@ jQuery(function() {
 
   TE.load = function(el) {
     if (typeof ids !== "undefined" && ids !== null) return;
-
     TE.errorExplanation.parent().hide();
+
     this.taskSubject = $(el).siblings(':eq(1)').text();
     var ids = $(el).data().timeEntryIds;
     var values = $(el).data().timeEntryValues;
@@ -55,19 +63,12 @@ jQuery(function() {
       this.formEdit(ids[0], values);
       break;
     default:
+      console.log("multiple entries");
       console.log(el);
     }
 
     $('#task-subject').text(this.taskSubject);
 
-    TE.form.bind("ajax:success", function(xhr, data, status) {
-      $('#time-entry-dialog').dialog('close');
-    })
-    .bind("ajax:error", function(xhr, data, status) {
-      console.log(data);
-      TE.handle_errors($.parseJSON(data.responseText));
-    });
-    console.log(el);
   }
 
 

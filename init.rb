@@ -17,4 +17,6 @@ Redmine::Plugin.register :scrum_report do
   url 'http://example.com/path/to/plugin'
   author_url 'http://example.com/about'
 
+  menu(:project_menu, :scrum_report, {:controller => "scrum_report", :action => 'index'}, :caption => 'Scrum Hours', :after => :my_page, :if => Proc.new{ User.current.logged? }, :param => :user_id)
+  permission :access_scrum_report, :scrum_report => :index
 end

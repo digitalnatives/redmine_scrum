@@ -1,11 +1,28 @@
-<div class="contextual">
-<%= link_to_if_authorized l(:button_log_time), {:controller => 'scrum_report', :action => 'index', :project_id => @project, :sprint_id => @sprint}, :class => 'icon icon-time-add' %>
-</div>
-
-<%#= render_timelog_breadcrumb %>
+<% content_for :header_tags do %>
+  <%= javascript_include_tag 'time_entry', :plugin => :redmine_scrum %>
+<% end %>
 
 <h2><%= l(:label_scrum_report) %></h2>
 
+<div id="time-entry-dialog">
+  <p id="task-subject"></p>
+  <%= form_for TimeEntry.new, :url => '/scrum_report_time_entries', :remote => true, :html => { :id => 'set-time-entry-hours' } do |f| %> 
+    <div id="errorExplanation">
+      <ul>
+      </ul>
+    </div>
+    <p>
+    <%= f.text_field :hours, :size => 6, :required => true %>
+    <%= f.label :hours %>
+   </p>
+   <p>
+    <%= f.text_field :te_remaining_hours, :size => 6 %>
+    <%= f.label :te_remaining_hours %>
+    </p>
+     <p>
+     <%= f.submit 'Save' %>
+  <% end %>
+</div>
 <%= form_tag({:controller => 'scrum_report', :action => 'index', :project_id => @project},:method => :get, :id => 'query_form') do %>
   <%# @report.criteria.each do |criterion| %>
     <%#= hidden_field_tag 'criteria[]', criterion, :id => nil %>
@@ -45,7 +62,8 @@
     <tbody>
       <% @issues.group_by(&:parent_id).each do |parent, tasks| %>
         <tr class="subtotal <%= cycle 'odd', 'even' %>">
-          <td colspan="4"><%= tasks.first.try(:parent).try(:subject) %></td>
+          <% user_story = tasks.first.try(:parent) %> 
+          <td colspan="4"><%= link_to user_story.subject, issue_path(user_story.id) if user_story.present? %></td>
           <td class="hours"><%= html_hours("%.2f" % tasks.sum(&:estimated_hours)) %></td>
           <% @days.each do |day| %>
             <% story_total = tasks.map(&:time_entries).flatten.select{ |te| te.spent_on == day}.map(&:hours).sum %>
@@ -57,7 +75,7 @@
         </tr>
         <% tasks.each do |task| %>
           <tr class="<%= cycle 'odd', 'even' %>">
-            <td></td>
+            <td data-task-id="<%= task.id %>"></td>
             <td><%= link_to task.subject, task %></td>
             <td><%= task.assigned_to %></td>
             <td><%= task.status %></td>
@@ -66,8 +84,8 @@
               <% time_entries = task.time_entries.select{ |te| te.spent_on == day } %>
               <% hours = time_entries.compact.sum(&:hours) %>
               <% remaining_hours = time_entries.last.te_remaining_hours if time_entries.present? %>
-              <td class="hours"><%= html_hours("%.2f" % hours) if hours > 0 %></td>
-              <td class="hours"><%= html_hours("%.2f" % remaining_hours) if remaining_hours.present? %></td>
+              <td class="hours time-entry" data-time-entry-ids="<%= time_entries.map(&:id) %>" data-time-entry-values="<%= [ hours, (remaining_hours.blank? ? "": remaining_hours) ] %>"><%= html_hours("%.2f" % hours) if hours > 0 %></td>
+              <td class="hours time-entry" data-time-entry-ids="<%= time_entries.map(&:id) %>" data-time-entry-values="<%= [ hours, (remaining_hours.blank? ? "": remaining_hours) ] %>"><%= html_hours("%.2f" % remaining_hours) if remaining_hours.present? %></td>
             <% end %>
             <td class="hours"><%= html_hours("%.2f" % task.spent_time ) if task.spent_time.to_f > 0 %></td>
             <td class="hours"><%= html_hours("%.2f" % task.remaining_hours) if task.remaining_hours > 0 %></td>

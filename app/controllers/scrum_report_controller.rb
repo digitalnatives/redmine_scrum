@@ -1,10 +1,11 @@
 class ScrumReportController < ApplicationController
   unloadable
 
-  before_filter :find_project
+  before_filter :find_project, :authorize, :only => [ :index ]
   before_filter :find_version
 
   def index
+    Redmine::Plugin.mirror_assets(:redmine_scrum) if Rails.env.development?
     @free_period = false
     @from, @to = nil, nil
 
@@ -46,6 +47,7 @@ class ScrumReportController < ApplicationController
       format.csv { render :type => 'text/csv; header=present', :filename => 'scrum_report.csv' }
     end
   end
+
 
   private
 

@@ -47,7 +47,7 @@
     <tbody>
       <% @issues.group_by(&:parent_id).each do |parent, tasks| %>
         <tr class="subtotal <%= cycle 'odd', 'even' %>">
-          <% user_story = tasks.first.try(:parent) %> 
+          <% user_story = Issue.find_by_id(parent) %> 
           <td colspan="4"><%= link_to user_story.subject, issue_path(user_story.id) if user_story.present? %></td>
           <td class="hours"><%= html_hours("%.2f" % tasks.sum(&:estimated_hours)) %></td>
           <% @days.each do |day| %>

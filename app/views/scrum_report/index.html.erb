@@ -6,7 +6,7 @@
 
 <%= render "modal_dialog" %>
 
-<%= form_tag({:controller => 'scrum_report', :action => 'index', :project_id => @project},:method => :get, :id => 'query_form') do %>
+<% form_tag({:controller => 'scrum_report', :action => 'index', :project_id => @project},:method => :get, :id => 'query_form') do %>
   <%# @report.criteria.each do |criterion| %>
     <%#= hidden_field_tag 'criteria[]', criterion, :id => nil %>
   <%# end %>
@@ -14,7 +14,9 @@
   <p>
     <label for='version_id'><%= l(:label_version) %></label>:
     <% if @versions.present? %>
-    <%= select_tag 'version_id', options_for_select(@versions.map {|v| ["#{v.name} (#{v.effective_date})", v.id] }, @version.try(:id)), :onchange => "this.form.submit();", :include_blank => true %>
+      <% options = ['' ] + @versions.map {|v| ["#{v.name} (#{v.effective_date})", v.id] } %>
+      <%= select_tag 'version_id', 
+        options_for_select(options, @version.try(:id)), :onchange => "this.form.submit();" %>
   <% end %>
   </p>
 <% end %>

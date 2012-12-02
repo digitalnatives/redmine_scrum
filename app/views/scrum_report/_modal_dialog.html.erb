@@ -1,6 +1,6 @@
 <div id="time-entry-dialog">
   <p id="task-subject"></p>
-  <%= form_for TimeEntry.new, :url => '/scrum_report_time_entries', :remote => true, :html => { :id => 'set-time-entry-hours' } do |f| %> 
+  <% form_for TimeEntry.new, :url => '/scrum_report_time_entries', :remote => true, :html => { :id => 'set-time-entry-hours' } do |f| %> 
     <div id="errorExplanation">
       <ul></ul>
     </div>

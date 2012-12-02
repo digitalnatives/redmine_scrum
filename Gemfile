@@ -1,6 +1,9 @@
 source :rubygems
 
 group :development do
-  gem 'debugger'
+  if RUBY_VERSION =~ /^1\.9\.3/
+    gem 'debugger'
+  else
+    gem 'ruby-debug'
+  end
 end
-

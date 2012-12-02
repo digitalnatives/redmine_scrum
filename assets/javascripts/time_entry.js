@@ -1,6 +1,6 @@
 var TE = {}
 
-jQuery(function() {
+jQuery(function($) {
 
   TE.hoursField = $('#time_entry_hours');
   TE.remainingHoursField = $('#time_entry_te_remaining_hours');

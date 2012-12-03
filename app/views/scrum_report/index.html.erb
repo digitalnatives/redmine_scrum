@@ -4,7 +4,7 @@
 
 <% end %>
 
-<h2><%= l(:label_scrum_report) %></h2>
+<h2><%= l(:scrum_report) %></h2>
 
 <%= render "modal_dialog" %>
 
@@ -16,7 +16,7 @@
   <p>
     <label for='version_id'><%= l(:label_version) %></label>:
     <% if @versions.present? %>
-      <% options = ['' ] + @versions.map {|v| ["#{v.name} (#{v.effective_date})", v.id] } %>
+      <% options = ['' ] + @versions.map {|v| ["#{v.name} (#{v.sprint_start_date} - #{v.effective_date})", v.id] } %>
       <%= select_tag 'version_id', 
         options_for_select(options, @version.try(:id)), :onchange => "this.form.submit();" %>
   <% end %>

@@ -2,8 +2,12 @@ class ScrumReportTimeEntriesController < ApplicationController
   unloadable
 
   def update
-    @time_entry = TimeEntry.find(params[:time_entry])
-    if @time_entry.save
+    @time_entry = TimeEntry.find(params[:id])
+    params[:time_entry].delete(:activity_id) if params[:time_entry][:activity_id].blank?
+    params[:time_entry].delete(:issue_id)
+
+    if @time_entry.update_attributes(params[:time_entry])
+      #update_issue(@time_entry.issue)
       head 200
     else
       render :json => {
@@ -17,6 +21,7 @@ class ScrumReportTimeEntriesController < ApplicationController
     @time_entry.user = User.current
 
     if @time_entry.save
+      #update_issue(@time_entry.issue)
       head 200
     else
       render :json => {
@@ -30,6 +35,18 @@ class ScrumReportTimeEntriesController < ApplicationController
     render :json => {
       :time_entry => @time_entry.as_json(:hours, :te_remaining_hours)
     }
+  end
+
+  private
+
+  def update_issue(issue)
+    if issue.is_task? && User.current.allowed_to?(:te_remaining_hours, @time_entry.project) != nil
+      if params["te_remaining_hours"].present? 
+        if @time_enty.te_remaining_hours != issue.remaining_hours && issue.time_entries.sort_by{ |te| te.spent_on }.last == @time_entry
+          issue.journalized_update_attribute(:remaining_hours, @time_enty.te_remaining_hours)
+        end
+      end
+    end
   end
 
 end

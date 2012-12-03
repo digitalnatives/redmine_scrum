@@ -1,9 +1,13 @@
 <div id="time-entry-dialog">
-  <p id="task-subject"></p>
-  <% form_for TimeEntry.new, :url => '/scrum_report_time_entries', :remote => true, :html => { :id => 'set-time-entry-hours' } do |f| %> 
+  <% form_for TimeEntry.new, :url => '/scrum_report_time_entries', :html => { :id => 'set-time-entry-hours', "data-remote" => true } do |f| %> 
     <div id="errorExplanation">
       <ul></ul>
     </div>
+    <p>
+    <%= f.hidden_field :issue_id %>
+    <%= f.hidden_field :spent_on %>
+    <span id="spent-on-day"></day> Day
+    </p>
     <p>
     <%= f.text_field :hours, :size => 6, :required => true %>
     <%= f.label :hours %>
@@ -20,4 +24,3 @@
     </p>
   <% end %>
 </div>
-

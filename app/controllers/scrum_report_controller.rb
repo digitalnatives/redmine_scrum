@@ -5,7 +5,11 @@ class ScrumReportController < ApplicationController
   before_filter :find_version
 
   def index
-    Redmine::Plugin.mirror_assets(:redmine_scrum) if Rails.env.development? && Redmine::Plugin.method_defined?(:mirror_assets)
+      if Redmine::Plugin.method_defined?(:mirror_assets)
+      Redmine::Plugin.mirror_assets(:redmine_scrum)
+    else
+      FileUtils.cp('/home/boni/public_html/redmine-1.4/vendor/plugins/redmine_scrum/assets/javascripts/time_entry.js','/home/boni/public_html/redmine-1.4/public/plugin_assets/redmine_scrum/javascripts/')
+    end
 
     @report = RS::ScrumReporter.new(@project, @version)
     respond_to do |format|

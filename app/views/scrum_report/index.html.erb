@@ -30,13 +30,13 @@
         <th rowspan="2">Assignee</th>
         <th rowspan="2">Status</th>
         <th rowspan="2">Estimated</th>
-        <% @days.each do |day| %>
+        <% @report.days.each do |day| %>
           <th class="period" colspan="2"><%= day.to_s %></th>
         <% end %>
         <th colspan="2">Total</th>
       </tr>
       <tr>
-        <% @days.each do |day| %>
+        <% @report.days.each do |day| %>
           <th>&sum;</th>
           <th>R</th>
         <% end %>
@@ -45,12 +45,12 @@
       </tr>
     </thead>
     <tbody>
-      <% @issues.group_by(&:parent_id).each do |parent, tasks| %>
+      <% @report.issues.group_by(&:parent_id).each do |parent, tasks| %>
         <tr class="subtotal <%= cycle 'odd', 'even' %>">
           <% user_story = Issue.find_by_id(parent) %> 
           <td colspan="4"><%= link_to user_story.subject, issue_path(user_story.id) if user_story.present? %></td>
           <td class="hours"><%= html_hours("%.2f" % tasks.sum(&:estimated_hours)) %></td>
-          <% @days.each do |day| %>
+          <% @report.days.each do |day| %>
             <% story_total = tasks.map(&:time_entries).flatten.select{ |te| te.spent_on == day}.map(&:hours).sum %>
             <td class="hours"><%= html_hours("%.2f" % story_total ) if story_total > 0 %></td>
             <td class="hours"></td>
@@ -65,7 +65,7 @@
             <td><%= task.assigned_to %></td>
             <td><%= task.status %></td>
             <td class="hours"><%= html_hours("%.2f" % task.estimated_hours) %></td>
-            <% @days.each do |day| %>
+            <% @report.days.each do |day| %>
               <% time_entries = task.time_entries.select{ |te| te.spent_on == day } %>
               <% hours = time_entries.compact.sum(&:hours) %>
               <% remaining_hours = time_entries.last.te_remaining_hours if time_entries.present? %>
@@ -79,16 +79,16 @@
       <% end %>
       <tr class="total">
         <td colspan="4">Total</td>
-        <td class="hours"><%= html_hours("%.2f" % @issues.sum(&:estimated_hours)) %></td>
-        <% @days.each do |day| %>
-          <% day_time_entries = @issues.map(&:time_entries).flatten.select{ |te| te.spent_on == day} %>
+        <td class="hours"><%= html_hours("%.2f" % @report.issues.sum(&:estimated_hours)) %></td>
+        <% @report.days.each do |day| %>
+          <% day_time_entries = @report.issues.map(&:time_entries).flatten.select{ |te| te.spent_on == day} %>
           <% daily_total = day_time_entries.map(&:hours).sum %>
           <% daily_total_remain = day_time_entries.map(&:te_remaining_hours).compact.sum %>
           <td class="hours"><%= html_hours("%.2f" % daily_total ) if daily_total > 0 %></td>
           <td class="hours"><%= html_hours("%.2f" % daily_total_remain ) if daily_total_remain > 0 %></td>
         <% end %>
-        <td class="hours"><%= html_hours("%.2f" % @issues.map(&:spent_time).compact.sum) %></td>
-        <td class="hours"><%= html_hours("%.2f" % @issues.sum(&:remaining_hours)) %></td>
+        <td class="hours"><%= html_hours("%.2f" % @report.issues.map(&:spent_time).compact.sum) %></td>
+        <td class="hours"><%= html_hours("%.2f" % @report.issues.sum(&:remaining_hours)) %></td>
       </tr>
     </tbody>
   </table>

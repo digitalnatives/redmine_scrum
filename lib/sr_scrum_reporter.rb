@@ -1,8 +1,8 @@
 module SR
   class ScrumReporter
-    attr_reader :criteria, :columns, :from, :to, :hours, :total_hours, :periods
+    attr_reader :issues, :days, :criteria, :columns, :from, :to, :hours, :total_hours, :periods
 
-    def initialize(project, version, from, to)
+    def initialize(project, version)
       @project = project
       @version = version
 
@@ -15,7 +15,7 @@ module SR
       @from = from
       @to = to
 
-      run
+      run2
     end
 
     def available_criteria
@@ -23,6 +23,59 @@ module SR
     end
 
     private
+
+    def run2
+      default_conditions
+      if @version
+        @from = @version.try(:sprint_start_date) || @version.try(:created_on)
+        @to = @version.effective_date
+        #@issues = @issues.where(:time_entries => { :spent_on => @from..@to }) if @from && @to
+        #@issues = @issues.where(:fixed_version_id => @version.id)
+        if @from && @to
+          @conditions += " AND time_entries.spent_on BETWEEN :from AND :to"
+          @conditions += " AND issues.fixed_version_id = :version_id"
+          @condition_vars.merge!({ 
+            :from => @from,
+            :to => @to,
+            :version_id => @version.id 
+          })
+        end
+      end
+
+      @issues = Issue.all(:select => "issues.id, 
+                           issues.parent_id,
+                           issues.status_id, 
+                           issues.subject, 
+                           issues.remaining_hours, 
+                           issues.estimated_hours, 
+                           issues.assigned_to_id,
+                           sum(time_entries.hours) AS spent_time,
+                           min(time_entries.spent_on) AS first_time_entry,
+                           max(time_entries.spent_on) AS last_time_entry",
+                           :joins => "LEFT JOIN time_entries ON (time_entries.issue_id = issues.id)",
+                           :include => [ :status, :assigned_to ],
+                           :conditions => [ @conditions, @condition_vars ],
+                           :group => 'issues.id',
+                           :order => 'issues.parent_id DESC, issues.id ASC')
+
+      unless @version 
+         @from = @issues.map(&:first_time_entry).compact.min || Date.today
+         @to = @issues.map(&:last_time_entry).compact.max || Date.today
+       end
+
+      @days = (@from..@to)
+    end
+
+
+    def default_conditions
+      @conditions = "issues.project_id = :project_id 
+                  AND issues.tracker_id = :tracker_id
+                  AND issues.estimated_hours IS NOT NULL"
+      @condition_vars = { 
+        :project_id => @project.id,
+        :tracker_id => RbTask.tracker
+      }
+    end
 
     def run
       unless @criteria.empty?

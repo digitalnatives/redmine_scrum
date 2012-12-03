@@ -36,22 +36,43 @@ jQuery(function($) {
   }
 
   TE.handleSuccess = function(data) {
-    var hours = TE.hoursField.val().split('.')
-    var remain = TE.remainingHoursField.val().split('.');
+    var hours = TE.hoursField.val();
+    var remain = TE.remainingHoursField.val();
+    var taskSpent = TE.cell.siblings().last().prev();
+    // Because of colspan
+    var dailySpent = $(TE.cell.closest('table').find('tr:last').children()[TE.cell.index() - 3]);
+    var totalSpent = TE.cell.closest('table').find('tr:last').find('td:last').prev();
+    if(TE.cell.data().teValues.length == 2) {
+      TE.cell.data().teValues = [ hours, remain ];
+    } else {
+      TE.cell.data().teValues.push(hours, remain);
+    } 
     TE.updateCell(TE.cell, hours);
     TE.updateCell(TE.cell.next(), remain);
+    TE.updateSumCell(taskSpent, hours);
+    TE.updateSumCell(dailySpent, hours);
+    TE.updateSumCell(totalSpent, hours);
     $('#time-entry-dialog').dialog('close');
   }
 
   TE.updateCell = function(cell, value) {
     cell.html('');
-    cell.data().
-    cell.append($('<span class="hours hours-int">').text(value[0]));
-    cell.append($('<span class="hours hours-dec">').text('.' + value[1]));
+    value = value.split('.');
+    var hourInt = typeof(value[0]) == "undefined" ? 0 : value[0];
+    var hourDec = typeof(value[1]) == "undefined" ? 0 : value[1];
+    cell.append($('<span class="hours hours-int">').text(hourInt));
+    cell.append($('<span class="hours hours-dec">').text('.' + hourDec));
+  }
+
+  TE.updateSumCell = function(cell, hours) {
+    cell.data().sum = cell.data().sum - TE.prevHours + parseFloat(hours);
+    TE.updateCell(cell, cell.data().sum.toString());
   }
 
   TE.formEdit = function(obj){
     this.id = obj.ids[0]
+    this.prevHours = obj.values[0]
+    this.prevReaminingHours = obj.values[1]
     this.form.attr('action', '/scrum_report_time_entries/' + this.id);
     this.form.prepend(
         $('<input>')

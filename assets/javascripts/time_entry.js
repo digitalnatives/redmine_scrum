@@ -38,28 +38,33 @@ jQuery(function($) {
   TE.handleSuccess = function(data) {
     var hours = TE.hoursField.val();
     var remain = TE.remainingHoursField.val();
+
     var taskSpent = TE.cell.siblings().last().prev();
     // Because of colspan
     var dailySpent = $(TE.cell.closest('table').find('tr:last').children()[TE.cell.index() - 3]);
     var totalSpent = TE.cell.closest('table').find('tr:last').find('td:last').prev();
+
     if(TE.cell.data().teValues.length == 2) {
       TE.cell.data().teValues = [ hours, remain ];
     } else {
       TE.cell.data().teValues.push(hours, remain);
     } 
+
     TE.updateCell(TE.cell, hours);
     TE.updateCell(TE.cell.next(), remain);
     TE.updateSumCell(taskSpent, hours);
     TE.updateSumCell(dailySpent, hours);
     TE.updateSumCell(totalSpent, hours);
+
     $('#time-entry-dialog').dialog('close');
   }
 
   TE.updateCell = function(cell, value) {
-    cell.html('');
     value = value.split('.');
     var hourInt = typeof(value[0]) == "undefined" ? 0 : value[0];
     var hourDec = typeof(value[1]) == "undefined" ? 0 : value[1];
+
+    cell.html('');
     cell.append($('<span class="hours hours-int">').text(hourInt));
     cell.append($('<span class="hours hours-dec">').text('.' + hourDec));
   }
@@ -90,7 +95,7 @@ jQuery(function($) {
     this.issueIdField.val(obj.issueId);
   }
 
-  TE.load = function(el) {
+  TE.open = function(el) {
     if (typeof ids !== "undefined" && ids !== null) return;
     TE.errorExplanation.parent().hide();
 
@@ -124,9 +129,7 @@ jQuery(function($) {
     }
 
     $('.ui-dialog-title').text(this.taskSubject);
-
   }
-
 
   $('#time-entry-dialog').dialog({
     autoOpen: false,
@@ -144,8 +147,8 @@ jQuery(function($) {
     }
   });
 
-  $('.time-entry').click(function() {
-    TE.load(this);
+  $('#time-report').delegate(".time-entry", "click", function() {
+    TE.open(this);
     $('#time-entry-dialog').dialog("open");
   });
 })

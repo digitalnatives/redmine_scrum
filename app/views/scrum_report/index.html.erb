@@ -47,6 +47,7 @@
       </tr>
     </thead>
     <tbody>
+      <% tes = [] %>
       <% @report.issues.group_by(&:parent_id).each do |parent, tasks| %>
         <tr class="subtotal <%= cycle 'odd', 'even' %>">
           <% user_story = Issue.find_by_id(parent) %> 

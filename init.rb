@@ -4,7 +4,8 @@ if Rails::VERSION::MAJOR < 3
 else
   Rails.configuration
 end.to_prepare do
-  require_dependency 'sr_scrum_reporter'
+  require_dependency 'rs_scrum_reporter'
+  require_dependency 'rs_issue_patch'
   require_dependency 'redmine_scrum_hooks'
 end
 

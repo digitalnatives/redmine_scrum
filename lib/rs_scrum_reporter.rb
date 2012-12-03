@@ -1,4 +1,4 @@
-module SR
+module RS 
   class ScrumReporter
     attr_reader :issues, :days, :criteria, :columns, :from, :to, :hours, :total_hours, :periods
 
@@ -29,8 +29,6 @@ module SR
       if @version
         @from = @version.try(:sprint_start_date) || @version.try(:created_on)
         @to = @version.effective_date
-        #@issues = @issues.where(:time_entries => { :spent_on => @from..@to }) if @from && @to
-        #@issues = @issues.where(:fixed_version_id => @version.id)
         if @from && @to
           @conditions += " AND time_entries.spent_on BETWEEN :from AND :to"
           @conditions += " AND issues.fixed_version_id = :version_id"

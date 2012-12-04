@@ -14,11 +14,14 @@ jQuery(function($) {
   TE.form
   .bind("submit", function(evt) {
     $.post(evt.target.action, $(evt.target).serialize())
-    .success(function(xhr, status, data) { 
-      TE.handleSuccess(data);
+    .success(function(data, status, xhr) { 
+      TE.handleSuccess(xhr);
     })
-    .error(function(data, xhr, status) {
-      TE.handleErrors($.parseJSON(data.responseText));
+    .error(function(xhr, status, error) {
+      TE.handleErrors($.parseJSON(xhr.responseText));
+    })
+    .complete(function() {
+      $('.rsindicator').removeClass('rssaving');
     });
     evt.preventDefault();
   })
@@ -134,9 +137,11 @@ jQuery(function($) {
   $('#time-entry-dialog').dialog({
     autoOpen: false,
     modal: true,
+    width: 320,
     buttons: {
       "Save": function() {
-        TE.form[0].submit();
+        $('.rsindicator').addClass('rssaving');
+        TE.form.trigger('submit');
       },
       "Cancel": function() {
         $(this).dialog("close");

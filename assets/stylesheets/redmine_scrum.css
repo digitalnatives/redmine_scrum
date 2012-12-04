@@ -1,0 +1,24 @@
+.rsindicator {
+  background-color: #FFFFFF;
+  background-position: center center;
+  background-repeat: no-repeat;
+  border: 2px solid #000000;
+  border-radius: 12px 12px 12px 12px;
+  display: none;
+  height: 16px;
+  left: 150px;
+  padding: 2px;
+  position: absolute;
+  top: 51px;
+  width: 16px;
+}
+.rssaving {
+  background-image: url("images/indicator.gif");
+  display: block;
+}
+.rserror {
+  background-image: url("images/warning.png");
+  background-position: 2px 0;
+  border-color: #CC0000;
+  display: block;
+}

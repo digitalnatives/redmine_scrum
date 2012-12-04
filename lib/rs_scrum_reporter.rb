@@ -53,8 +53,8 @@ module RS
     end
 
     def set_up_day_range
-      first_time_entry = Date.parse(@issues.map(&:first_time_entry).compact.min)
-      last_time_entry= Date.parse(@issues.map(&:last_time_entry).compact.max)
+      first_time_entry = @issues.map(&:first_time_entry).compact.min
+      last_time_entry= @issues.map(&:last_time_entry).compact.max
 
       unless @version 
         sprint_start = @project.versions.min_by(&:sprint_start_date).try(:sprint_start_date)

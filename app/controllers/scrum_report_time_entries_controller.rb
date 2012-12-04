@@ -22,6 +22,7 @@ class ScrumReportTimeEntriesController < ApplicationController
   def create
     @time_entry = TimeEntry.new(params[:time_entry])
     @time_entry.user = @time_entry.issue.assigned_to 
+    @time_entry.project = @time_entry.issue.project
 
     if @time_entry.editable_by?(User.current) && @time_entry.save
       update_issue(@time_entry.issue)

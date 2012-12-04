@@ -6,7 +6,7 @@ class ScrumReportTimeEntriesController < ApplicationController
     params[:time_entry].delete(:activity_id) if params[:time_entry][:activity_id].blank?
     params[:time_entry].delete(:issue_id)
 
-    if @time_entry.update_attributes(params[:time_entry])
+    if @time_entry.editable_by?(User.current) && @time_entry.update_attributes(params[:time_entry])
       update_issue(@time_entry.issue)
       render :json => {
         :entry => @time_entry.to_json(:only => [:id], :include => { :issue => { :only => :remaining_hours } }),
@@ -23,7 +23,7 @@ class ScrumReportTimeEntriesController < ApplicationController
     @time_entry = TimeEntry.new(params[:time_entry])
     @time_entry.user = @time_entry.issue.assigned_to 
 
-    if @time_entry.save
+    if @time_entry.editable_by?(User.current) && @time_entry.save
       update_issue(@time_entry.issue)
       render :json => {
         :entry => @time_entry.to_json(:only => [:id], :include => { :issue => { :only => :remaining_hours } }),

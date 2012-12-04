@@ -34,9 +34,9 @@ module RedmineScrumPlugin
         if issue.is_task? && User.current.allowed_to?(:te_remaining_hours, time_entry.project) != nil
           if params["te_remaining_hours"].present? 
             time_entry.te_remaining_hours = params[:te_remaining_hours].gsub(',','.').to_f
-            remaining_hours = params[:te_remaining_hours].gsub(',','.').to_f
-            if remaining_hours != issue.remaining_hours && (issue.time_entries.blank? || issue.time_entries.sort_by{ |te| te.spent_on }.last == time_entry)
-              issue.journalized_update_attribute(:remaining_hours, remaining_hours) if time_entry.save
+            temp_remaining_hours = params[:te_remaining_hours].gsub(',','.').to_f
+            if temp_remaining_hours != issue.remaining_hours && (issue.time_entries.blank? || issue.time_entries.sort_by{ |te| te.spent_on }.last == time_entry)
+              issue.journalized_update_attribute(:remaining_hours, temp_remaining_hours) if time_entry.save
             end
           end
         end

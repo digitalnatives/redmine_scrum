@@ -89,7 +89,7 @@
               <td class="hours time-entry period-end" data-te-type="remaining"><%= html_hours("%.2f" % te_remaining_hours) if te_remaining_hours.present? %></td>
             <% end %>
             <td class="hours" data-sum="<%= task.spent_time %>"><%= html_hours("%.2f" % task.spent_time ) if task.spent_time.to_f > 0 %></td>
-            <td class="hours"><%= html_hours("%.2f" % task.remaining_hours) if task.remaining_hours > 0 %></td>
+            <td class="hours" data-sum="<%= task.remaining_hours %>"><%= html_hours("%.2f" % task.remaining_hours) if task.remaining_hours > 0 %></td>
           </tr>
         <% end %>
       <% end %>
@@ -101,7 +101,7 @@
           <% daily_total = day_time_entries.map(&:hours).sum %>
           <% daily_total_remain = day_time_entries.map(&:te_remaining_hours).compact.sum %>
           <td class="hours" data-sum="<%= daily_total %>"><%= html_hours("%.2f" % daily_total ) if daily_total > 0 %></td>
-          <td class="hours period-end"><%= html_hours("%.2f" % daily_total_remain ) if daily_total_remain > 0 %></td>
+          <td class="hours period-end" data-sum="<%= daily_total_remain%>"><%= html_hours("%.2f" % daily_total_remain ) if daily_total_remain > 0 %></td>
         <% end %>
         <td class="hours" data-sum="<%= @report.issues.map(&:spent_time).compact.sum %>"><%= html_hours("%.2f" % @report.issues.map(&:spent_time).compact.sum) %></td>
         <td class="hours"><%= html_hours("%.2f" % @report.issues.sum(&:remaining_hours)) %></td>

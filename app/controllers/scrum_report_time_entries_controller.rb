@@ -8,7 +8,7 @@ class ScrumReportTimeEntriesController < ApplicationController
 
     if @time_entry.update_attributes(params[:time_entry])
       #update_issue(@time_entry.issue)
-      render :json => @time_entry
+      render :json => @time_entry.as_json(:only => [:id], :include => { :issue => { :only => :remaining_hours } })
     else
       render :json => {
         :errors => @time_entry.errors,
@@ -22,7 +22,7 @@ class ScrumReportTimeEntriesController < ApplicationController
 
     if @time_entry.save
       #update_issue(@time_entry.issue)
-      render :json => @time_entry
+      render :json => @time_entry.to_json(:only => [:id], :include => { :issue => { :only => :remaining_hours } })
     else
       render :json => {
         :errors => @time_entry.errors,

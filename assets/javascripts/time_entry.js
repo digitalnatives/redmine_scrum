@@ -40,18 +40,13 @@ jQuery(function($) {
     var hours = TE.hoursField.val();
     var remain = TE.remainingHoursField.val();
 
-    TE.taskSpentCell = TE.cell.siblings().last().prev();
-    // Because of colspan
-    TE.dailySpentCell = $(TE.cell.closest('table').find('tr:last').children()[TE.cell.index() - 3]);
-    TE.totalSpentCell = TE.cell.closest('table').find('tr:last').find('td:last').prev();
-
     // data entry update
     TE.cell.data().teId = serverObj.id
     TE.cell.data().teHours = hours;
     TE.cell.data().teRemain = remain;
 
-    TE.updateTimeEntryCell(TE.cell, hours, remain);
-    TE.updateSumHourCells(hours);
+    TE.updateTimeEntryCell(hours, remain);
+    TE.updateSumCells(hours, remain, serverObj.issue.remaining_hours);
 
     $('#time-entry-dialog').dialog('close');
   }
@@ -66,30 +61,33 @@ jQuery(function($) {
     cell.append($('<span class="hours hours-dec">').text('.' + hourDec));
   }
 
-  TE.updateSumCell = function(cell, hours) {
-    cell.data().sum = cell.data().sum - TE.prevHours + parseFloat(hours);
+  TE.updateSumCell = function(cell, prevValue, value) {
+    cell.data().sum = cell.data().sum - prevValue + parseFloat(value);
     TE.updateCell(cell, cell.data().sum.toString());
   }
 
-  TE.updateTimeEntryCell = function(cell, hours, remain) {
-    cell.data().teSumHours = TE.sumHours - TE.prevHours + parseFloat(hours)
-    cell.data().teSumRemain = TE.sumRemain - TE.prevRemain + parseFloat(remain)
-    TE.updateCell(cell, cell.data().teSumHours.toString());
-    TE.updateCell(cell.next(), cell.data().teSumRemain.toString());
+  TE.updateTimeEntryCell = function(hours, remain) {
+    TE.cell.data().teSumHours = TE.sumHours - TE.prevHours + parseFloat(hours)
+    TE.cell.data().teSumRemain = TE.sumRemain - TE.prevRemain + parseFloat(remain)
+    TE.updateCell(TE.cell, TE.cell.data().teSumHours.toString());
+    TE.updateCell(TE.cell.next(), TE.cell.data().teSumRemain.toString());
   }
 
-  TE.updateSumHourCells = function(hours) {
-    // sum hours cells update
-    TE.updateSumCell(TE.taskSpentCell, hours);
-    TE.updateSumCell(TE.dailySpentCell, hours);
-    TE.updateSumCell(TE.totalSpentCell, hours);
-  }
+  TE.updateSumCells = function(hours, remain, taskRemain) {
+    var taskSpentCell = TE.cell.siblings().last().prev();
+    // Because of colspan
+    var dailySpentCell = $(TE.cell.closest('table').find('tr:last').children()[TE.cell.index() - 3]);
+    var totalSpentCell = TE.cell.closest('table').find('tr:last').find('td:last').prev();
 
-  TE.updateSumRemainCells = function(remain) {
-    // sum hours cells update
-    TE.updateSumCell(TE.taskSpentCell, remain);
-    TE.updateSumCell(TE.dailySpentCell, remain);
-    TE.updateSumCell(TE.totalSpentCell, remain);
+    //sum hours
+    TE.updateSumCell(taskSpentCell, TE.prevHours, hours);
+    TE.updateSumCell(dailySpentCell, TE.prevHours, hours);
+    TE.updateSumCell(totalSpentCell, TE.prevHours, hours);
+
+    //sum remaining
+    TE.updateCell(taskSpentCell.next(), taskRemain.toString());
+    TE.updateSumCell(dailySpentCell.next(), TE.prevRemain, remain);
+    //TE.updateSumCell(totalSpentCell.next(), remain);
   }
 
   TE.formEdit = function(){

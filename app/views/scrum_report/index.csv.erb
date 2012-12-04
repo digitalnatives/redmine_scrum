@@ -6,7 +6,8 @@
     user_story = Issue.find_by_id(parent)
     row = [ (user_story.present? ? user_story.subject : ''), '', '', '', tasks.sum(&:estimated_hours) ]
     @report.days.each do |day|
-      row << tasks.map(&:time_entries).flatten.select{ |te| te.spent_on == day}.map(&:hours).sum 
+      tasks_day_hours = tasks.map(&:time_entries).flatten.select{ |te| te.spent_on == day}.map(&:hours).sum 
+      row << (tasks_day_hours > 0 ?  tasks_day_hours : '')
     end
     row << tasks.map(&:spent_time).compact.sum
     row << tasks.map(&:remaining_hours).sum
@@ -15,9 +16,10 @@
     tasks.each do |task| 
       row = [ '', task.subject, task.assigned_to, task.status, task.estimated_hours ]
       @report.days.each do |day|
-        row << task.time_entries.select{ |te| te.spent_on == day }.compact.sum(&:hours)
+        task_day_hours = task.time_entries.select{ |te| te.spent_on == day }.compact.sum(&:hours)
+        row << (task_day_hours > 0 ?  task_day_hours : '')
       end
-      row << task.spent_time
+      row << (task.spent_time.to_f > 0 ? task.spent_time : '')
       row << task.remaining_hours
       csv << row
     end
@@ -25,11 +27,12 @@
   # totals
   row = [ 'Total', '', '', '', '' ]
   @report.days.each do |day|
-    row << daily_total = @report.issues.map(&:time_entries).flatten.select{ |te| te.spent_on == day}.map(&:hours).sum
+    daily_total = @report.issues.map(&:time_entries).flatten.select{ |te| te.spent_on == day}.map(&:hours).sum
     total_spent_hours += daily_total
+    row << (daily_total > 0 ? daily_total : '')
   end
-  row << @report.issues.sum(&:estimated_hours)
-  row << total_spent_hours
+  row << (total_spent_hours > 0 ? total_spent_hours : '')
+  row << @report.issues.sum(&:remaining_hours)
   csv << row
 end.html_safe %>
 

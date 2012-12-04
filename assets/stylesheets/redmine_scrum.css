@@ -22,3 +22,26 @@
   border-color: #CC0000;
   display: block;
 }
+
+.period-end {
+    border-right: 1px solid #000;
+}
+
+td.time-entry:hover {
+  background-color: #759fcf;
+} 
+
+#time-entry-dialog label {
+  width: 120px;
+  float: left
+}
+
+#time-entry-dialog input, #time-entry-dialog span {
+  width: 120px;
+  float: left
+}
+#time-entry-dialog p {
+  clear: both;
+  width: 300px;
+  padding: 8px 0;
+}

@@ -2,7 +2,8 @@ var TE = {}
 
 jQuery(function($) {
 
-  TE.spentOnDay = $('#spent-on-day');
+  TE.spentOnDaySpan = $('#spent-on-day');
+  TE.assigneeSpan = $('#assignee');
   TE.issueIdField = $('#time_entry_issue_id');
   TE.hoursField = $('#time_entry_hours');
   TE.remainingHoursField = $('#time_entry_te_remaining_hours');
@@ -14,10 +15,10 @@ jQuery(function($) {
   TE.form
   .bind("submit", function(evt) {
     $.post(evt.target.action, $(evt.target).serialize())
-    .success(function(data, status, xhr) { 
+    .success(function(data, returnStatus, xhr) { 
       TE.handleSuccess(xhr);
     })
-    .error(function(xhr, status, error) {
+    .error(function(xhr, returnStatus, error) {
       TE.handleErrors($.parseJSON(xhr.responseText));
     })
     .complete(function() {
@@ -28,12 +29,8 @@ jQuery(function($) {
 
   TE.handleErrors = function(data) {
     TE.errorExplanation.html('');
-    for(var prop in data.errors) {
-      if(data.errors.hasOwnProperty(prop)) {
-        TE.errorExplanation.append(
-          $('<li>').text(prop + ': ' + data.errors[prop][0])
-          );
-      }
+    for(var i = 0; i < data.errors.length; i++) {
+      TE.errorExplanation.append($('<li>').text(data.errors[i][0] + ': ' + data.errors[i][1]));
     }
     TE.errorExplanation.parent().show();
   }
@@ -116,7 +113,9 @@ jQuery(function($) {
     timeEntry.issueId = this.cell.data().teTaskId;
 
     this.spentOnField.val(timeEntry.spentOn);
-    this.spentOnDay.html(timeEntry.spentOn);
+    this.spentOnDaySpan.text(timeEntry.spentOn);
+    this.assigneeSpan.text($(el).siblings(':eq(2)').text());
+    $('.ui-dialog-title').text(this.taskSubject);
 
     this.form.find('input[name=_method]').remove();
     switch(timeEntry.ids.length){
@@ -131,7 +130,7 @@ jQuery(function($) {
       console.log(el);
     }
 
-    $('.ui-dialog-title').text(this.taskSubject);
+
   }
 
   $('#time-entry-dialog').dialog({

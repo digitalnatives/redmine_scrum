@@ -4,20 +4,26 @@
       <ul></ul>
     </div>
     <p>
-    <%= f.hidden_field :issue_id %>
-    <%= f.hidden_field :spent_on %>
-    <span id="spent-on-day"></day> Day
+     <%= f.hidden_field :issue_id %>
+     <%= f.hidden_field :spent_on %>
+     <label>Day:</label>
+     <span id="spent-on-day"></span>
     </p>
     <p>
-    <%= f.text_field :hours, :size => 6, :required => true %>
-    <%= f.label :hours %>
+      <label>Assignee:</label>
+      <span id="assignee"></span>
     </p>
     <p>
-    <%= f.text_field :te_remaining_hours, :size => 6 %>
-    <%= f.label :te_remaining_hours %>
+      <%= f.label :hours %>
+      <%= f.text_field :hours, :size => 6, :required => true %>
     </p>
-    <p><%= f.select :activity_id, activity_collection_for_select_options(@time_entry), :required => true %>
-    <%= f.label :te_remaining_hours %>
+    <p>
+      <%= f.label :te_remaining_hours %>
+      <%= f.text_field :te_remaining_hours, :size => 6 %>
+    </p>
+    <p>
+     <%= f.label :te_remaining_hours %>
+     <%= f.select :activity_id, activity_collection_for_select_options(@time_entry), :required => true %>
     </p>
   <% end %>
   <div class="rsindicator"> </div>

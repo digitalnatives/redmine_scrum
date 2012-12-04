@@ -33,7 +33,7 @@ class ScrumReportController < ApplicationController
     if Redmine::Plugin.method_defined?(:mirror_assets)
       Redmine::Plugin.mirror_assets(:redmine_scrum)
     else
-      FileUtils.cp("#{Rails.root}/vendor/plugins/redmine_scrum/assets/javascripts/time_entry.js","#{Rails.root}/public/plugin_assets/redmine_scrum/javascripts/")
+      FileUtils.cp_r("#{Rails.root}/vendor/plugins/redmine_scrum/assets/.","#{Rails.root}/public/plugin_assets/redmine_scrum")
     end
   end
 

@@ -1,0 +1,35 @@
+"User Story", "Issue", "Assigne", "Status", "Estimated", <%= @report.days.to_a.join(',') %>, "Total Spent", "Total Remaining"
+<%= FCSV.generate do |csv|
+  total_spent_hours = 0
+  # subtotals by versions
+  @report.issues.group_by(&:parent_id).each do |parent, tasks|
+    user_story = Issue.find_by_id(parent)
+    row = [ (user_story.present? ? user_story.subject : ''), '', '', '', tasks.sum(&:estimated_hours) ]
+    @report.days.each do |day|
+      row << tasks.map(&:time_entries).flatten.select{ |te| te.spent_on == day}.map(&:hours).sum 
+    end
+    row << tasks.map(&:spent_time).compact.sum
+    row << tasks.map(&:remaining_hours).sum
+    csv << row
+    # issues hours
+    tasks.each do |task| 
+      row = [ '', task.subject, task.assigned_to, task.status, task.estimated_hours ]
+      @report.days.each do |day|
+        row << task.time_entries.select{ |te| te.spent_on == day }.compact.sum(&:hours)
+      end
+      row << task.spent_time
+      row << task.remaining_hours
+      csv << row
+    end
+  end
+  # totals
+  row = [ 'Total', '', '', '', '' ]
+  @report.days.each do |day|
+    row << daily_total = @report.issues.map(&:time_entries).flatten.select{ |te| te.spent_on == day}.map(&:hours).sum
+    total_spent_hours += daily_total
+  end
+  row << @report.issues.sum(&:estimated_hours)
+  row << total_spent_hours
+  csv << row
+end.html_safe %>
+

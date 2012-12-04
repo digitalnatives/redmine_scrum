@@ -1,6 +1,6 @@
 module RS 
   class ScrumReporter
-    attr_reader :issues, :days
+    attr_reader :issues, :days, :csv_days
 
     def initialize(project, version)
       @project = project
@@ -24,7 +24,7 @@ module RS
           :version_id => @version.id 
         })
       end
-@issues = Issue.all(:select => "issues.id, 
+      @issues = Issue.all(:select => "issues.id, 
                            issues.parent_id,
                            issues.status_id, 
                            issues.subject, 
@@ -86,6 +86,7 @@ module RS
        end
 
       @days = (@from..@to)
+      @csv_days = @days.inject([]){ |days, day| days.push(day, day) }
     end
 
   end

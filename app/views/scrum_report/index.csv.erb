@@ -1,13 +1,16 @@
-"User Story", "Issue", "Assigne", "Status", "Estimated", <%= @report.days.to_a.join(',') %>, "Total Spent", "Total Remaining"
+"User Story", "Issue", "Assigne", "Status", "Estimated", <%= @report.csv_days.join(',') %>, "Total Spent", "Total Remaining"
 <%= FCSV.generate do |csv|
   total_spent_hours = 0
   # subtotals by versions
   @report.issues.group_by(&:parent_id).each do |parent, tasks|
     user_story = Issue.find_by_id(parent)
     row = [ (user_story.present? ? user_story.subject : ''), '', '', '', tasks.sum(&:estimated_hours) ]
-    @report.days.each do |day|
-      tasks_day_hours = tasks.map(&:time_entries).flatten.select{ |te| te.spent_on == day}.map(&:hours).sum 
+    @report.csv_days.each_slice(2) do |day|
+      story_time_entries = tasks.map(&:time_entries).flatten.select{ |te| te.spent_on == day.first}
+      tasks_day_hours = story_time_entries.sum(&:hours)
+      tasks_day_remain = story_time_entries.sum(&:te_remaining_hours)
       row << (tasks_day_hours > 0 ?  tasks_day_hours : '')
+      row << (tasks_day_remain > 0 ?  tasks_day_remain : '')
     end
     row << tasks.map(&:spent_time).compact.sum
     row << tasks.map(&:remaining_hours).sum
@@ -15,9 +18,12 @@
     # issues hours
     tasks.each do |task| 
       row = [ '', task.subject, task.assigned_to, task.status, task.estimated_hours ]
-      @report.days.each do |day|
-        task_day_hours = task.time_entries.select{ |te| te.spent_on == day }.compact.sum(&:hours)
-        row << (task_day_hours > 0 ?  task_day_hours : '')
+      @report.csv_days.each_slice(2) do |day|
+        time_entries = task.time_entries.select{ |te| te.spent_on == day.first }.compact
+        hours = time_entries.sum(&:hours)
+        remain = time_entries.sum(&:te_remaining_hours)
+        row << (hours > 0 ?  hours : '')
+        row << (remain > 0 ? remain : '')
       end
       row << (task.spent_time.to_f > 0 ? task.spent_time : '')
       row << task.remaining_hours
@@ -27,10 +33,14 @@
   # totals
   row = [ 'Total', '', '', '' ]
   row << @report.issues.sum(&:estimated_hours)
-  @report.days.each do |day|
-    daily_total = @report.issues.map(&:time_entries).flatten.select{ |te| te.spent_on == day}.map(&:hours).sum
+  @report.csv_days.each_slice(2) do |day|
+    daily_entries = @report.issues.map(&:time_entries).flatten.select{ |te| te.spent_on == day.first}
+    daily_total = daily_entries.sum(&:hours)
+    daily_remain = daily_entries.sum(&:te_remaining_hours)
+
     total_spent_hours += daily_total
     row << (daily_total > 0 ? daily_total : '')
+    row << (daily_remain > 0 ? daily_remain : '')
   end
   row << (total_spent_hours > 0 ? total_spent_hours : '')
   row << @report.issues.sum(&:remaining_hours)

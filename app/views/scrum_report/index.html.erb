@@ -56,8 +56,9 @@
           <td class="hours period-end"><%= html_hours("%.2f" % tasks.sum(&:estimated_hours)) %></td>
           <% @report.days.each do |day| %>
             <% story_total = tasks.map(&:time_entries).flatten.select{ |te| te.spent_on == day}.map(&:hours).sum %>
+            <% story_remain = tasks.map(&:time_entries).flatten.select{ |te| te.spent_on == day}.map(&:te_remaining_hours).sum %>
             <td class="hours"><%= html_hours("%.2f" % story_total ) if story_total > 0 %></td>
-            <td class="hours period-end"></td>
+            <td class="hours period-end"><%= html_hours("%.2f" % story_remain ) if story_remain > 0 %></td>
           <% end %>
           <td class="hours"><%= html_hours("%.2f" % tasks.map(&:spent_time).compact.sum) %></td>
           <td class="hours"><%= html_hours("%.2f" % tasks.map(&:remaining_hours).sum) %></td>

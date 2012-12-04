@@ -105,7 +105,7 @@
           <td class="hours period-end" data-sum="<%= daily_total_remain%>"><%= html_hours("%.2f" % daily_total_remain ) if daily_total_remain > 0 %></td>
         <% end %>
         <td class="hours" data-sum="<%= @report.issues.map(&:spent_time).compact.sum %>"><%= html_hours("%.2f" % @report.issues.map(&:spent_time).compact.sum) %></td>
-        <td class="hours"><%= html_hours("%.2f" % @report.issues.sum(&:remaining_hours)) %></td>
+        <td class="hours" data-sum="<%= @report.issues.sum(&:remaining_hours) %>"><%= html_hours("%.2f" % @report.issues.sum(&:remaining_hours)) %></td>
       </tr>
     </tbody>
   </table>

@@ -47,7 +47,7 @@ jQuery(function($) {
     TE.cell.data().teRemain = remain;
 
     TE.updateTimeEntryCell(hours, remain);
-    TE.updateSumCells(hours, remain, entry.issue.remaining_hours, serverObj.last);
+    TE.updateSumCells(hours, remain, entry.issue.remaining_hours.toString(), serverObj.last);
 
     $('#time-entry-dialog').dialog('close');
   }
@@ -63,13 +63,13 @@ jQuery(function($) {
   }
 
   TE.updateSumCell = function(cell, prevValue, value) {
-    cell.data().sum = cell.data().sum - prevValue + parseFloat(value);
+    cell.data().sum = (cell.data().sum - prevValue + parseFloat(value)).toFixed(2);
     TE.updateCell(cell, cell.data().sum.toString());
   }
 
   TE.updateTimeEntryCell = function(hours, remain) {
-    TE.cell.data().teSumHours = TE.sumHours - TE.prevHours + parseFloat(hours)
-    TE.cell.data().teSumRemain = TE.sumRemain - TE.prevRemain + parseFloat(remain)
+    TE.cell.data().teSumHours = (TE.sumHours - TE.prevHours + parseFloat(hours)).toFixed(2);
+    TE.cell.data().teSumRemain = (TE.sumRemain - TE.prevRemain + parseFloat(remain)).toFixed(2);
     TE.updateCell(TE.cell, TE.cell.data().teSumHours.toString());
     TE.updateCell(TE.cell.next(), TE.cell.data().teSumRemain.toString());
   }
@@ -86,9 +86,9 @@ jQuery(function($) {
     TE.updateSumCell(totalSpentCell, TE.prevHours, hours);
 
     //sum remaining
-    if(last) TE.updateCell(taskSpentCell.next(), taskRemain.toString());
+    if(last) TE.updateCell(taskSpentCell.next(), taskRemain);
     TE.updateSumCell(dailySpentCell.next(), TE.prevRemain, remain);
-    //TE.updateSumCell(totalSpentCell.next(), remain);
+    if(last) TE.updateSumCell(totalSpentCell.next(), TE.prevRemain, taskRemain);
   }
 
   TE.formEdit = function(){

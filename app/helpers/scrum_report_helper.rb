@@ -1,14 +1,6 @@
 module ScrumReportHelper
 
-  def sum_te_remaining_hours(data)
-    sum = 0
-    data.each do |row|
-      sum += row['te_remaining_hours'].to_f
-    end
-    sum
-  end
-
-    # Returns a collection of activities for a select field.  time_entry
+  # Returns a collection of activities for a select field.  time_entry
   #   # is optional and will be used to check if the selected TimeEntryActivity
   #     # is active.
   def activity_collection_for_select_options(time_entry=nil, project=nil)

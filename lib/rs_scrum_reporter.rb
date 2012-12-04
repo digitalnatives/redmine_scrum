@@ -1,6 +1,6 @@
 module RS 
   class ScrumReporter
-    attr_reader :issues, :days, :csv_days
+    attr_reader :issues, :days
 
     def initialize(project, version)
       @project = project
@@ -12,6 +12,10 @@ module RS
 
     def available_criteria
       @available_criteria || load_available_criteria
+    end
+
+    def csv_days
+      @csv_days ||= @days.inject([]){ |days, day| days.push(day, day) }
     end
 
     private
@@ -55,17 +59,17 @@ module RS
       first_time_entry = @issues.map(&:first_time_entry).compact.min
       last_time_entry= @issues.map(&:last_time_entry).compact.max
 
+      from = []
+      to = []
       unless @version 
         sprint_start = @project.versions.min_by(&:sprint_start_date).try(:sprint_start_date)
         sprint_end = @project.versions.max_by(&:effective_date).try(:effective_date)
 
-        from = []
         from << first_time_entry if first_time_entry
         from << sprint_start if sprint_start
         @from = from.min
         from = [ @project.versions.min_by(&:created_on).try(:created_on).to_date, Date.today ].min unless @from.present?
 
-        to = []
         to << last_time_entry if last_time_entry
         to << sprint_end if sprint_end
         @to = to.max
@@ -74,19 +78,16 @@ module RS
         sprint_start = @version.try(:sprint_start_date)
         sprint_end = @version.try(:effective_date)
 
-        from = []
         from << sprint_start if sprint_start
         @from = from.min
         @form = [ @version.try(:created_on).to_date, Date.today ].min unless @from.present?
 
-        to = []
         to << sprint_end if sprint_end
         @to = to.max
         @to = [ @version.try(:created_on).to_date, Date.today].max unless @to.present?
        end
 
       @days = (@from..@to)
-      @csv_days = @days.inject([]){ |days, day| days.push(day, day) }
     end
 
   end

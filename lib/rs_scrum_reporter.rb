@@ -24,8 +24,7 @@ module RS
           :version_id => @version.id 
         })
       end
-
-      @issues = Issue.all(:select => "issues.id, 
+@issues = Issue.all(:select => "issues.id, 
                            issues.parent_id,
                            issues.status_id, 
                            issues.subject, 
@@ -58,27 +57,32 @@ module RS
 
       unless @version 
         sprint_start = @project.versions.min_by(&:sprint_start_date).try(:sprint_start_date)
-        sprint_end = @project.versions.min_by(&:sprint_start_date).try(:sprint_start_date)
+        sprint_end = @project.versions.max_by(&:effective_date).try(:effective_date)
 
-        from = [ @project.versions.min_by(&:created_on).try(:created_on).to_date, Date.today ]
+        from = []
         from << first_time_entry if first_time_entry
         from << sprint_start if sprint_start
         @from = from.min
+        from = [ @project.versions.min_by(&:created_on).try(:created_on).to_date, Date.today ].min unless @from.present?
 
-        to = [ @project.versions.max_by(&:created_on).try(:created_on).to_date, Date.today ]
+        to = []
         to << last_time_entry if last_time_entry
         to << sprint_end if sprint_end
         @to = to.max
+        @to = [ @project.versions.max_by(&:created_on).try(:created_on).to_date, Date.today].max unless @to.present?
       else
         sprint_start = @version.try(:sprint_start_date)
         sprint_end = @version.try(:effective_date)
-        from = [ @version.try(:created_on).to_date, Date.today ]
+
+        from = []
         from << sprint_start if sprint_start
         @from = from.min
+        @form = [ @version.try(:created_on).to_date, Date.today ].min unless @from.present?
 
-        to = [ @version.try(:created_on).to_date, Date.today ]
+        to = []
         to << sprint_end if sprint_end
         @to = to.max
+        @to = [ @version.try(:created_on).to_date, Date.today].max unless @to.present?
        end
 
       @days = (@from..@to)

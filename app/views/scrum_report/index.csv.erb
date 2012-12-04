@@ -25,7 +25,8 @@
     end
   end
   # totals
-  row = [ 'Total', '', '', '', '' ]
+  row = [ 'Total', '', '', '' ]
+  row << @report.issues.sum(&:estimated_hours)
   @report.days.each do |day|
     daily_total = @report.issues.map(&:time_entries).flatten.select{ |te| te.spent_on == day}.map(&:hours).sum
     total_spent_hours += daily_total

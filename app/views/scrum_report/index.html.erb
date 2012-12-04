@@ -32,7 +32,7 @@
         <th rowspan="2">Issue</th>
         <th rowspan="2">Assignee</th>
         <th rowspan="2">Status</th>
-        <th rowspan="2">Estimated</th>
+        <th rowspan="2" class="period-end">Estimated</th>
         <% @report.days.each do |day| %>
           <th class="period-end" colspan="2"><%= day.to_s %></th>
         <% end %>
@@ -53,7 +53,7 @@
         <tr class="subtotal <%= cycle 'odd', 'even' %>">
           <% user_story = Issue.find_by_id(parent) %> 
           <td colspan="4"><%= link_to user_story.subject, issue_path(user_story.id) if user_story.present? %></td>
-          <td class="hours"><%= html_hours("%.2f" % tasks.sum(&:estimated_hours)) %></td>
+          <td class="hours period-end"><%= html_hours("%.2f" % tasks.sum(&:estimated_hours)) %></td>
           <% @report.days.each do |day| %>
             <% story_total = tasks.map(&:time_entries).flatten.select{ |te| te.spent_on == day}.map(&:hours).sum %>
             <td class="hours"><%= html_hours("%.2f" % story_total ) if story_total > 0 %></td>
@@ -68,7 +68,7 @@
             <td><%= link_to task.subject, task %></td>
             <td><%= task.assigned_to %></td>
             <td><%= task.status %></td>
-            <td class="hours"><%= html_hours("%.2f" % task.estimated_hours) %></td>
+            <td class="hours period-end"><%= html_hours("%.2f" % task.estimated_hours) %></td>
             <% @report.days.each do |day| %>
               <% time_entries = task.time_entries.select{ |te| te.spent_on == day } %>
               <% hours = time_entries.compact.sum(&:hours) %>
@@ -95,7 +95,7 @@
       <% end %>
       <tr class="total">
         <td colspan="4">Total</td>
-        <td class="hours"><%= html_hours("%.2f" % @report.issues.sum(&:estimated_hours)) %></td>
+        <td class="hours period-end"><%= html_hours("%.2f" % @report.issues.sum(&:estimated_hours)) %></td>
         <% @report.days.each do |day| %>
           <% day_time_entries = @report.issues.map(&:time_entries).flatten.select{ |te| te.spent_on == day} %>
           <% daily_total = day_time_entries.map(&:hours).sum %>

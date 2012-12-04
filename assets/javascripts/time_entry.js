@@ -40,21 +40,18 @@ jQuery(function($) {
     var hours = TE.hoursField.val();
     var remain = TE.remainingHoursField.val();
 
-    var taskSpent = TE.cell.siblings().last().prev();
+    TE.taskSpentCell = TE.cell.siblings().last().prev();
     // Because of colspan
-    var dailySpent = $(TE.cell.closest('table').find('tr:last').children()[TE.cell.index() - 3]);
-    var totalSpent = TE.cell.closest('table').find('tr:last').find('td:last').prev();
+    TE.dailySpentCell = $(TE.cell.closest('table').find('tr:last').children()[TE.cell.index() - 3]);
+    TE.totalSpentCell = TE.cell.closest('table').find('tr:last').find('td:last').prev();
 
     // data entry update
     TE.cell.data().teId = serverObj.id
     TE.cell.data().teHours = hours;
     TE.cell.data().teRemain = remain;
-    // hours and remain cell update
+
     TE.updateTimeEntryCell(TE.cell, hours, remain);
-    // sum hours cells update
-    TE.updateSumCell(taskSpent, hours);
-    TE.updateSumCell(dailySpent, hours);
-    TE.updateSumCell(totalSpent, hours);
+    TE.updateSumHourCells(hours);
 
     $('#time-entry-dialog').dialog('close');
   }
@@ -79,6 +76,20 @@ jQuery(function($) {
     cell.data().teSumRemain = TE.sumRemain - TE.prevRemain + parseFloat(remain)
     TE.updateCell(cell, cell.data().teSumHours.toString());
     TE.updateCell(cell.next(), cell.data().teSumRemain.toString());
+  }
+
+  TE.updateSumHourCells = function(hours) {
+    // sum hours cells update
+    TE.updateSumCell(TE.taskSpentCell, hours);
+    TE.updateSumCell(TE.dailySpentCell, hours);
+    TE.updateSumCell(TE.totalSpentCell, hours);
+  }
+
+  TE.updateSumRemainCells = function(remain) {
+    // sum hours cells update
+    TE.updateSumCell(TE.taskSpentCell, remain);
+    TE.updateSumCell(TE.dailySpentCell, remain);
+    TE.updateSumCell(TE.totalSpentCell, remain);
   }
 
   TE.formEdit = function(){

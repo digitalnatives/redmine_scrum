@@ -36,17 +36,18 @@ jQuery(function($) {
   }
 
   TE.handleSuccess = function(data) {
-    serverObj = $.parseJSON(data.responseText)
+    serverObj = $.parseJSON(data.responseText);
+    entry = $.parseJSON(serverObj.entry);
     var hours = TE.hoursField.val();
     var remain = TE.remainingHoursField.val();
 
     // data entry update
-    TE.cell.data().teId = serverObj.id
+    TE.cell.data().teId = entry.id
     TE.cell.data().teHours = hours;
     TE.cell.data().teRemain = remain;
 
     TE.updateTimeEntryCell(hours, remain);
-    TE.updateSumCells(hours, remain, serverObj.issue.remaining_hours);
+    TE.updateSumCells(hours, remain, entry.issue.remaining_hours, serverObj.last);
 
     $('#time-entry-dialog').dialog('close');
   }
@@ -73,7 +74,7 @@ jQuery(function($) {
     TE.updateCell(TE.cell.next(), TE.cell.data().teSumRemain.toString());
   }
 
-  TE.updateSumCells = function(hours, remain, taskRemain) {
+  TE.updateSumCells = function(hours, remain, taskRemain, last) {
     var taskSpentCell = TE.cell.siblings().last().prev();
     // Because of colspan
     var dailySpentCell = $(TE.cell.closest('table').find('tr:last').children()[TE.cell.index() - 3]);
@@ -85,7 +86,7 @@ jQuery(function($) {
     TE.updateSumCell(totalSpentCell, TE.prevHours, hours);
 
     //sum remaining
-    TE.updateCell(taskSpentCell.next(), taskRemain.toString());
+    if(last) TE.updateCell(taskSpentCell.next(), taskRemain.toString());
     TE.updateSumCell(dailySpentCell.next(), TE.prevRemain, remain);
     //TE.updateSumCell(totalSpentCell.next(), remain);
   }

@@ -36,6 +36,7 @@ jQuery(function($) {
   }
 
   TE.handleSuccess = function(data) {
+    serverObj = $.parseJSON(data.responseText)
     var hours = TE.hoursField.val();
     var remain = TE.remainingHoursField.val();
 
@@ -44,14 +45,13 @@ jQuery(function($) {
     var dailySpent = $(TE.cell.closest('table').find('tr:last').children()[TE.cell.index() - 3]);
     var totalSpent = TE.cell.closest('table').find('tr:last').find('td:last').prev();
 
-    if(TE.cell.data().teValues.length == 2) {
-      TE.cell.data().teValues = [ hours, remain ];
-    } else {
-      TE.cell.data().teValues.push(hours, remain);
-    } 
-
-    TE.updateCell(TE.cell, hours);
-    TE.updateCell(TE.cell.next(), remain);
+    // data entry update
+    TE.cell.data().teId = serverObj.id
+    TE.cell.data().teHours = hours;
+    TE.cell.data().teRemain = remain;
+    // hours and remain cell update
+    TE.updateTimeEntryCell(TE.cell, hours, remain);
+    // sum hours cells update
     TE.updateSumCell(taskSpent, hours);
     TE.updateSumCell(dailySpent, hours);
     TE.updateSumCell(totalSpent, hours);
@@ -74,10 +74,14 @@ jQuery(function($) {
     TE.updateCell(cell, cell.data().sum.toString());
   }
 
-  TE.formEdit = function(obj){
-    this.id = obj.ids[0]
-    this.prevHours = obj.values[0]
-    this.prevReaminingHours = obj.values[1]
+  TE.updateTimeEntryCell = function(cell, hours, remain) {
+    cell.data().teSumHours = TE.sumHours - TE.prevHours + parseFloat(hours)
+    cell.data().teSumRemain = TE.sumRemain - TE.prevRemain + parseFloat(remain)
+    TE.updateCell(cell, cell.data().teSumHours.toString());
+    TE.updateCell(cell.next(), cell.data().teSumRemain.toString());
+  }
+
+  TE.formEdit = function(){
     this.form.attr('action', '/scrum_report_time_entries/' + this.id);
     this.form.prepend(
         $('<input>')
@@ -86,13 +90,13 @@ jQuery(function($) {
         .val('put')
         );
 
-    this.hoursField.val(obj.values[0]);
-    this.remainingHoursField.val(obj.values[1]);
+    this.hoursField.val(this.prevHours);
+    this.remainingHoursField.val(this.prevRemain);
   }
 
-  TE.formNew = function(obj) {
+  TE.formNew = function() {
     this.form.attr('action', '/scrum_report_time_entries');
-    this.issueIdField.val(obj.issueId);
+    this.issueIdField.val(this.issueId);
   }
 
   TE.open = function(el) {
@@ -106,31 +110,23 @@ jQuery(function($) {
       this.cell = $(el).prev();
     }
 
-    var timeEntry = {}
-    timeEntry.ids = this.cell.data().teIds;
-    timeEntry.values = this.cell.data().teValues;
-    timeEntry.spentOn = this.cell.data().teSpentOn;
-    timeEntry.issueId = this.cell.data().teTaskId;
-
-    this.spentOnField.val(timeEntry.spentOn);
-    this.spentOnDaySpan.text(timeEntry.spentOn);
+    this.id = this.cell.data().teId;
+    this.prevHours = parseFloat(this.cell.data().teHours || 0);
+    this.prevRemain = parseFloat(this.cell.data().teRemain || 0);
+    this.sumHours = parseFloat(this.cell.data().teSumHours || 0);
+    this.sumRemain = parseFloat(this.cell.data().teSumRemain || 0);
+    this.issueId = this.cell.data().teTaskId;
+    this.spentOnField.val(this.cell.data().teSpentOn);
+    this.spentOnDaySpan.text(this.cell.data().teSpentOn);
     this.assigneeSpan.text($(el).siblings(':eq(2)').text());
     $('.ui-dialog-title').text(this.taskSubject);
 
     this.form.find('input[name=_method]').remove();
-    switch(timeEntry.ids.length){
-    case 0:
-      this.formNew(timeEntry);
-      break;
-    case 1:
-      this.formEdit(timeEntry);
-      break;
-    default:
-      console.log("multiple entries");
-      console.log(el);
+    if(this.id){
+      this.formEdit();
+    } else {
+      this.formNew();
     }
-
-
   }
 
   $('#time-entry-dialog').dialog({

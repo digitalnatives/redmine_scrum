@@ -8,7 +8,7 @@ class ScrumReportTimeEntriesController < ApplicationController
 
     if @time_entry.update_attributes(params[:time_entry])
       #update_issue(@time_entry.issue)
-      head 200
+      render :json => @time_entry
     else
       render :json => {
         :errors => @time_entry.errors,
@@ -18,11 +18,11 @@ class ScrumReportTimeEntriesController < ApplicationController
 
   def create
     @time_entry = TimeEntry.new(params[:time_entry])
-    @time_entry.user = User.current
+    @time_entry.user = @time_entry.issue.assigned_to 
 
     if @time_entry.save
       #update_issue(@time_entry.issue)
-      head 200
+      render :json => @time_entry
     else
       render :json => {
         :errors => @time_entry.errors,

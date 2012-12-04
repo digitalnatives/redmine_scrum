@@ -72,16 +72,21 @@
             <% @report.days.each do |day| %>
               <% time_entries = task.time_entries.select{ |te| te.spent_on == day } %>
               <% hours = time_entries.compact.sum(&:hours) %>
-              <% remaining_hours = time_entries.last.te_remaining_hours if time_entries.present? %>
+              <% te_remaining_hours = time_entries.last.te_remaining_hours if time_entries.present? %>
+              <% assignee_te = time_entries.find{ |te| te.user_id == task.assigned_to_id } %>
               <td class="hours time-entry period-start" 
-                data-te-task-id="<%= task.id %>" 
+                data-te-task-id="<%= task.id %>"
+                data-te-assigned-to-id='<%= task.assigned_to_id %>'
                 data-te-spent-on="<%= day %>"
-                data-te-ids='<%= (time_entries.blank? ? "" : time_entries.map(&:id)) %>' 
-                data-te-values='<%= [ hours, (remaining_hours.blank? ? "": remaining_hours) ] %>'
+                data-te-id='<%= assignee_te.try(:id) %>'
+                data-te-hours='<%= assignee_te.try(:hours) %>'
+                data-te-remain='<%= assignee_te.try(:te_remaining_hours) %>'
+                data-te-sum-hours='<%= hours %>'
+                data-te-sum-remain='<%= te_remaining_hours.to_f %>'
                 data-te-type="hours">
                 <%= html_hours("%.2f" % hours) if hours > 0 %>
               </td>
-              <td class="hours time-entry period-end" data-te-type="remaining"><%= html_hours("%.2f" % remaining_hours) if remaining_hours.present? %></td>
+              <td class="hours time-entry period-end" data-te-type="remaining"><%= html_hours("%.2f" % te_remaining_hours) if te_remaining_hours.present? %></td>
             <% end %>
             <td class="hours" data-sum="<%= task.spent_time %>"><%= html_hours("%.2f" % task.spent_time ) if task.spent_time.to_f > 0 %></td>
             <td class="hours"><%= html_hours("%.2f" % task.remaining_hours) if task.remaining_hours > 0 %></td>

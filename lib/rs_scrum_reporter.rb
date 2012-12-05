@@ -35,7 +35,7 @@ module RS
       if type == :te_remaining_hours
         sum = 0
         @story_entries.grop_by(&:issue_id).each do |issue, entries|
-          entries.last.kkkkkk
+          entries.last
         end
       end
     end

@@ -51,7 +51,6 @@ class ScrumReportTimeEntriesController < ApplicationController
   def update_issue(issue)
 
     if issue.is_task? && User.current.allowed_to?(:te_remaining_hours, @time_entry.project) != nil
-      debugger
       if @time_entry.te_remaining_hours != issue.remaining_hours && issue.time_entries.sort_by{ |te| te.spent_on }.last == @time_entry
         issue.journalized_update_attribute(:remaining_hours, @time_entry.te_remaining_hours)
         @last = true
@@ -60,6 +59,9 @@ class ScrumReportTimeEntriesController < ApplicationController
   end
 
   def backlogs_hack
-    ScrumReportTimeEntriesController.send(:remove_const, :RbCommonHelper) if ScrumReportTimeEntriesController.included_modules.include? RbCommonHelper
+    ScrumReportTimeEntriesController.send :undef_method, :remaining_hours
+    while ScrumReportTimeEntriesController.included_modules.include?(RbCommonHelper) do
+      ScrumReportTimeEntriesController.send(:remove_const, :RbCommonHelper) 
+    end
   end
 end

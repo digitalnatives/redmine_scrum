@@ -1,6 +1,6 @@
 module RS 
   class ScrumReporter
-    attr_reader :issues, :days
+    attr_reader :issues, :days, :sum_estimated_hours, :sum_spent_hours, :sum_remaining_hours
 
     def initialize(project, version)
       @project = project
@@ -16,6 +16,28 @@ module RS
 
     def csv_days
       @csv_days ||= @days.inject([]){ |days, day| days.push(day, day) }
+    end
+
+    def daily_total(day, type, nil_if_empty)
+      unless @current_day == day
+        @day_time_entries = @issues.map(&:time_entries).flatten.select{ |te| te.spent_on == day}
+        @current_day = day
+      end
+      @day_time_entries.map(&type).sum
+
+    end
+
+    def story_total(day, tasks, type)
+      unless @story_day == day
+        @story_entries = tasks.map(&:time_entries).flatten.select{ |te| te.spent_on == day}
+        @story_day = day
+      end
+      if type == :te_remaining_hours
+        sum = 0
+        @story_entries.grop_by(&:issue_id).each do |issue, entries|
+          entries.last.kkkkkk
+        end
+      end
     end
 
     private
@@ -43,6 +65,9 @@ module RS
                            :conditions => [ @conditions, @condition_vars ],
                            :group => 'issues.id',
                            :order => 'issues.parent_id DESC, issues.id ASC')
+      @sum_estimated_hours = @issues.sum(&:estimated_hours) 
+      @sum_spent_hours = @issues.map(&:spent_time).compact.map(&:to_f).sum
+      @sum_remaining_hours = @issues.sum(&:remaining_hours)
     end
 
     def default_conditions
@@ -57,7 +82,9 @@ module RS
 
     def set_up_day_range
       first_time_entry = @issues.map(&:first_time_entry).compact.min
-      last_time_entry= @issues.map(&:last_time_entry).compact.max
+      last_time_entry = @issues.map(&:last_time_entry).compact.max
+      first_time_entry = Date.parse(first_time_entry) if first_time_entry
+      last_time_entry = Date.parse(last_time_entry) if last_time_entry
 
       from = []
       to = []

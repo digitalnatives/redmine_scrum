@@ -1,10 +1,14 @@
 <% content_for :header_tags do %>
   <%= javascript_include_tag 'time_entry', :plugin => :redmine_scrum %>
+  <%= javascript_include_tag 'jquery/jquery.jqplot/plugins/jqplot.dateAxisRenderer.min.js', :plugin => 'redmine_backlogs' %>
+  <%= javascript_include_tag 'jquery/jquery.jqplot/plugins/jqplot.cursor.min.js', :plugin => 'redmine_backlogs' %>
+
   <%= stylesheet_link_tag 'jquery/jquery-ui.css', :plugin => :redmine_backlogs %>
   <%= stylesheet_link_tag 'redmine_scrum', :plugin => :redmine_scrum %>
 
 <% end %>
 
+<% html_title l(:scrum_report) %>
 <h2><%= l(:scrum_report) %></h2>
 
 <%= render "modal_dialog" %>
@@ -48,7 +52,7 @@
       </tr>
     </thead>
     <tbody>
-      <% tes = [] %>
+      <% chart_remain_line = []; chart_ideal_line = [] %>
       <% @report.issues.group_by(&:parent_id).each do |parent, tasks| %>
         <tr class="subtotal <%= cycle 'odd', 'even' %>">
           <% user_story = Issue.find_by_id(parent) %> 
@@ -60,7 +64,7 @@
             <td class="hours"><%= html_hours("%.2f" % story_total ) if story_total > 0 %></td>
             <td class="hours period-end"><%= html_hours("%.2f" % story_remain ) if story_remain > 0 %></td>
           <% end %>
-          <td class="hours"><%= html_hours("%.2f" % tasks.map(&:spent_time).compact.sum) %></td>
+          <td class="hours"><%= html_hours("%.2f" % tasks.map(&:spent_time).compact.map(&:to_f).sum) %></td>
           <td class="hours"><%= html_hours("%.2f" % tasks.map(&:remaining_hours).sum) %></td>
         </tr>
         <% tasks.each do |task| %>
@@ -89,23 +93,33 @@
               </td>
               <td class="hours time-entry period-end" data-te-type="remaining"><%= html_hours("%.2f" % te_remaining_hours) if te_remaining_hours.present? %></td>
             <% end %>
-            <td class="hours" data-sum="<%= task.spent_time %>"><%= html_hours("%.2f" % task.spent_time ) if task.spent_time.to_f > 0 %></td>
+            <td class="hours" data-sum="<%= task.spent_time %>"><%= html_hours("%.2f" % task.spent_time) if task.spent_time.to_f > 0 %></td>
             <td class="hours" data-sum="<%= task.remaining_hours %>"><%= html_hours("%.2f" % task.remaining_hours) if task.remaining_hours > 0 %></td>
           </tr>
         <% end %>
       <% end %>
       <tr class="total">
         <td colspan="4">Total</td>
-        <td class="hours period-end"><%= html_hours("%.2f" % @report.issues.sum(&:estimated_hours)) %></td>
-        <% @report.days.each do |day| %>
+        <td class="hours period-end"><%= html_hours("%.2f" % @report.sum_estimated_hours) %></td>
+        <% @report.days.to_a.each_with_index do |day, idx| %>
           <% day_time_entries = @report.issues.map(&:time_entries).flatten.select{ |te| te.spent_on == day} %>
           <% daily_total = day_time_entries.map(&:hours).sum %>
-          <% daily_total_remain = day_time_entries.map(&:te_remaining_hours).compact.sum %>
+          <% daily_total_remain = (day_time_entries.map(&:te_remaining_hours).compact.present? ? day_time_entries.map(&:te_remaining_hours).compact.sum : nil) %>
+          <% 
+            rate = @report.sum_estimated_hours / (@report.days.to_a.size - 1)
+            ideal_remain = @report.sum_estimated_hours - idx * rate
+            chart_ideal_line << [ day.to_s, ideal_remain ] 
+            if idx == 0
+            chart_remain_line << [ day.to_s, ideal_remain ]
+            else
+            chart_remain_line << [ day.to_s, daily_total_remain ] if daily_total_remain 
+            end
+          %>
           <td class="hours" data-sum="<%= daily_total %>"><%= html_hours("%.2f" % daily_total ) if daily_total > 0 %></td>
-          <td class="hours period-end" data-sum="<%= daily_total_remain%>"><%= html_hours("%.2f" % daily_total_remain ) if daily_total_remain > 0 %></td>
+          <td class="hours period-end" data-sum="<%= (daily_total_remain || 0) %>"><%= html_hours("%.2f" % daily_total_remain ) if (daily_total_remain || 0) > 0 %></td>
         <% end %>
-        <td class="hours" data-sum="<%= @report.issues.map(&:spent_time).compact.sum %>"><%= html_hours("%.2f" % @report.issues.map(&:spent_time).compact.sum) %></td>
-        <td class="hours" data-sum="<%= @report.issues.sum(&:remaining_hours) %>"><%= html_hours("%.2f" % @report.issues.sum(&:remaining_hours)) %></td>
+        <td class="hours" data-sum="<%= @report.sum_spent_hours %>"><%= html_hours("%.2f" % @report.sum_spent_hours ) %></td>
+        <td class="hours" data-sum="<%= @report.sum_remaining_hours %>"><%= html_hours("%.2f" % @report.sum_remaining_hours) %></td>
       </tr>
     </tbody>
   </table>
@@ -115,5 +129,9 @@
   <%= f.link_to 'CSV', :url => params %>
 <% end %>
 
-<% html_title l(:label_spent_time), l(:label_report) %>
-
+<%= render :partial => 'burndown', :locals => {
+  :mode => :full, 
+  :style => 'width:650px; height: 300px; margin: 0 auto', 
+  :ideal_line => chart_ideal_line,
+  :remaining_line => chart_remain_line
+} %>

@@ -1,8 +1,6 @@
 class ScrumReportTimeEntriesController < ApplicationController
   unloadable
 
-  before_filter :backlogs_hack
-
   def update
     @time_entry = TimeEntry.find(params[:id])
     params[:time_entry].delete(:activity_id) if params[:time_entry][:activity_id].blank?
@@ -59,10 +57,4 @@ class ScrumReportTimeEntriesController < ApplicationController
     end
   end
 
-  def backlogs_hack
-    ScrumReportTimeEntriesController.send :undef_method, :remaining_hours
-    while ScrumReportTimeEntriesController.included_modules.include?(RbCommonHelper) do
-      ScrumReportTimeEntriesController.send(:remove_const, :RbCommonHelper) 
-    end
-  end
 end

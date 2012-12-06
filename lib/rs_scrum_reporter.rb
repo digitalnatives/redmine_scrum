@@ -43,6 +43,18 @@ module RS
       sum
     end
 
+    def daily_remain(day)
+      daily_entries = @issues.map(&:time_entries).flatten.select{ |te| te.spent_on == day}
+
+      daily_entries.group_by(&:issue_id).each do |issue,entries|
+        entry = entries.sort_by(&:updated_on).last
+        index = @issues.index(entry.issue)
+        @issues[index].remaining_hours = entry.te_remaining_hours
+      end
+
+      @issues.sum(&:remaining_hours)
+    end
+
     private
 
     def story_entries_on(day,tasks)
@@ -51,6 +63,9 @@ module RS
         @story_day = day
       end
       @story_entries
+    end
+
+    def entries_on(day)
     end
 
     def run
@@ -76,7 +91,7 @@ module RS
                            :conditions => [ @conditions, @condition_vars ],
                            :group => 'issues.id',
                            :order => 'issues.parent_id DESC, issues.id ASC')
-      @sum_estimated_hours = @issues.sum(&:estimated_hours) 
+      @daily_remain = @sum_estimated_hours = @issues.sum(&:estimated_hours) 
       @sum_spent_hours = @issues.map(&:spent_time).compact.map(&:to_f).sum
       @sum_remaining_hours = @issues.sum(&:remaining_hours)
     end

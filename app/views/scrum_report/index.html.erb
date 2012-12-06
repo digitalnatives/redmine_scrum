@@ -104,7 +104,7 @@
         <% @report.days.to_a.each_with_index do |day, idx| %>
           <% day_time_entries = @report.issues.map(&:time_entries).flatten.select{ |te| te.spent_on == day} %>
           <% daily_total = day_time_entries.map(&:hours).sum %>
-          <% daily_total_remain = (day_time_entries.map(&:te_remaining_hours).compact.present? ? day_time_entries.map(&:te_remaining_hours).compact.sum : nil) %>
+          <% daily_total_remain = @report.daily_remain(day) %>
           <% 
             rate = @report.sum_estimated_hours / (@report.days.to_a.size - 1)
             ideal_remain = @report.sum_estimated_hours - idx * rate

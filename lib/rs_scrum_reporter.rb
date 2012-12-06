@@ -18,14 +18,6 @@ module RS
       @csv_days ||= @days.inject([]){ |days, day| days.push(day, day) }
     end
 
-    def daily_total(day, type, nil_if_empty)
-      unless @current_day == day
-        @day_time_entries = @issues.map(&:time_entries).flatten.select{ |te| te.spent_on == day}
-        @current_day = day
-      end
-      @day_time_entries.map(&type).sum
-
-    end
 
     def story_spent(day, tasks)
       return unless story_entries_on(day,tasks).present?
@@ -43,10 +35,12 @@ module RS
       sum
     end
 
-    def daily_remain(day)
-      daily_entries = @issues.map(&:time_entries).flatten.select{ |te| te.spent_on == day}
+    def daily_total(day)
+      entries_on(day).map(&:hours).sum
+    end
 
-      daily_entries.group_by(&:issue_id).each do |issue,entries|
+    def daily_remain(day)
+      entries_on(day).group_by(&:issue_id).each do |issue,entries|
         entry = entries.sort_by(&:updated_on).last
         index = @issues.index(entry.issue)
         @issues[index].remaining_hours = entry.te_remaining_hours
@@ -66,6 +60,11 @@ module RS
     end
 
     def entries_on(day)
+      unless @day == day
+        @day_time_entries = @issues.map(&:time_entries).flatten.select{ |te| te.spent_on == day}
+        @day = day
+      end
+      @day_time_entries
     end
 
     def run

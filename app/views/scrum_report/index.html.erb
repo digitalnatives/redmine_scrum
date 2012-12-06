@@ -102,8 +102,7 @@
         <td colspan="4">Total</td>
         <td class="hours period-end"><%= html_hours("%.2f" % @report.sum_estimated_hours) %></td>
         <% @report.days.to_a.each_with_index do |day, idx| %>
-          <% day_time_entries = @report.issues.map(&:time_entries).flatten.select{ |te| te.spent_on == day} %>
-          <% daily_total = day_time_entries.map(&:hours).sum %>
+          <% daily_total = @report.daily_total(day) %>
           <% daily_total_remain = @report.daily_remain(day) %>
           <% 
             rate = @report.sum_estimated_hours / (@report.days.to_a.size - 1)

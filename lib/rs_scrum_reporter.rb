@@ -27,20 +27,31 @@ module RS
 
     end
 
-    def story_total(day, tasks, type)
+    def story_spent(day, tasks)
+      return unless story_entries_on(day,tasks).present?
+      @story_entries.map(&:hours).sum
+    end
+
+    def story_remain(day, tasks)
+      return unless story_entries_on(day,tasks).present?
+
+      sum = 0 
+      @story_entries.group_by(&:issue_id).each do |issue, entries|
+        sum += entries.sort_by(&:updated_on).last.te_remaining_hours
+      end
+
+      sum
+    end
+
+    private
+
+    def story_entries_on(day,tasks)
       unless @story_day == day
         @story_entries = tasks.map(&:time_entries).flatten.select{ |te| te.spent_on == day}
         @story_day = day
       end
-      if type == :te_remaining_hours
-        sum = 0
-        @story_entries.grop_by(&:issue_id).each do |issue, entries|
-          entries.last
-        end
-      end
+      @story_entries
     end
-
-    private
 
     def run
       default_conditions

@@ -51,7 +51,6 @@ class ScrumReportTimeEntriesController < ApplicationController
   private
 
   def update_issue(issue)
-
     if issue.is_task? && User.current.allowed_to?(:te_remaining_hours, @time_entry.project) != nil
       if @time_entry.te_remaining_hours != issue.instance_eval{ remaining_hours } && issue.time_entries.sort_by{ |te| te.spent_on }.last == @time_entry
         issue.journalized_update_attribute(:remaining_hours, @time_entry.te_remaining_hours)

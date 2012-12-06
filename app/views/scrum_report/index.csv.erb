@@ -6,14 +6,13 @@
     user_story = Issue.find_by_id(parent)
     row = [ (user_story.present? ? user_story.subject : ''), '', '', '', tasks.sum(&:estimated_hours) ]
     @report.csv_days.each_slice(2) do |day|
-      story_time_entries = tasks.map(&:time_entries).flatten.select{ |te| te.spent_on == day.first}
-      tasks_day_hours = story_time_entries.sum(&:hours)
-      tasks_day_remain = story_time_entries.sum(&:te_remaining_hours)
+      tasks_day_hours = @report.story_spent(day.first, tasks) || 0
+      tasks_day_remain = @report.story_remain(day.first, tasks) || 0
       row << (tasks_day_hours > 0 ?  tasks_day_hours : '')
       row << (tasks_day_remain > 0 ?  tasks_day_remain : '')
     end
-    row << tasks.map(&:spent_time).compact.sum
-    row << tasks.map(&:remaining_hours).sum
+    row << tasks.map(&:spent_time).compact.map(&:to_f).sum
+    row << tasks.map(&:remaining_hours).map(&:to_f).sum
     csv << row
     # issues hours
     tasks.each do |task| 
@@ -34,16 +33,13 @@
   row = [ 'Total', '', '', '' ]
   row << @report.issues.sum(&:estimated_hours)
   @report.csv_days.each_slice(2) do |day|
-    daily_entries = @report.issues.map(&:time_entries).flatten.select{ |te| te.spent_on == day.first}
-    daily_total = daily_entries.sum(&:hours)
-    daily_remain = daily_entries.sum(&:te_remaining_hours)
-
-    total_spent_hours += daily_total
+    daily_total = @report.daily_total(day.first)
+    daily_remain = @report.daily_remain(day.first)
     row << (daily_total > 0 ? daily_total : '')
     row << (daily_remain > 0 ? daily_remain : '')
   end
-  row << (total_spent_hours > 0 ? total_spent_hours : '')
-  row << @report.issues.sum(&:remaining_hours)
+  row << @report.sum_spent_hours
+  row << @report.sum_remaining_hours
   csv << row
 end.html_safe %>
 

@@ -36,8 +36,8 @@ jQuery(function($) {
   }
 
   TE.handleSuccess = function(data) {
-    serverObj = $.parseJSON(data.responseText);
-    entry = $.parseJSON(serverObj.entry);
+    var serverObj = $.parseJSON(data.responseText);
+    var entry = $.parseJSON(serverObj.entry);
     var hours = TE.hoursField.val();
     var remain = TE.remainingHoursField.val();
 
@@ -47,7 +47,7 @@ jQuery(function($) {
     TE.cell.data().teRemain = remain;
 
     TE.updateTimeEntryCell(hours, remain);
-    TE.updateSumCells(hours, remain, entry.issue.remaining_hours.toString(), serverObj.last);
+    TE.updateSumCells(hours, remain, serverObj.issue_remain_hours.toString(), serverObj.last);
 
     $('#time-entry-dialog').dialog('close');
   }

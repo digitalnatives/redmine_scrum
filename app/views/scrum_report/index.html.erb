@@ -110,9 +110,9 @@
             ideal_remain = @report.sum_estimated_hours - idx * rate
             chart_ideal_line << [ day.to_s, ideal_remain ] 
             if idx == 0
-            chart_remain_line << [ day.to_s, ideal_remain ]
+              chart_remain_line << [ day.to_s, ideal_remain ]
             else
-            chart_remain_line << [ day.to_s, daily_total_remain ] if daily_total_remain 
+             chart_remain_line << [ day.to_s, daily_total_remain ] if daily_total_remain 
             end
           %>
           <td class="hours" data-sum="<%= daily_total %>"><%= html_hours("%.2f" % daily_total ) if daily_total > 0 %></td>

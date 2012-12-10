@@ -61,8 +61,8 @@
           <% @report.days.each do |day| %>
             <% story_total = @report.story_spent(day, tasks) || 0 %>
             <% story_remain = @report.story_remain(day, tasks) || 0 %>
-            <td class="hours"><%= html_hours("%.2f" % story_total ) if story_total > 0 %></td>
-            <td class="hours period-end"><%= html_hours("%.2f" % story_remain ) if story_remain > 0 %></td>
+            <td class="hours" data-sum="<%= story_total %> "><%= html_hours("%.2f" % story_total ) if story_total > 0 %></td>
+            <td class="hours period-end" data-sum="<%= story_remain %>"><%= html_hours("%.2f" % story_remain ) if story_remain > 0 %></td>
           <% end %>
           <td class="hours"><%= html_hours("%.2f" % tasks.map(&:spent_time).compact.map(&:to_f).sum) %></td>
           <td class="hours"><%= html_hours("%.2f" % tasks.map(&:remaining_hours).sum) %></td>

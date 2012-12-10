@@ -79,15 +79,24 @@ jQuery(function($) {
     // Because of colspan
     var dailySpentCell = $(TE.cell.closest('table').find('tr:last').children()[TE.cell.index() - 3]);
     var totalSpentCell = TE.cell.closest('table').find('tr:last').find('td:last').prev();
+    idx = TE.cell.parent().index()
+      for(i = idx; i > 0; i--){
+        if($(TE.cell.parent().parent().children()[i]).attr('class').search("subtotal") == 0) {
+          var storySpentCell = TE.cell.parent().parent().find('tr:nth-child(' + (i + 1) + ') td:nth-child(' + (TE.cell.index() - 2) + ')')
+          break;
+        }
+      } 
 
     //sum hours
-    TE.updateSumCell(taskSpentCell, TE.prevHours, hours);
     TE.updateSumCell(dailySpentCell, TE.prevHours, hours);
+    TE.updateSumCell(storySpentCell, TE.prevHours, hours);
+    TE.updateSumCell(taskSpentCell, TE.prevHours, hours);
     TE.updateSumCell(totalSpentCell, TE.prevHours, hours);
 
     //sum remaining
-    if(last) TE.updateCell(taskSpentCell.next(), taskRemain);
     TE.updateSumCell(dailySpentCell.next(), TE.prevRemain, remain);
+    TE.updateSumCell(storySpentCell.next(), TE.prevRemain, remain);
+    if(last) TE.updateCell(taskSpentCell.next(), taskRemain);
     if(last) TE.updateSumCell(totalSpentCell.next(), TE.prevRemain, taskRemain);
   }
 

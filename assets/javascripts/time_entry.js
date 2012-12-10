@@ -86,16 +86,19 @@ jQuery(function($) {
           break;
         }
       } 
+    var storyTotalSpentCell = storySpentCell.siblings().last().prev();
 
     //sum hours
     TE.updateSumCell(dailySpentCell, TE.prevHours, hours);
     TE.updateSumCell(storySpentCell, TE.prevHours, hours);
+    TE.updateSumCell(storyTotalSpentCell, TE.prevHours, hours);
     TE.updateSumCell(taskSpentCell, TE.prevHours, hours);
     TE.updateSumCell(totalSpentCell, TE.prevHours, hours);
 
     //sum remaining
     TE.updateSumCell(dailySpentCell.next(), TE.prevRemain, remain);
     TE.updateSumCell(storySpentCell.next(), TE.prevRemain, remain);
+    if(last) TE.updateSumCell(storyTotalSpentCell.next(), TE.prevRemain, remain);
     if(last) TE.updateCell(taskSpentCell.next(), taskRemain);
     if(last) TE.updateSumCell(totalSpentCell.next(), TE.prevRemain, taskRemain);
   }

@@ -105,7 +105,7 @@
           <% daily_total = @report.daily_total(day) %>
           <% daily_total_remain = @report.daily_remain(day) %>
           <% 
-            rate = @report.sum_estimated_hours / (@report.days.to_a.size - 1)
+            rate = (@report.days.to_a.size > 1) ? @report.sum_estimated_hours / (@report.days.to_a.size - 1) : 0
             ideal_remain = @report.sum_estimated_hours - idx * rate
             chart_ideal_line << [ day.to_s, ideal_remain ] 
             if idx == 0

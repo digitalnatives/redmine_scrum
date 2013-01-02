@@ -80,7 +80,7 @@ jQuery(function($) {
     var dailySpentCell = $(TE.cell.closest('table').find('tr:last').children()[TE.cell.index() - 3]);
     var totalSpentCell = TE.cell.closest('table').find('tr:last').find('td:last').prev();
     idx = TE.cell.parent().index()
-      for(i = idx; i > 0; i--){
+      for(i = idx; i >= 0; i--){
         if($(TE.cell.parent().parent().children()[i]).attr('class').search("subtotal") == 0) {
           var storySpentCell = TE.cell.parent().parent().find('tr:nth-child(' + (i + 1) + ') td:nth-child(' + (TE.cell.index() - 2) + ')')
           break;

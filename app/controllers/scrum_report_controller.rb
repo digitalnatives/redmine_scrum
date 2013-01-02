@@ -28,7 +28,7 @@ class ScrumReportController < ApplicationController
   rescue ActiveRecord::RecordNotFound
     render_404
   end
-  
+
   def refresh_assets
     if Redmine::Plugin.method_defined?(:mirror_assets)
       Redmine::Plugin.mirror_assets(:redmine_scrum)

@@ -85,7 +85,7 @@ module RS
                            sum(time_entries.hours) AS spent_time,
                            min(time_entries.spent_on) AS first_time_entry,
                            max(time_entries.spent_on) AS last_time_entry",
-                           :joins => "LEFT JOIN time_entries ON (time_entries.issue_id = issues.id)",
+                           :joins => "LEFT JOIN time_entries ON (time_entries.issue_id = issues.id)",# LEFT JOIN versions ON issues.fixed_version_id = versions.id",
                            :include => [ :status, :assigned_to ],
                            :conditions => [ @conditions, @condition_vars ],
                            :group => 'issues.id',
@@ -99,6 +99,7 @@ module RS
       @conditions = "issues.project_id = :project_id 
                   AND issues.tracker_id = :tracker_id
                   AND issues.estimated_hours IS NOT NULL"
+                  #AND versions.status != 'closed'"
       @condition_vars = { 
         :project_id => @project.id,
         :tracker_id => RbTask.tracker
@@ -113,28 +114,35 @@ module RS
 
       from = []
       to = []
+
       unless @version 
-        sprint_start = @project.versions.min_by(&:sprint_start_date).try(:sprint_start_date)
-        sprint_end = @project.versions.max_by(&:effective_date).try(:effective_date)
+        sprint_start = @project.versions.open.map(&:sprint_start_date).compact.min
+        sprint_end = @project.versions.open.map(&:effective_date).compact.min
 
         from << first_time_entry if first_time_entry
         from << sprint_start if sprint_start
         @from = from.min
-        from = [ @project.versions.min_by(&:created_on).try(:created_on).to_date, Date.today ].min unless @from.present?
+        unless @from.present?
+          from << @project.versions.min_by(&:created_on).created_on.to_date if @project.versions.min_by(&:created_on).present?
+          @from = from.min || Date.today
+        end
 
         to << last_time_entry if last_time_entry
         to << sprint_end if sprint_end
         @to = to.max
-        @to = [ @project.versions.max_by(&:created_on).try(:created_on).to_date, Date.today].max unless @to.present?
+        unless @to.present?
+          to << @project.versions.max_by(&:created_on).created_on.to_date if @project.versions.max_by(&:created_on).present?
+          @to = to.max || Date.today
+        end
       else
         sprint_start = @version.try(:sprint_start_date)
         sprint_end = @version.try(:effective_date)
 
-        from << sprint_start if sprint_start
+        from << sprint_start if sprint_start.present?
         @from = from.min
-        @form = [ @version.try(:created_on).to_date, Date.today ].min unless @from.present?
+        @from = [ @version.try(:created_on).to_date, Date.today ].min unless @from.present? unless @from.present?
 
-        to << sprint_end if sprint_end
+        to << sprint_end if sprint_end.present?
         @to = to.max
         @to = [ @version.try(:created_on).to_date, Date.today].max unless @to.present?
        end

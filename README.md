@@ -18,13 +18,9 @@ The plugin has a few assumption and constraints:
 
 The plugin depends on [REDMINE BACKLOGS](http://www.redminebacklogs.net) plugin
 
-# Get the plugin
-
-Get the latest source from [GitHub](https://github.com/digitalnatives/redmine_scrum).
-
 # Compatibility
 
-This version of the plugin is compatible with Redmine 1.4 .
+This version of the plugin is compatible with Redmine 1.4
 
 # Installation
 
@@ -35,6 +31,9 @@ Install the plugin in vendor/plugins/redmine_scrum
 git clone https://github.com/digitalnatives/redmine_scrum.git
 ```
 Restart your Redmine web servers (e.g. mongrel, thin, mod_rails)
+
+Define how can access redmine scrum in `Administration -> Roles and permissions`
+Within `Backlogs` block check Access scrum report checkbox for each role that needs access.
 
 Run the migration
 ```ruby

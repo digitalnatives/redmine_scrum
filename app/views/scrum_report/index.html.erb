@@ -8,8 +8,8 @@
 
 <% end %>
 
-<% html_title l(:scrum_report) %>
-<h2><%= l(:scrum_report) %></h2>
+<% html_title l('redmine_scrum.scrum_report') %>
+<h2><%= l('redmine_scrum.scrum_report') %></h2>
 
 <%= render "modal_dialog" %>
 
@@ -19,7 +19,7 @@
   <%# end %>
 
   <p>
-    <label for='version_id'><%= l(:label_version) %></label>:
+    <label for='version_id'><%= l('redmine_scrum.label_sprint') %></label>:
     <% if @versions.present? %>
       <% options = ['' ] + @versions.map {|v| ["#{v.name} (#{v.sprint_start_date} - #{v.effective_date})", v.id] } %>
       <%= select_tag 'version_id', 
@@ -32,15 +32,15 @@
   <table class="list" id="time-report">
     <thead>
       <tr>
-        <th rowspan="2">User Story</th>
-        <th rowspan="2">Issue</th>
-        <th rowspan="2">Assignee</th>
-        <th rowspan="2">Status</th>
-        <th rowspan="2" class="period-end">Estimated</th>
+        <th rowspan="2"><%= l('redmine_scrum.user_story') %></th>
+        <th rowspan="2"><%= l('redmine_scrum.issue') %></th>
+        <th rowspan="2"><%= l('redmine_scrum.assignee') %></th>
+        <th rowspan="2"><%= l('redmine_scrum.status') %></th>
+        <th rowspan="2" class="period-end"><%= l('redmine_scrum.estimated') %></th>
         <% @report.days.each do |day| %>
           <th class="period-end" colspan="2"><%= day.to_s %></th>
         <% end %>
-        <th colspan="2">Total</th>
+        <th colspan="2"><%= l('redmine_scrum.total') %></th>
       </tr>
       <tr>
         <% @report.days.each do |day| %>
@@ -99,7 +99,7 @@
         <% end %>
       <% end %>
       <tr class="total">
-        <td colspan="4">Total</td>
+        <td colspan="4"><%= l('redmine_scrum.total') %></td>
         <td class="hours period-end"><%= html_hours("%.2f" % @report.sum_estimated_hours) %></td>
         <% @report.days.to_a.each_with_index do |day, idx| %>
           <% daily_total = @report.daily_total(day) %>

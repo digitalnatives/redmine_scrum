@@ -32,7 +32,8 @@ git clone https://github.com/digitalnatives/redmine_scrum.git
 ```
 Restart your Redmine web servers (e.g. mongrel, thin, mod_rails)
 
-Define how can access redmine scrum in `Administration -> Roles and permissions`
+Define roles access to redmine scrum in `Administration -> Roles and permissions`
+
 Within `Backlogs` block check Access scrum report checkbox for each role that needs access.
 
 Run the migration
@@ -42,8 +43,11 @@ RAILS_ENV=production rake db:migrate:plugins
 
 # Authors
 
-The plugin was written by developers of [Digital Natives](http://www.digitalnatives.hu/english) team. It is free software, and may be redistributed under the terms specified in the MIT-LICENSE file.
+<img src="http://m.blog.hu/di/digitalnatives/skins/white_swirl_dina/img/logo.png" width="150"/>
+
+The plugin was written by developers of [Digital Natives](http://www.digitalnatives.hu/english) team. 
 
 # Licence
 
-This plugin is released under the MIT license.
+This plugin  is free software, and may be redistributed under the terms specified in the MIT-LICENSE file.
+

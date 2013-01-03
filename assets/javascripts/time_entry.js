@@ -37,16 +37,17 @@ jQuery(function($) {
 
   TE.handleSuccess = function(data) {
     var serverObj = $.parseJSON(data.responseText);
-    var entry = $.parseJSON(serverObj.entry);
     var hours = TE.hoursField.val();
     var remain = TE.remainingHoursField.val();
 
     // data entry update
-    TE.cell.data().teId = entry.id
+    TE.cell.data().teId = serverObj.te_id
     TE.cell.data().teHours = hours;
     TE.cell.data().teRemain = remain;
 
     TE.updateTimeEntryCell(hours, remain);
+
+    if(typeof serverObj.prev_remain_hours != 'undefined') TE.prevRemain = serverObj.prev_remain_hours;
     TE.updateSumCells(hours, remain, serverObj.issue_remain_hours.toString(), serverObj.last);
 
     $('#time-entry-dialog').dialog('close');

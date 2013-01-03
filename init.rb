@@ -5,7 +5,6 @@ else
   Rails.configuration
 end.to_prepare do
   require_dependency 'rs_scrum_reporter'
-  require_dependency 'rs_issue_patch'
   require_dependency 'redmine_scrum_hooks'
 end
 
@@ -13,7 +12,7 @@ Redmine::Plugin.register :redmine_scrum do
   name 'Redmine Scrum Report plugin'
   author 'Digital Natives'
   description 'Scrum plugin to display burndown chart based on estimated and remaining hours'
-  version '0.0.1'
+  version '0.0.2'
   url 'https://github.com/digitalnatives/redmine_scrum'
   author_url 'http://digitalnatives.hu'
   requires_redmine_plugin :redmine_backlogs, :version_or_higher => '0.9.26'

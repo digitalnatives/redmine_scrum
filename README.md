@@ -7,7 +7,7 @@ With the plugin you can:
 * Easily access scrum report from project menu.
 * Log spent/remaining hours for multiple tasks from one place.
 * Visualize your burndown chart based on spent/remaing hours.
-* Designed for daily standup.
+* Manage daily standup.
 
 The plugin has a few assumption and constraints:
 
@@ -30,16 +30,16 @@ Install the plugin in vendor/plugins/redmine_scrum
 ```
 git clone https://github.com/digitalnatives/redmine_scrum.git
 ```
+Run the migration
+```ruby
+RAILS_ENV=production rake db:migrate:plugins
+```
+
 Restart your Redmine web servers (e.g. mongrel, thin, mod_rails)
 
 Define roles access to redmine scrum in `Administration -> Roles and permissions`
 
 Within `Backlogs` block check Access scrum report checkbox for each role that needs access.
-
-Run the migration
-```ruby
-RAILS_ENV=production rake db:migrate:plugins
-```
 
 Authors
 -------

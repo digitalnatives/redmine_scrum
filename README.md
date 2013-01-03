@@ -14,15 +14,15 @@ The plugin has a few assumption and constraints:
 * An issue should have only one assignee.
 * Only one time entry can be edited from the table per issue per day.
 
-# Dependency
+## Dependency
 
 The plugin depends on [REDMINE BACKLOGS](http://www.redminebacklogs.net) plugin
 
-# Compatibility
+## Compatibility
 
 This version of the plugin is compatible with Redmine 1.4
 
-# Installation
+## Installation
 
 Follow the Redmine [plugin installation steps](http://www.redmine.org/wiki/redmine/Plugins).
 
@@ -41,13 +41,15 @@ Run the migration
 RAILS_ENV=production rake db:migrate:plugins
 ```
 
-# Authors
+Authors
+-------
 
 <img src="http://m.blog.hu/di/digitalnatives/skins/white_swirl_dina/img/logo.png" width="150"/>
 
 The plugin was written by developers of [Digital Natives](http://www.digitalnatives.hu/english) team. 
 
-# Licence
+Licence
+-------
 
 This plugin  is free software, and may be redistributed under the terms specified in the MIT-LICENSE file.
 

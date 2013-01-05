@@ -59,10 +59,10 @@
           <td colspan="4"><%= link_to user_story.subject, issue_path(user_story.id) if user_story.present? %></td>
           <td class="hours period-end"><%= html_hours("%.2f" % tasks.sum(&:estimated_hours)) %></td>
           <% @report.days.each do |day| %>
-            <% story_total = @report.story_spent(day, tasks) || 0 %>
-            <% story_remain = @report.story_remain(day, tasks) || 0 %>
-            <td class="hours" data-sum="<%= story_total %> "><%= html_hours("%.2f" % story_total ) if story_total > 0 %></td>
-            <td class="hours period-end" data-sum="<%= story_remain %>"><%= html_hours("%.2f" % story_remain ) if story_remain > 0 %></td>
+            <% story_total = @report.story_spent(day, tasks) %>
+            <% story_remain = @report.story_remain(day, tasks) %>
+            <td class="hours" data-sum="<%= story_total %> "><%= html_hours("%.2f" % story_total ) %></td>
+            <td class="hours period-end" data-sum="<%= story_remain %>"><%= html_hours("%.2f" % story_remain ) %></td>
           <% end %>
           <td class="hours" data-sum="<%= tasks.map(&:spent_time).compact.map(&:to_f).sum %>"><%= html_hours("%.2f" % tasks.map(&:spent_time).compact.map(&:to_f).sum) %></td>
           <td class="hours" data-sum="<%= tasks.map(&:remaining_hours).sum %>"><%= html_hours("%.2f" % tasks.map(&:remaining_hours).sum) %></td>
@@ -102,7 +102,7 @@
         <td colspan="4"><%= l('redmine_scrum.total') %></td>
         <td class="hours period-end"><%= html_hours("%.2f" % @report.sum_estimated_hours) %></td>
         <% @report.days.to_a.each_with_index do |day, idx| %>
-          <% daily_total = @report.daily_total(day) %>
+          <% daily_total = @report.daily_spent(day) %>
           <% daily_total_remain = @report.daily_remain(day) %>
           <% 
             rate = (@report.days.to_a.size > 1) ? @report.sum_estimated_hours / (@report.days.to_a.size - 1) : 0

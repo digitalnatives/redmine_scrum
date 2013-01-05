@@ -21,22 +21,22 @@ module RS
 
 
     def story_spent(day, tasks)
-      return unless story_entries_on(day,tasks).present?
+      return 0 if story_entries_on(day,tasks).blank?
       @story_entries.map(&:hours).sum
     end
 
     def story_remain(day, tasks)
-      return unless story_entries_on(day,tasks).present?
+      return 0 if story_entries_on(day,tasks).blank?
 
       sum = 0 
       @story_entries.group_by(&:issue_id).each do |issue, entries|
-        sum += entries.sort_by(&:updated_on).last.te_remaining_hours
+        sum += entries.sort_by(&:updated_on).last.te_remaining_hours.to_f
       end
 
       sum
     end
 
-    def daily_total(day)
+    def daily_spent(day)
       entries_on(day).map(&:hours).sum
     end
 
@@ -47,7 +47,7 @@ module RS
         @left_hours[index] = entry.te_remaining_hours
       end
 
-      @left_hours.sum
+      @left_hours.compact.sum
     end
 
     def set_up_used_hours
@@ -87,8 +87,8 @@ module RS
                            issues.parent_id,
                            issues.status_id, 
                            issues.subject, 
-                           issues.remaining_hours, 
-                           issues.estimated_hours, 
+                           COALESCE(issues.remaining_hours, 0) AS remaining_hours,
+                           COALESCE(issues.estimated_hours, 0) AS estimated_hours,
                            issues.assigned_to_id,
                            sum(time_entries.hours) AS spent_time,
                            min(time_entries.spent_on) AS first_time_entry,

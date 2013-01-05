@@ -8,7 +8,7 @@ module RS
 
       run
       set_up_day_range
-      set_up_used_hours
+      set_up_left_hours
     end
 
     def available_criteria
@@ -43,17 +43,16 @@ module RS
     def daily_remain(day)
       entries_on(day).group_by(&:issue_id).each do |issue,entries|
         entry = entries.sort_by(&:updated_on).last
-        index = @issues.index(entry.issue)
-        @left_hours[index] = entry.te_remaining_hours
+        issues_issue = @issues.find{ |i| i.id == entry.issue.id }
+        issues_issue.left_hours = entry.te_remaining_hours.to_f
       end
 
-      @left_hours.compact.sum
+      @issues.sum(&:left_hours)
     end
 
-    def set_up_used_hours
-      @left_hours = []
+    def set_up_left_hours
       @issues.each_with_index do |issue, idx|
-        @left_hours[idx] = issue.estimated_hours
+        issue.left_hours = issue.estimated_hours
       end
     end
 
@@ -89,6 +88,7 @@ module RS
                            issues.subject, 
                            COALESCE(issues.remaining_hours, 0) AS remaining_hours,
                            COALESCE(issues.estimated_hours, 0) AS estimated_hours,
+                           0 AS left_hours,
                            issues.assigned_to_id,
                            sum(time_entries.hours) AS spent_time,
                            min(time_entries.spent_on) AS first_time_entry,

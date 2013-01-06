@@ -49,6 +49,7 @@ jQuery(function($) {
 
     if(typeof serverObj.prev_remain_hours != 'undefined') TE.prevRemain = serverObj.prev_remain_hours;
     TE.updateSumCells(hours, remain, serverObj.issue_remain_hours.toString(), serverObj.last);
+    TE.updateBurndownChart();
 
     $('#time-entry-dialog').dialog('close');
   }
@@ -78,9 +79,9 @@ jQuery(function($) {
   TE.updateSumCells = function(hours, remain, taskRemain, last) {
     var taskSpentCell = TE.cell.siblings().last().prev();
     // Because of colspan
-    var dailySpentCell = $(TE.cell.closest('table').find('tr:last').children()[TE.cell.index() - 3]);
+    TE.dailySpentCell = $(TE.cell.closest('table').find('tr:last').children()[TE.cell.index() - 3]);
     var totalSpentCell = TE.cell.closest('table').find('tr:last').find('td:last').prev();
-    idx = TE.cell.parent().index()
+    var idx = TE.cell.parent().index()
       for(i = idx; i >= 0; i--){
         if($(TE.cell.parent().parent().children()[i]).attr('class').search("subtotal") == 0) {
           var storySpentCell = TE.cell.parent().parent().find('tr:nth-child(' + (i + 1) + ') td:nth-child(' + (TE.cell.index() - 2) + ')')
@@ -90,18 +91,23 @@ jQuery(function($) {
     var storyTotalSpentCell = storySpentCell.siblings().last().prev();
 
     //sum hours
-    TE.updateSumCell(dailySpentCell, TE.prevHours, hours);
+    TE.updateSumCell(TE.dailySpentCell, TE.prevHours, hours);
     TE.updateSumCell(storySpentCell, TE.prevHours, hours);
     TE.updateSumCell(storyTotalSpentCell, TE.prevHours, hours);
     TE.updateSumCell(taskSpentCell, TE.prevHours, hours);
     TE.updateSumCell(totalSpentCell, TE.prevHours, hours);
 
     //sum remaining
-    TE.updateSumCell(dailySpentCell.next(), TE.prevRemain, remain);
+    TE.updateSumCell(TE.dailySpentCell.next(), TE.prevRemain, remain);
     TE.updateSumCell(storySpentCell.next(), TE.prevRemain, remain);
     if(last) TE.updateSumCell(storyTotalSpentCell.next(), TE.prevRemain, remain);
     if(last) TE.updateCell(taskSpentCell.next(), taskRemain);
     if(last) TE.updateSumCell(totalSpentCell.next(), TE.prevRemain, taskRemain);
+  }
+
+  TE.updateBurndownChart = function() {
+    window.bd_chart.series[1].data[TE.idx][1] = parseFloat(TE.dailySpentCell.next().data().sum) 
+    window.bd_chart.replot();
   }
 
   TE.formEdit = function(){
@@ -133,6 +139,7 @@ jQuery(function($) {
       this.cell = $(el).prev();
     }
 
+    this.idx = this.cell.data().teIdx;
     this.id = this.cell.data().teId;
     this.prevHours = parseFloat(this.cell.data().teHours || 0);
     this.prevRemain = parseFloat(this.cell.data().teRemain || 0);

@@ -44,7 +44,7 @@ module RS
       entries_on(day).group_by(&:issue_id).each do |issue,entries|
         entry = entries.sort_by(&:updated_on).last
         issues_issue = @issues.find{ |i| i.id == entry.issue.id }
-        issues_issue.left_hours = entry.te_remaining_hours.to_f
+        issues_issue.left_hours = entry.te_remaining_hours.to_f if entry.te_remaining_hours.present?
       end
 
       @issues.sum(&:left_hours)

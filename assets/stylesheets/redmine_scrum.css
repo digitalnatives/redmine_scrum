@@ -40,8 +40,14 @@ td.time-entry:hover {
   width: 120px;
   float: left
 }
+
 #time-entry-dialog p {
   clear: both;
   width: 300px;
   padding: 8px 0;
+}
+
+.no-time-entry {
+  color:#8686cb;
+  font-weight: normal;
 }

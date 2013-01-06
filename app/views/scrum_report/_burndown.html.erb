@@ -5,7 +5,7 @@ jQuery(function($){
   var ideal = <%= ideal_line.to_json.html_safe %>
   var remaining = <%= remaining_line.to_json.html_safe %>
 
-jQuery.jqplot('burndown', [ideal, remaining], {
+window.bd_chart = jQuery.jqplot('burndown', [ideal, remaining], {
   title:'Burndown Chart',
     axes:{
       xaxis:{

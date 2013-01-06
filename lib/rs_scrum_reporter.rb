@@ -8,7 +8,6 @@ module RS
 
       run
       set_up_day_range
-      set_up_left_hours
       set_up_day_data
     end
 
@@ -60,12 +59,6 @@ module RS
       sum
     end
 
-    def set_up_left_hours
-      @issues.each_with_index do |issue, idx|
-        issue.left_hours = issue.estimated_hours
-      end
-    end
-
     private
 
     def set_up_day_data
@@ -85,9 +78,8 @@ module RS
             issue.left_hours = entry.te_remaining_hours.to_f
           end
 
-          issue_data[:left] = issue.left_hours
+          issue_data[:left] = issue.left_hours.to_f
           issue_data[:spent] = issue_entries.compact.sum(&:hours)
-          issue_data[:left] = (entry.present? ? entry.te_remaining_hours.to_f : issue.left_hours)
           issue_data[:has_time_entry] = (issue_entries.present? ? true : false)
           issue_data[:assignee_te] = issue_entries.find{ |te| te.user_id == issue.assigned_to_id }
           issue_data[:story_id] = issue.parent_id
@@ -123,7 +115,7 @@ module RS
                            issues.subject, 
                            COALESCE(issues.remaining_hours, 0) AS remaining_hours,
                            COALESCE(issues.estimated_hours, 0) AS estimated_hours,
-                           0 AS left_hours,
+                           COALESCE(issues.estimated_hours, 0) AS left_hours,
                            issues.assigned_to_id,
                            sum(time_entries.hours) AS spent_time,
                            min(time_entries.spent_on) AS first_time_entry,

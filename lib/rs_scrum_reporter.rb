@@ -9,6 +9,7 @@ module RS
       run
       set_up_day_range
       set_up_left_hours
+      set_up_day_data
     end
 
     def available_criteria
@@ -19,35 +20,44 @@ module RS
       @csv_days ||= @days.inject([]){ |days, day| days.push(day, day) }
     end
 
-
-    def story_spent(day, tasks)
-      return 0 if story_entries_on(day,tasks).blank?
-      @story_entries.map(&:hours).sum
+    def issue_spent(day, task)
+      @data[day][task.id][:spent]
     end
 
-    def story_remain(day, tasks)
-      return 0 if story_entries_on(day,tasks).blank?
+    def issue_remain(day, task)
+      @data[day][task.id][:left]
+    end
 
-      sum = 0 
-      @story_entries.group_by(&:issue_id).each do |issue, entries|
-        sum += entries.sort_by(&:updated_on).last.te_remaining_hours.to_f
-      end
+    def has_time_entry?(day, task)
+      @data[day][task.id][:has_time_entry]
+    end
 
-      sum
+    def assignee_te(day, task)
+      @data[day][task.id][:assignee_te]
     end
 
     def daily_spent(day)
-      entries_on(day).map(&:hours).sum
+      @data[day][:sum][:spent]
     end
 
     def daily_remain(day)
-      entries_on(day).group_by(&:issue_id).each do |issue,entries|
-        entry = entries.sort_by(&:updated_on).last
-        issues_issue = @issues.find{ |i| i.id == entry.issue.id }
-        issues_issue.left_hours = entry.te_remaining_hours.to_f if entry.te_remaining_hours.present?
-      end
+      @data[day][:sum][:left]
+    end
 
-      @issues.sum(&:left_hours)
+    def story_spent(day, story_id)
+      sum = 0
+      @data[day].each do |key, value|
+        sum += value[:spent] if value[:story_id] == story_id
+      end
+      sum
+    end
+
+    def story_remain(day, story_id)
+      sum = 0
+      @data[day].each do |key, value|
+        sum += value[:left] if value[:story_id] == story_id
+      end
+      sum
     end
 
     def set_up_left_hours
@@ -58,20 +68,45 @@ module RS
 
     private
 
+    def set_up_day_data
+      @data = {}
+      @days.to_a.each do |day|
+        @data[day] = {}
+        sum_data = {}
+        sum_data[:spent] = 0
+        sum_data[:left] = 0
+        @issues.each do |issue|
+          issue_data = {}
+
+          issue_entries = issue.time_entries.select{ |te| te.spent_on == day }.sort_by(&:updated_on)
+          entry = issue_entries.last
+
+          if entry.try(:te_remaining_hours).present?
+            issue.left_hours = entry.te_remaining_hours.to_f
+          end
+
+          issue_data[:left] = issue.left_hours
+          issue_data[:spent] = issue_entries.compact.sum(&:hours)
+          issue_data[:left] = (entry.present? ? entry.te_remaining_hours.to_f : issue.left_hours)
+          issue_data[:has_time_entry] = (issue_entries.present? ? true : false)
+          issue_data[:assignee_te] = issue_entries.find{ |te| te.user_id == issue.assigned_to_id }
+          issue_data[:story_id] = issue.parent_id
+          @data[day][issue.id] = issue_data
+
+          sum_data[:spent] += issue_data[:spent]
+          sum_data[:left] += issue_data[:left]
+        end
+
+        @data[day][:sum] = sum_data
+      end
+    end
+
     def story_entries_on(day,tasks)
       unless @story_day == day
         @story_entries = tasks.map(&:time_entries).flatten.select{ |te| te.spent_on == day}
         @story_day = day
       end
       @story_entries
-    end
-
-    def entries_on(day)
-      unless @day == day
-        @day_time_entries = @issues.map(&:time_entries).flatten.select{ |te| te.spent_on == day}
-        @day = day
-      end
-      @day_time_entries
     end
 
     def run

@@ -25,11 +25,11 @@ module ScrumReportHelper
     text.gsub(%r{(\d+)\.(\d+)}, '<span class="hours hours-int no-time-entry">\1</span><span class="hours hours-dec no-time-entry">.\2</span>').html_safe
   end
 
-  def format_hours_helper(time_entries_hours, task_hours)
-    if time_entries_hours.present?
-      html_hours("%.2f" % time_entries_hours)
+  def format_hours_helper(hours, has_time_entry)
+    if has_time_entry
+      html_hours("%.2f" % hours)
     else
-      no_te_html_hours("%.2f" % task_hours)
+      no_te_html_hours("%.2f" % hours)
     end
   end
 

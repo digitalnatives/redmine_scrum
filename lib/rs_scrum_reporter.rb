@@ -59,11 +59,18 @@ module RS
       sum
     end
 
+    def get_line(type)
+      @data[type]
+    end
+
     private
 
     def set_up_day_data
       @data = {}
-      @days.to_a.each do |day|
+      @data[:ideal_line] = []
+      @data[:remain_line] = []
+      rate = (@days.to_a.size > 1) ? @sum_estimated_hours / (@days.to_a.size - 1) : 0
+      @days.to_a.each_with_index do |day, idx|
         @data[day] = {}
         sum_data = {}
         sum_data[:spent] = 0
@@ -90,15 +97,9 @@ module RS
         end
 
         @data[day][:sum] = sum_data
+        @data[:ideal_line] << [ day.to_s, (@sum_estimated_hours - idx * rate) ]
+        @data[:remain_line] << [ day.to_s, idx == 0 ? (@sum_estimated_hours - idx * rate) : sum_data[:left] ]
       end
-    end
-
-    def story_entries_on(day,tasks)
-      unless @story_day == day
-        @story_entries = tasks.map(&:time_entries).flatten.select{ |te| te.spent_on == day}
-        @story_day = day
-      end
-      @story_entries
     end
 
     def run

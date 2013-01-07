@@ -106,16 +106,6 @@
         <% @report.days.to_a.each_with_index do |day, idx| %>
           <% daily_total = @report.daily_spent(day) %>
           <% daily_total_remain = @report.daily_remain(day) %>
-          <%
-            rate = (@report.days.to_a.size > 1) ? @report.sum_estimated_hours / (@report.days.to_a.size - 1) : 0
-            ideal_remain = @report.sum_estimated_hours - idx * rate
-            chart_ideal_line << [ day.to_s, ideal_remain ] 
-            if idx == 0
-              chart_remain_line << [ day.to_s, ideal_remain ]
-            else
-             chart_remain_line << [ day.to_s, daily_total_remain ] if daily_total_remain 
-            end
-          %>
           <td class="hours" data-sum="<%= daily_total %>"><%= html_hours("%.2f" % daily_total ) %></td>
           <td class="hours period-end" data-sum="<%= (daily_total_remain || 0) %>"><%= html_hours("%.2f" % daily_total_remain ) %></td>
         <% end %>

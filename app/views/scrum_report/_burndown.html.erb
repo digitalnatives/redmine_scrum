@@ -2,8 +2,8 @@
 
 <script type="text/javascript" language="javascript">
 jQuery(function($){
-  var ideal = <%= ideal_line.to_json.html_safe %>
-  var remaining = <%= remaining_line.to_json.html_safe %>
+  var ideal = <%= @report.get_line(:ideal_line).to_json.html_safe %>
+  var remaining = <%= @report.get_line(:remain_line).to_json.html_safe %>
 
 window.bd_chart = jQuery.jqplot('burndown', [ideal, remaining], {
   title:'Burndown Chart',

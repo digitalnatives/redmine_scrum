@@ -152,7 +152,7 @@ module RS
 
       unless @version 
         sprint_start = @project.versions.open.map(&:sprint_start_date).compact.min
-        sprint_end = @project.versions.open.map(&:effective_date).compact.min
+        sprint_end = @project.versions.open.map(&:effective_date).compact.max
 
         from << first_time_entry if first_time_entry
         from << sprint_start if sprint_start

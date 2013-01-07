@@ -47,7 +47,7 @@ jQuery(function($) {
 
     TE.updateTimeEntryCell(hours, remain);
 
-    if(typeof serverObj.prev_remain_hours != 'undefined') TE.prevRemain = serverObj.prev_remain_hours;
+    if(typeof serverObj.prev_remain_hours != 'undefined' && serverObj.last == true) TE.prevRemain = serverObj.prev_remain_hours;
     TE.updateSumCells(hours, remain, serverObj.issue_remain_hours.toString(), serverObj.last);
     TE.updateBurndownChart();
 
@@ -70,8 +70,8 @@ jQuery(function($) {
   }
 
   TE.updateTimeEntryCell = function(hours, remain) {
-    TE.cell.data().teSumHours = (TE.sumHours - TE.prevHours + parseFloat(hours)).toFixed(2);
-    TE.cell.data().teSumRemain = (TE.sumRemain - TE.prevRemain + parseFloat(remain)).toFixed(2);
+    TE.cell.data().teSumHours = (parseFloat(hours)).toFixed(2);
+    TE.cell.data().teSumRemain = (parseFloat(remain)).toFixed(2);
     TE.updateCell(TE.cell, TE.cell.data().teSumHours.toString());
     TE.updateCell(TE.cell.next(), TE.cell.data().teSumRemain.toString());
   }
@@ -98,8 +98,8 @@ jQuery(function($) {
     TE.updateSumCell(totalSpentCell, TE.prevHours, hours);
 
     //sum remaining
-    TE.updateSumCell(TE.dailySpentCell.next(), TE.prevRemain, remain);
-    TE.updateSumCell(storySpentCell.next(), TE.prevRemain, remain);
+    TE.updateSumCell(TE.dailySpentCell.next(), TE.sumRemain, remain);
+    TE.updateSumCell(storySpentCell.next(), TE.sumRemain, remain);
     if(last) TE.updateSumCell(storyTotalSpentCell.next(), TE.prevRemain, remain);
     if(last) TE.updateCell(taskSpentCell.next(), taskRemain);
     if(last) TE.updateSumCell(totalSpentCell.next(), TE.prevRemain, taskRemain);

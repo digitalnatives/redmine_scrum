@@ -2,6 +2,7 @@ var TE = {}
 
 jQuery(function($) {
 
+  // Modal form fields
   TE.spentOnDaySpan = $('#spent-on-day');
   TE.assigneeSpan = $('#assignee');
   TE.issueIdField = $('#time_entry_issue_id');
@@ -49,7 +50,6 @@ jQuery(function($) {
 
     if(typeof serverObj.prev_remain_hours != 'undefined' && serverObj.last == true) TE.prevRemain = serverObj.prev_remain_hours;
     TE.updateSumCells(hours, remain, serverObj.issue_remain_hours.toString(), serverObj.last);
-    TE.updateBurndownChart();
 
     $('#time-entry-dialog').dialog('close');
   }
@@ -82,7 +82,7 @@ jQuery(function($) {
     TE.dailySpentCell = $(TE.cell.closest('table').find('tr:last').children()[TE.cell.index() - 3]);
     var totalSpentCell = TE.cell.closest('table').find('tr:last').find('td:last').prev();
     var idx = TE.cell.parent().index()
-      for(i = idx; i >= 0; i--){
+      for(var i = idx; i >= 0; i--){
         if($(TE.cell.parent().parent().children()[i]).attr('class').search("subtotal") == 0) {
           var storySpentCell = TE.cell.parent().parent().find('tr:nth-child(' + (i + 1) + ') td:nth-child(' + (TE.cell.index() - 2) + ')')
           break;
@@ -98,15 +98,24 @@ jQuery(function($) {
     TE.updateSumCell(totalSpentCell, TE.prevHours, hours);
 
     //sum remaining
-    TE.updateSumCell(TE.dailySpentCell.next(), TE.sumRemain, remain);
-    TE.updateSumCell(storySpentCell.next(), TE.sumRemain, remain);
-    if(last) TE.updateSumCell(storyTotalSpentCell.next(), TE.prevRemain, remain);
-    if(last) TE.updateCell(taskSpentCell.next(), taskRemain);
-    if(last) TE.updateSumCell(totalSpentCell.next(), TE.prevRemain, taskRemain);
-  }
-
-  TE.updateBurndownChart = function() {
-    window.bd_chart.series[1].data[TE.idx][1] = parseFloat(TE.dailySpentCell.next().data().sum) 
+    if(last) {
+      var cell_idx = TE.idx;
+      $.each(TE.dailySpentCell.siblings().slice(TE.dailySpentCell.index()).filter('.period-end'), function(index, value) {
+        TE.updateSumCell($(value), TE.sumRemain, remain)
+        window.bd_chart.series[1].data[cell_idx][1] = $(value).data().sum;
+        cell_idx++;
+      });
+      $.each(storySpentCell.siblings().slice(storySpentCell.index()).filter('.period-end'), function(index, value) {
+        TE.updateSumCell($(value), TE.sumRemain, remain);
+      });
+      TE.updateSumCell(storyTotalSpentCell.next(), TE.prevRemain, remain);
+      TE.updateCell(taskSpentCell.next(), taskRemain);
+      TE.updateSumCell(totalSpentCell.next(), TE.prevRemain, taskRemain);
+    } else {
+      TE.updateSumCell(TE.dailySpentCell.next(), TE.sumRemain, remain);
+      TE.updateSumCell(storySpentCell.next(), TE.sumRemain, remain);
+      window.bd_chart.series[1].data[TE.idx][1] = parseFloat(TE.dailySpentCell.next().data().sum) 
+    }
     window.bd_chart.replot();
   }
 

@@ -89,10 +89,10 @@
                 data-te-sum-hours='<%= hours || 0 %>'
                 data-te-sum-remain='<%= remain_hours.to_f %>'
                 data-te-type="hours">
-                <%= format_hours_helper(@report.issue_spent(day, task), @report.has_time_entry?(day, task)) %>
+                <%= format_hours_helper(hours, @report.has_time_entry?(day, task)) %>
               </td>
               <td class="hours time-entry period-end" data-te-type="remaining">
-                <%= format_hours_helper(@report.issue_remain(day, task), @report.has_time_entry?(day, task)) %>
+                <%= format_hours_helper(remain_hours, @report.has_time_entry?(day, task)) %>
               </td>
             <% end %>
             <td class="hours" data-sum="<%= task.spent_time %>"><%= html_hours("%.2f" % task.spent_time.to_f) %></td>

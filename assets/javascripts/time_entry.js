@@ -190,4 +190,12 @@ jQuery(function($) {
     TE.open(this);
     $('#time-entry-dialog').dialog("open");
   });
+
+  $('.issue_status').change(function(evt){
+    $.post(
+      '/scrum_report_time_entries/update_issue_status', 
+      { issue_id: $(evt.target).attr('id').replace(/issue_status_/,''), 
+        status_id: $(evt.target).val()}
+    );
+  });
 })

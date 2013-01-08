@@ -33,4 +33,12 @@ module ScrumReportHelper
     end
   end
 
+  def issue_status_helper(task)
+    if task.status.is_closed || task.new_statuses_allowed_to.blank?
+      task.status
+    else
+      collection_select(:issue_status, task.id, task.new_statuses_allowed_to, :id, :name, { :selected => task.status_id }, { :class => "issue_status" })
+    end
+  end
+
 end

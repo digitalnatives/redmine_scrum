@@ -113,6 +113,7 @@ module RS
       @issues = Issue.all(:select => "issues.id, 
                            issues.parent_id,
                            issues.status_id, 
+                           issues.tracker_id,
                            issues.subject, 
                            COALESCE(issues.remaining_hours, 0) AS remaining_hours,
                            COALESCE(issues.estimated_hours, 0) AS estimated_hours,
@@ -122,7 +123,7 @@ module RS
                            min(time_entries.spent_on) AS first_time_entry,
                            max(time_entries.spent_on) AS last_time_entry",
                            :joins => "LEFT JOIN time_entries ON (time_entries.issue_id = issues.id)",# LEFT JOIN versions ON issues.fixed_version_id = versions.id",
-                           :include => [ :status, :assigned_to ],
+                           :include => [ :status, :assigned_to, :tracker ],
                            :conditions => [ @conditions, @condition_vars ],
                            :group => 'issues.id',
                            :order => 'issues.parent_id DESC, issues.id ASC')

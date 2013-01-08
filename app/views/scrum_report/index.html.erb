@@ -72,7 +72,7 @@
             <td data-task-id="<%= task.id %>"></td>
             <td><%= link_to task.subject, task %></td>
             <td><%= task.assigned_to %></td>
-            <td><%= task.status %></td>
+            <td><%= issue_status_helper(task) %></td>
             <td class="hours period-end"><%= html_hours("%.2f" % task.estimated_hours) %></td>
             <% @report.days.to_a.each_with_index do |day, idx| %>
               <% hours = @report.issue_spent(day, task) %>

@@ -48,6 +48,25 @@ class ScrumReportTimeEntriesController < ApplicationController
     }
   end
 
+  def update_issue_assignee
+  end
+
+  def update_issue_status
+    @issue = Issue.find(params[:issue_id])
+    update_allowed = User.current.allowed_to?(:edit_issues, @issue.project)
+    allowed_statuses = @issue.new_statuses_allowed_to(User.current)
+    status = IssueStatus.find(params[:status_id])
+    if update_allowed && allowed_statuses.include?(status)
+      @issue.status = status
+      @issue.save
+      head 200
+    else
+      render :json => {
+        :errors => @issue.errors,
+      }, :status => :unprocessable_entity
+    end
+  end
+
   private
 
   def update_issue(issue)

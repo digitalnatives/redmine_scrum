@@ -54,14 +54,19 @@ jQuery(function($) {
     $('#time-entry-dialog').dialog('close');
   }
 
-  TE.updateCell = function(cell, value) {
+  TE.updateCell = function(cell, value, only_span = false) {
     value = value.split('.');
     var hourInt = typeof(value[0]) == "undefined" ? 0 : value[0];
     var hourDec = typeof(value[1]) == "undefined" ? 0 : value[1];
 
-    cell.html('');
-    cell.append($('<span class="hours hours-int">').text(hourInt));
-    cell.append($('<span class="hours hours-dec">').text('.' + hourDec));
+    if(only_span) {
+      cell.find('.hours-int').text(hourInt);
+      cell.find('.hours-dec').text('.' + hourDec);
+    } else {
+      cell.html('');
+      cell.append($('<span class="hours hours-int">').text(hourInt));
+      cell.append($('<span class="hours hours-dec">').text('.' + hourDec));
+    }
   }
 
   TE.updateSumCell = function(cell, prevValue, value) {
@@ -100,16 +105,26 @@ jQuery(function($) {
     //sum remaining
     if(last) {
       var cell_idx = TE.idx;
-      $.each(TE.dailySpentCell.siblings().slice(TE.dailySpentCell.index()).filter('.period-end'), function(index, value) {
-        TE.updateSumCell($(value), TE.sumRemain, remain)
-        window.bd_chart.series[1].data[cell_idx][1] = $(value).data().sum;
+      // Update daily totals for each day day after current
+      $.each(TE.dailySpentCell.siblings().slice(TE.dailySpentCell.index()).filter('.period-end'), function(index, cell) {
+        TE.updateSumCell($(cell), TE.sumRemain, remain)
+        window.bd_chart.series[1].data[cell_idx][1] = $(cell).data().sum;
         cell_idx++;
       });
-      $.each(storySpentCell.siblings().slice(storySpentCell.index()).filter('.period-end'), function(index, value) {
-        TE.updateSumCell($(value), TE.sumRemain, remain);
+      // Update story totals for each day after current
+      $.each(storySpentCell.siblings().slice(storySpentCell.index()).filter('.period-end'), function(index, cell) {
+        TE.updateSumCell($(cell), TE.sumRemain, remain);
       });
+      // Update remaining hours for each day after current
+      $.each(TE.cell.siblings().slice(TE.cell.index()).filter('.period-end'), function(index, cell) {
+        TE.updateCell($(cell), taskRemain, true);
+        $(cell).prev().data().teSumRemain = taskRemain;
+      });
+      // Updating stroy total at last column
       TE.updateSumCell(storyTotalSpentCell.next(), TE.prevRemain, remain);
+      // Updating task totat at last column
       TE.updateCell(taskSpentCell.next(), taskRemain);
+      // Updating sum total last row in last column
       TE.updateSumCell(totalSpentCell.next(), TE.prevRemain, taskRemain);
     } else {
       TE.updateSumCell(TE.dailySpentCell.next(), TE.sumRemain, remain);

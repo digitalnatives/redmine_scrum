@@ -24,7 +24,11 @@ class ScrumReportController < ApplicationController
   end
 
   def find_version
-    @version = @project.versions.find(params[:version_id]) if params[:version_id].present?
+    if params[:version_id].present?
+      @version = @project.versions.find(params[:version_id])
+    else
+      @version = @project.versions.last
+    end
   rescue ActiveRecord::RecordNotFound
     render_404
   end

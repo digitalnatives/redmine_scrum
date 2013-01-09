@@ -54,7 +54,7 @@ jQuery(function($) {
     $('#time-entry-dialog').dialog('close');
   }
 
-  TE.updateCell = function(cell, value, only_span = false) {
+  TE.updateCell = function(cell, value, only_span) {
     value = value.split('.');
     var hourInt = typeof(value[0]) == "undefined" ? 0 : value[0];
     var hourDec = typeof(value[1]) == "undefined" ? 0 : value[1];

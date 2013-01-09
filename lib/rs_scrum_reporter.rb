@@ -100,6 +100,7 @@ module RS
         @data[:ideal_line] << [ day.to_s, (@sum_estimated_hours - idx * rate) ]
         @data[:remain_line] << [ day.to_s, idx == 0 ? (@sum_estimated_hours - idx * rate) : sum_data[:left] ]
       end
+      @sum_remaining_hours = @data[@days.last][:sum][:left]
     end
 
     def run
@@ -129,7 +130,6 @@ module RS
                            :order => 'issues.parent_id DESC, issues.id ASC')
       @sum_estimated_hours = @issues.sum(&:estimated_hours) 
       @sum_spent_hours = @issues.map(&:spent_time).compact.map(&:to_f).sum
-      @sum_remaining_hours = @issues.sum(&:remaining_hours)
     end
 
     def default_conditions

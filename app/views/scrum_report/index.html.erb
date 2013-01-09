@@ -96,7 +96,7 @@
               </td>
             <% end %>
             <td class="hours" data-sum="<%= task.spent_time %>"><%= html_hours("%.2f" % task.spent_time.to_f) %></td>
-            <td class="hours" data-sum="<%= @report.issue_remain(@report.days.last, task) %>"><%= html_hours("%.2f" % task.remaining_hours) %></td>
+            <td class="hours" data-sum="<%= @report.issue_remain(@report.days.last, task) %>"><%= html_hours("%.2f" % @report.issue_remain(@report.days.last, task)) %></td>
           </tr>
         <% end %>
       <% end %>

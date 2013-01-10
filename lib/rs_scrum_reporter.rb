@@ -43,22 +43,6 @@ module RS
       @data[day][:sum][:left]
     end
 
-    def story_spent(day, story_id)
-      sum = 0
-      @data[day].each do |key, value|
-        sum += value[:spent] if value[:story_id] == story_id
-      end
-      sum
-    end
-
-    def story_remain(day, story_id)
-      sum = 0
-      @data[day].each do |key, value|
-        sum += value[:left] if value[:story_id] == story_id
-      end
-      sum
-    end
-
     def get_line(type)
       @data[type]
     end
@@ -91,6 +75,12 @@ module RS
           issue_data[:assignee_te] = issue_entries.find{ |te| te.user_id == issue.assigned_to_id }
           issue_data[:story_id] = issue.parent_id
           @data[day][issue.id] = issue_data
+
+          if issue.parent_id.present?
+            @data[day][issue.parent_id] = { :left => 0, :spent => 0 } unless @data[day][issue.parent_id].present?
+            @data[day][issue.parent_id][:left] += issue_data[:left]
+            @data[day][issue.parent_id][:spent] += issue_data[:spent]
+          end
 
           sum_data[:spent] += issue_data[:spent]
           sum_data[:left] += issue_data[:left]

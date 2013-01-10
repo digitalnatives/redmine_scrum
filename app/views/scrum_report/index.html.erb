@@ -63,13 +63,13 @@
           </td>
           <td class="hours period-end"><%= html_hours("%.2f" % tasks.sum(&:estimated_hours)) %></td>
           <% @report.days.each do |day| %>
-            <% story_total = @report.story_spent(day, parent) %>
-            <% story_remain = @report.story_remain(day, parent) %>
+            <% story_total = @report.issue_spent(day, user_story) %>
+            <% story_remain = @report.issue_remain(day, user_story) %>
             <td class="hours" data-sum="<%= story_total %> "><%= html_hours("%.2f" % story_total ) %></td>
             <td class="hours period-end" data-sum="<%= story_remain %>"><%= html_hours("%.2f" % story_remain ) %></td>
           <% end %>
           <td class="hours" data-sum="<%= tasks.map(&:spent_time).compact.map(&:to_f).sum %>"><%= html_hours("%.2f" % tasks.map(&:spent_time).compact.map(&:to_f).sum) %></td>
-          <td class="hours" data-sum="<%= tasks.map(&:remaining_hours).sum %>"><%= html_hours("%.2f" % tasks.map(&:remaining_hours).sum) %></td>
+          <td class="hours" data-sum="<%= @report.issue_remain(@report.days.last, user_story) %>"><%= html_hours("%.2f" % @report.issue_remain(@report.days.last, user_story)) %></td>
         </tr>
         <% tasks.each do |task| %>
           <tr id="issue-<%= task.id %>" class="<%= cycle 'odd', 'even' %> hascontextmenu context-menu-selection">

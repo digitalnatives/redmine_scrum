@@ -29,6 +29,8 @@
 <% end %>
 
 <div class="autoscroll">
+  <% form_tag({}) do -%>
+  <%= hidden_field_tag 'back_url', url_for(params), :id => nil %>
   <table class="list" id="time-report">
     <thead>
       <tr>
@@ -52,11 +54,13 @@
       </tr>
     </thead>
     <tbody>
-      <% chart_remain_line = []; chart_ideal_line = [] %>
       <% @report.issues.group_by(&:parent_id).each do |parent, tasks| %>
-        <tr class="subtotal <%= cycle 'odd', 'even' %>">
+        <tr class="subtotal <%= cycle 'odd', 'even' %> hascontextmenu context-menu-selection">
           <% user_story = Issue.find_by_id(parent) %> 
-          <td colspan="4"><%= link_to user_story.subject, issue_path(user_story.id) if user_story.present? %></td>
+          <td colspan="4">
+            <%= check_box_tag("ids[]", user_story.id, false, :id => nil, :style => "display:none") %>
+            <%= link_to user_story.subject, issue_path(user_story.id) if user_story.present? %>
+          </td>
           <td class="hours period-end"><%= html_hours("%.2f" % tasks.sum(&:estimated_hours)) %></td>
           <% @report.days.each do |day| %>
             <% story_total = @report.story_spent(day, parent) %>
@@ -68,11 +72,13 @@
           <td class="hours" data-sum="<%= tasks.map(&:remaining_hours).sum %>"><%= html_hours("%.2f" % tasks.map(&:remaining_hours).sum) %></td>
         </tr>
         <% tasks.each do |task| %>
-          <tr class="<%= cycle 'odd', 'even' %>">
-            <td data-task-id="<%= task.id %>"></td>
+          <tr id="issue-<%= task.id %>" class="<%= cycle 'odd', 'even' %> hascontextmenu context-menu-selection">
+            <td data-task-id="<%= task.id %>">
+              <%= check_box_tag("ids[]", task.id, false, :id => nil, :style => "display:none") %>
+            </td>
             <td><%= link_to task.subject, task %></td>
             <td><%= task.assigned_to %></td>
-            <td><%= issue_status_helper(task) %></td>
+            <td><%= task.status %></td>
             <td class="hours period-end"><%= html_hours("%.2f" % task.estimated_hours) %></td>
             <% @report.days.to_a.each_with_index do |day, idx| %>
               <% hours = @report.issue_spent(day, task) %>
@@ -114,6 +120,7 @@
       </tr>
     </tbody>
   </table>
+<% end %>
 </div>
 
 <% other_formats_links do |f| %>
@@ -123,6 +130,5 @@
 <%= render :partial => 'burndown', :locals => {
   :mode => :full, 
   :style => 'width:650px; height: 300px; margin: 0 auto', 
-  :ideal_line => chart_ideal_line,
-  :remaining_line => chart_remain_line
 } %>
+<%= context_menu issues_context_menu_path %>

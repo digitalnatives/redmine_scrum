@@ -20,10 +20,12 @@ module RS
     end
 
     def issue_spent(day, task)
+      return 0 if @data[day][task.id].blank?
       @data[day][task.id][:spent]
     end
 
     def issue_remain(day, task)
+      return 0 if @data[day][task.id].blank?
       @data[day][task.id][:left]
     end
 

@@ -213,4 +213,65 @@ jQuery(function($) {
         status_id: $(evt.target).val()}
     );
   });
+
+//----------------------- KNOCKOUT --------------------------------
+function TimeEntry(data) {
+  var self = this;
+
+  self.spent = ko.observable(data.spent);
+  self.left = ko.observable(data.left);
+}
+
+function ViewModel() {
+  var self = this;
+  self.entries = ko.observableArray([]);
+
+  /*
+  self.entries = ko.observableArray([
+      ko.observableArray([
+        new TimeEntry("Bill", 10),
+        new TimeEntry("Tom", 20)
+        ]),
+      ko.observableArray([
+        new TimeEntry("Joe", 30),
+        new TimeEntry("Maria", 40)
+        ]),
+      ko.observableArray([
+        new TimeEntry("Chirstofer", 50),
+        new TimeEntry("Vendel", 60),
+        ])
+      ]);
+  */
+
+  self.addEntry = function() {
+    self.entries.push(new TimeEntry)
+  }
+
+  self.setUpEntries = function(data) {
+    delete data["ideal_line"];
+    delete data["remain_line"];
+    var entries_array = self.entries();
+    $.each(data, function(day_index, day_data) {
+      var row = ko.observableArray([]);
+      self.entries.push
+      $.each(day_data, function(issue_index, issue_data) {
+        //console.log(issue_index, day_data);
+        row.push(new TimeEntry(issue_data));
+      })
+      self.entries.push(row);
+    })
+    console.log("ok");
+    //self.entries.valueHasMutated();
+  }
+
+  self.previewJsonData = ko.computed(function() {
+    return JSON.stringify(ko.toJS(self.entries), null, '\t');
+  });
+}
+
+window.viewModel = new ViewModel();
+viewModel.setUpEntries(window.data);
+
+window.knocker = ko.applyBindings(viewModel);
+
 })

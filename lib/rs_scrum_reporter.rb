@@ -1,6 +1,6 @@
 module RS 
   class ScrumReporter
-    attr_reader :issues, :days, :sum_estimated_hours, :sum_spent_hours, :sum_remaining_hours
+    attr_reader :issues, :days, :sum_estimated_hours, :sum_spent_hours, :sum_remaining_hours, :data
 
     def initialize(project, version)
       @project = project
@@ -71,6 +71,7 @@ module RS
             issue.left_hours = entry.te_remaining_hours.to_f
           end
 
+          issue_data[:id] = issue.id
           issue_data[:left] = issue.left_hours.to_f
           issue_data[:spent] = issue_entries.compact.sum(&:hours)
           issue_data[:has_time_entry] = (issue_entries.present? ? true : false)

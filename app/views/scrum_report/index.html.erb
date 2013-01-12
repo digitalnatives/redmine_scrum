@@ -1,4 +1,8 @@
 <% content_for :header_tags do %>
+  <% javascript_tag do %>
+    var data = <%= @report.data.to_json.html_safe %>
+  <% end %>
+  <%= javascript_include_tag 'knockout-2.2.0.js', :plugin => :redmine_scrum %>
   <%= javascript_include_tag 'time_entry', :plugin => :redmine_scrum %>
   <%= javascript_include_tag 'jquery/jquery.jqplot/plugins/jqplot.dateAxisRenderer.min.js', :plugin => 'redmine_backlogs' %>
   <%= javascript_include_tag 'jquery/jquery.jqplot/plugins/jqplot.cursor.min.js', :plugin => 'redmine_backlogs' %>
@@ -122,6 +126,33 @@
   </table>
 <% end %>
 </div>
+
+<script id="itemsTmpl" type="text/html">
+  <tr>
+    <td data-bind="text: identificador"></td>
+    <td data-bind="text: nome"></td>
+    <td data-bind="text: descricao"></td>
+    <td data-bind="text: unidade"></td>
+    <td data-bind="text: hora_init"></td>
+    <td data-bind="text: period_cid"></td>
+    <td class="buttons">
+      <button data-bind="click: $root.editItem">Edit</button>
+    </td>
+  </tr>
+</script>
+
+<div class="autoscroll">
+  <table id="knocokout-table">
+    <tbody data-bind="foreach: entries">
+      <tr data-bind="foreach: $data"> 
+        <td data-bind="text: left"></td>
+        <td data-bind="text: spent"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<pre data-bind="text: previewJsonData"></pre> 
 
 <% other_formats_links do |f| %>
   <%= f.link_to 'CSV', :url => params %>

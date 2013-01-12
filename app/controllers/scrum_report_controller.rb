@@ -37,7 +37,13 @@ class ScrumReportController < ApplicationController
     if Redmine::Plugin.method_defined?(:mirror_assets)
       Redmine::Plugin.mirror_assets(:redmine_scrum)
     else
-      FileUtils.cp_r("#{Rails.root}/vendor/plugins/redmine_scrum/assets/.","#{Rails.root}/public/plugin_assets/redmine_scrum")
+      source_md5s = []
+      destination_md5s = []
+      Dir["#{Rails.root}/vendor/plugins/redmine_scrum/assets/**/*"].each { |file| source_md5s << Digest::MD5::hexdigest(File.read(file)) if File.file?(file) }
+      Dir["#{Rails.root}/public/plugin_assets/redmine_scrum/**/*"].each { |file| destination_md5s <<  Digest::MD5::hexdigest(File.read(file)) if File.file?(file) }
+      if source_md5s != destination_md5s
+        FileUtils.cp_r("#{Rails.root}/vendor/plugins/redmine_scrum/assets/.","#{Rails.root}/public/plugin_assets/redmine_scrum")
+      end
     end
   end
 

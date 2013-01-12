@@ -1,6 +1,8 @@
 <% content_for :header_tags do %>
   <% javascript_tag do %>
     var data = <%= @report.data.to_json.html_safe %>
+    var days = <%= @report.days.to_a.map(&:to_s).to_json %>
+    var issueIds = [];
   <% end %>
   <%= javascript_include_tag 'knockout-2.2.0.js', :plugin => :redmine_scrum %>
   <%= javascript_include_tag 'time_entry', :plugin => :redmine_scrum %>
@@ -61,6 +63,7 @@
       <% @report.issues.group_by(&:parent_id).each do |parent, tasks| %>
         <tr class="subtotal <%= cycle 'odd', 'even' %> hascontextmenu context-menu-selection">
           <% user_story = Issue.find_by_id(parent) %> 
+          <%= javascript_tag("issueIds.push(#{user_story.id})") %>
           <td colspan="4">
             <%= check_box_tag("ids[]", user_story.id, false, :id => nil, :style => "display:none") %>
             <%= link_to user_story.subject, issue_path(user_story.id) if user_story.present? %>
@@ -76,6 +79,7 @@
           <td class="hours" data-sum="<%= @report.issue_remain(@report.days.last, user_story) %>"><%= html_hours("%.2f" % @report.issue_remain(@report.days.last, user_story)) %></td>
         </tr>
         <% tasks.each do |task| %>
+          <%= javascript_tag("issueIds.push(#{task.id})") %>
           <tr id="issue-<%= task.id %>" class="<%= cycle 'odd', 'even' %> hascontextmenu context-menu-selection">
             <td data-task-id="<%= task.id %>">
               <%= check_box_tag("ids[]", task.id, false, :id => nil, :style => "display:none") %>
@@ -144,9 +148,16 @@
 <div class="autoscroll">
   <table id="knocokout-table">
     <tbody data-bind="foreach: entries">
-      <tr data-bind="foreach: $data"> 
+      <tr> 
+      <td>Story</td>
+      <td>Task</td>
+      <td>Assignee</td>
+      <td>Status</td>
+      <!-- ko foreach: $data -->
+        <td data-bind="text: index"></td>
         <td data-bind="text: left"></td>
         <td data-bind="text: spent"></td>
+      <!-- /ko -->
       </tr>
     </tbody>
   </table>

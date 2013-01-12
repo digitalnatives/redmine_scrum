@@ -215,33 +215,17 @@ jQuery(function($) {
   });
 
 //----------------------- KNOCKOUT --------------------------------
-function TimeEntry(data) {
+function TimeEntry(index, data) {
   var self = this;
 
   self.spent = ko.observable(data.spent);
   self.left = ko.observable(data.left);
+  self.index = index;
 }
 
 function ViewModel() {
   var self = this;
   self.entries = ko.observableArray([]);
-
-  /*
-  self.entries = ko.observableArray([
-      ko.observableArray([
-        new TimeEntry("Bill", 10),
-        new TimeEntry("Tom", 20)
-        ]),
-      ko.observableArray([
-        new TimeEntry("Joe", 30),
-        new TimeEntry("Maria", 40)
-        ]),
-      ko.observableArray([
-        new TimeEntry("Chirstofer", 50),
-        new TimeEntry("Vendel", 60),
-        ])
-      ]);
-  */
 
   self.addEntry = function() {
     self.entries.push(new TimeEntry)
@@ -250,13 +234,14 @@ function ViewModel() {
   self.setUpEntries = function(data) {
     delete data["ideal_line"];
     delete data["remain_line"];
+    local_data = []
     var entries_array = self.entries();
     $.each(data, function(day_index, day_data) {
       var row = ko.observableArray([]);
       self.entries.push
       $.each(day_data, function(issue_index, issue_data) {
         //console.log(issue_index, day_data);
-        row.push(new TimeEntry(issue_data));
+        row.push(new TimeEntry(day_index,issue_data));
       })
       self.entries.push(row);
     })
@@ -270,7 +255,7 @@ function ViewModel() {
 }
 
 window.viewModel = new ViewModel();
-viewModel.setUpEntries(window.data);
+viewModel.setUpEntries(window.data, days, issueIds );
 
 window.knocker = ko.applyBindings(viewModel);
 

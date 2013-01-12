@@ -215,12 +215,11 @@ jQuery(function($) {
   });
 
 //----------------------- KNOCKOUT --------------------------------
-function TimeEntry(index, data) {
+function TimeEntry(data) {
   var self = this;
 
   self.spent = ko.observable(data.spent);
   self.left = ko.observable(data.left);
-  self.index = index;
 }
 
 function ViewModel() {
@@ -231,20 +230,19 @@ function ViewModel() {
     self.entries.push(new TimeEntry)
   }
 
-  self.setUpEntries = function(data) {
-    delete data["ideal_line"];
-    delete data["remain_line"];
-    local_data = []
+  self.days = window.days;
+
+  self.setUpEntries = function(data, days, issueIds) {
     var entries_array = self.entries();
-    $.each(data, function(day_index, day_data) {
+
+    $.each(issueIds, function(index, id) {
       var row = ko.observableArray([]);
-      self.entries.push
-      $.each(day_data, function(issue_index, issue_data) {
-        //console.log(issue_index, day_data);
-        row.push(new TimeEntry(day_index,issue_data));
+      $.each(days, function(index, day) {
+        row.push(new TimeEntry(data[day][id]));
       })
       self.entries.push(row);
     })
+
     console.log("ok");
     //self.entries.valueHasMutated();
   }

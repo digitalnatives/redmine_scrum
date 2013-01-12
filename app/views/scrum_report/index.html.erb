@@ -146,17 +146,29 @@
 </script>
 
 <div class="autoscroll">
-  <table id="knocokout-table">
+  <table id="knocokout-table" class="list">
+    <thead>
+      <tr>
+        <th rowspan="2"><%= l('redmine_scrum.user_story') %></th>
+        <th rowspan="2"><%= l('redmine_scrum.issue') %></th>
+        <th rowspan="2"><%= l('redmine_scrum.assignee') %></th>
+        <th rowspan="2"><%= l('redmine_scrum.status') %></th>
+        <th rowspan="2" class="period-end"><%= l('redmine_scrum.estimated') %></th>
+        <!-- ko foreach: days -->
+        <th class="period-end" colspan="2" data-bind="text: $data" ></th>
+        <!-- /ko -->
+        <th colspan="2"><%= l('redmine_scrum.total') %></th>
+    </thead>
     <tbody data-bind="foreach: entries">
       <tr> 
       <td>Story</td>
       <td>Task</td>
       <td>Assignee</td>
       <td>Status</td>
+      <td>Estimated</td>
       <!-- ko foreach: $data -->
-        <td data-bind="text: index"></td>
-        <td data-bind="text: left"></td>
         <td data-bind="text: spent"></td>
+        <td data-bind="text: left"></td>
       <!-- /ko -->
       </tr>
     </tbody>

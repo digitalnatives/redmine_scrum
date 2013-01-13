@@ -215,11 +215,13 @@ jQuery(function($) {
   });
 
 //----------------------- KNOCKOUT --------------------------------
-function TimeEntry(data) {
+function TimeEntry(data, day, issueId) {
   var self = this;
 
   self.spent = ko.observable(data.spent);
   self.left = ko.observable(data.left);
+  self.day = day;
+  self.issueId = issueId;
 }
 
 function ViewModel() {
@@ -235,16 +237,34 @@ function ViewModel() {
   self.setUpEntries = function(data, days, issueIds) {
     var entries_array = self.entries();
 
-    $.each(issueIds, function(index, id) {
+    $.each(issueIds, function(index, issueId) {
       var row = ko.observableArray([]);
       $.each(days, function(index, day) {
-        row.push(new TimeEntry(data[day][id]));
+        row.push(new TimeEntry(data[day][issueId], day, issueId));
       })
       self.entries.push(row);
     })
-
-    console.log("ok");
     //self.entries.valueHasMutated();
+  }
+
+  self.dailyTotal = ko.observableArray([]);
+
+  self.setUpDailyTotal = function() {
+    var total;
+    ko.utils.arrayForEach(self.days, function(day) {
+
+      total = ko.computed(function() {
+        var sum = 0;
+        ko.utils.arrayForEach(self.entries(), function(entry) {
+          if (entry.day == day) {
+            sum += entry.spent;
+          }
+        });
+        return sum;
+      });
+
+      self.dailyTotal.push(total);
+    }) 
   }
 
   self.previewJsonData = ko.computed(function() {

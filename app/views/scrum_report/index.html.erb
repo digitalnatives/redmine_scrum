@@ -158,6 +158,15 @@
         <th class="period-end" colspan="2" data-bind="text: $data" ></th>
         <!-- /ko -->
         <th colspan="2"><%= l('redmine_scrum.total') %></th>
+        </tr>
+        <tr>
+        <!-- ko foreach: days -->
+          <th>&sum;</th>
+          <th class="period-end">R</th>
+        <!-- /ko -->
+        <th>&sum;</th>
+        <th>R</th>
+        </tr>
     </thead>
     <tbody>
       <!-- ko foreach: entries -->
@@ -166,18 +175,18 @@
         <td>Task</td>
         <td>Assignee</td>
         <td>Status</td>
-        <td>Estimated</td>
+        <td class="period-end">Estimated</td>
         <!-- ko foreach: $data -->
         <td data-bind="text: spent"></td>
-        <td data-bind="text: left"></td>
+        <td data-bind="text: left" class="period-end"></td>
         <!-- /ko -->
       </tr>
       <!-- /ko -->
       <tr> 
-        <td colspan="5">Total</td>
+        <td colspan="5" class="period-end">Total</td>
         <!-- ko foreach: $root.dailyTotals -->
         <td data-bind="text: spent"></td>
-        <td data-bind="text: left"></td>
+        <td data-bind="text: left" class="period-end"></td>
         <!-- /ko -->
       </tr>
     </tbody>

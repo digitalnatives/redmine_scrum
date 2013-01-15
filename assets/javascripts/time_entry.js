@@ -222,6 +222,7 @@ function TimeEntry(data, day, issueId) {
   self.left = ko.observable(data.left);
   self.day = day;
   self.issueId = issueId;
+  self.storyId = data.story_id;
 }
 
 function DailyTotal(data) {
@@ -249,10 +250,19 @@ function DailyTotal(data) {
 function TimeEntryRow(issueId) {
 }
 
-function ViewModel() {
+function ViewModel(data, days, issueIds) {
   var self = this;
 
-  self.entries = ko.observableArray([]);
+  self.entries = ko.observableArray(
+      ko.utils.arrayMap(issueIds, function(issueId) {
+        var row = ko.observableArray();
+        $.each(days, function(index, day) {
+          row.push(new TimeEntry(data[day][issueId], day, issueId));
+        })
+        return row;
+      })
+      )
+    //self.entries.valueHasMutated();
 
   self.addEntry = function() {
     self.entries.push(new TimeEntry)
@@ -261,27 +271,15 @@ function ViewModel() {
   self.days = window.days;
   self.dailyTotals = []
 
-  self.setUpEntries = function(data, days, issueIds) {
-    var entries_array = self.entries();
-
-    $.each(issueIds, function(index, issueId) {
-      var row = ko.observableArray([]);
-      $.each(days, function(index, day) {
-        row.push(new TimeEntry(data[day][issueId], day, issueId));
-      })
-      self.entries.push(row);
-    })
-    //self.entries.valueHasMutated();
-  }
 
   self.setUpDailyTotals = function(days) {
     $.each(days, function(index, day) {
       var dailyEntries = []
       ko.utils.arrayForEach(self.entries(), function(row){
         var cell = $.grep(row(), function(te) {
-          return te.day == day;
+          return te.day == day && typeof te.storyId != "undefined";
         })[0];
-        dailyEntries.push(cell);
+        if(cell) dailyEntries.push(cell);
       })
       self.dailyTotals.push(new DailyTotal({ day: day, entries: dailyEntries}));
     })
@@ -292,8 +290,7 @@ function ViewModel() {
   });
 }
 
-window.viewModel = new ViewModel();
-viewModel.setUpEntries(window.data, days, issueIds );
+window.viewModel = new ViewModel(data, days, issueIds);
 viewModel.setUpDailyTotals(days);
 
 window.knocker = ko.applyBindings(viewModel);

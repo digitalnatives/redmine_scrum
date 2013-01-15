@@ -224,6 +224,9 @@ function TimeEntry(data, day, issueId) {
   self.issueId = issueId;
 }
 
+function TimeEntryRow(issueId) {
+}
+
 function ViewModel() {
   var self = this;
   self.entries = ko.observableArray([]);
@@ -247,24 +250,15 @@ function ViewModel() {
     //self.entries.valueHasMutated();
   }
 
-  self.dailyTotal = ko.observableArray([]);
-
   self.setUpDailyTotal = function() {
-    var total;
-    ko.utils.arrayForEach(self.days, function(day) {
-
-      total = ko.computed(function() {
-        var sum = 0;
-        ko.utils.arrayForEach(self.entries(), function(entry) {
-          if (entry.day == day) {
-            sum += entry.spent;
-          }
-        });
-        return sum;
-      });
-
-      self.dailyTotal.push(total);
-    }) 
+    self.dailyTotal = [
+      ko.computed(function() {
+        return self.entries()[0]()[0].spent() + self.entries()[0]()[4].spent();
+      })
+    ,ko.computed(function() {
+      return self.entries()[0]()[0].spent() + self.entries()[0]()[4].spent();
+    })
+    ]
   }
 
   self.previewJsonData = ko.computed(function() {
@@ -274,6 +268,7 @@ function ViewModel() {
 
 window.viewModel = new ViewModel();
 viewModel.setUpEntries(window.data, days, issueIds );
+viewModel.setUpDailyTotal();
 
 window.knocker = ko.applyBindings(viewModel);
 

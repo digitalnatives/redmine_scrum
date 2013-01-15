@@ -159,17 +159,26 @@
         <!-- /ko -->
         <th colspan="2"><%= l('redmine_scrum.total') %></th>
     </thead>
-    <tbody data-bind="foreach: entries">
+    <tbody>
+      <!-- ko foreach: entries -->
       <tr> 
-      <td data-bind="text: $index"></td>
-      <td>Task</td>
-      <td>Assignee</td>
-      <td>Status</td>
-      <td>Estimated</td>
-      <!-- ko foreach: $data -->
+        <td data-bind="text: $index"></td>
+        <td>Task</td>
+        <td>Assignee</td>
+        <td>Status</td>
+        <td>Estimated</td>
+        <!-- ko foreach: $data -->
         <td data-bind="text: spent"></td>
         <td data-bind="text: left"></td>
+        <!-- /ko -->
+      </tr>
       <!-- /ko -->
+      <tr> 
+        <td colspan="5">Total</td>
+        <!-- ko foreach: $root.dailyTotals -->
+        <td data-bind="text: spent"></td>
+        <td data-bind="text: left"></td>
+        <!-- /ko -->
       </tr>
     </tbody>
   </table>

@@ -224,11 +224,34 @@ function TimeEntry(data, day, issueId) {
   self.issueId = issueId;
 }
 
+function DailyTotal(data) {
+  var self = this;
+
+  self.day = data.day;
+
+  self.spent = ko.computed(function() {
+    var sum = 0;
+    ko.utils.arrayForEach(data.entries, function(entry){
+      sum += entry.spent();
+    })
+    return sum;
+  });
+
+  self.left = ko.computed(function() {
+    var sum = 0;
+    ko.utils.arrayForEach(data.entries, function(entry){
+      sum += entry.left();
+    })
+    return sum;
+  });
+}
+
 function TimeEntryRow(issueId) {
 }
 
 function ViewModel() {
   var self = this;
+
   self.entries = ko.observableArray([]);
 
   self.addEntry = function() {
@@ -236,6 +259,7 @@ function ViewModel() {
   }
 
   self.days = window.days;
+  self.dailyTotals = []
 
   self.setUpEntries = function(data, days, issueIds) {
     var entries_array = self.entries();
@@ -250,15 +274,17 @@ function ViewModel() {
     //self.entries.valueHasMutated();
   }
 
-  self.setUpDailyTotal = function() {
-    self.dailyTotal = [
-      ko.computed(function() {
-        return self.entries()[0]()[0].spent() + self.entries()[0]()[4].spent();
+  self.setUpDailyTotals = function(days) {
+    $.each(days, function(index, day) {
+      var dailyEntries = []
+      ko.utils.arrayForEach(self.entries(), function(row){
+        var cell = $.grep(row(), function(te) {
+          return te.day == day;
+        })[0];
+        dailyEntries.push(cell);
       })
-    ,ko.computed(function() {
-      return self.entries()[0]()[0].spent() + self.entries()[0]()[4].spent();
+      self.dailyTotals.push(new DailyTotal({ day: day, entries: dailyEntries}));
     })
-    ]
   }
 
   self.previewJsonData = ko.computed(function() {
@@ -268,7 +294,7 @@ function ViewModel() {
 
 window.viewModel = new ViewModel();
 viewModel.setUpEntries(window.data, days, issueIds );
-viewModel.setUpDailyTotal();
+viewModel.setUpDailyTotals(days);
 
 window.knocker = ko.applyBindings(viewModel);
 

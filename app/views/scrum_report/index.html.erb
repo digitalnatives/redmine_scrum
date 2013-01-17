@@ -171,22 +171,24 @@
         </tr>
     </thead>
     <tbody>
-      <!-- ko foreach: entries -->
+      <!-- ko foreach: rows -->
       <tr> 
         <td data-bind="text: $index" class="col1"></td>
         <td class="col2">Task</td>
         <td class="col3">Assignee</td>
         <td class="col4">Status</td>
         <td class="col5">Estimated</td>
-        <!-- ko foreach: $data -->
+        <!-- ko foreach: $data.cells -->
         <td data-bind="text: spent"></td>
         <td data-bind="text: left" class="period-end"></td>
         <!-- /ko -->
+        <td data-bind="text: spent"></td>
+        <td data-bind="text: left" class="period-end"></td>
       </tr>
       <!-- /ko -->
       <tr> 
         <td colspan="5" class="col-total">Total</td>
-        <!-- ko foreach: $root.dailyTotals -->
+        <!-- ko foreach: $root.dailyTotals.cells -->
         <td data-bind="text: spent"></td>
         <td data-bind="text: left" class="period-end"></td>
         <!-- /ko -->

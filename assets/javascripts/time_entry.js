@@ -215,7 +215,7 @@ jQuery(function($) {
   });
 
 //----------------------- KNOCKOUT --------------------------------
-function TimeEntry(data, day, issueId) {
+function Cell(data, day, issueId) {
   var self = this;
 
   self.spent = ko.observable(data.spent);
@@ -225,7 +225,29 @@ function TimeEntry(data, day, issueId) {
   self.storyId = data.story_id;
 }
 
-function DailyTotal(data) {
+function Row(data, days, issueId) {
+  var self = this;
+
+  self.cells = ko.observableArray(
+    ko.utils.arrayMap(days, function(day) {
+      return new Cell(data[day][issueId], day, issueId);
+    })
+  )
+
+  self.spent = ko.computed(function() {
+    var sum = 0;
+    ko.utils.arrayForEach(self.cells(), function(cell) {
+      sum += cell.spent();
+    })
+    return sum;
+  })
+
+  self.left = ko.computed(function() {
+    return self.cells().last().left();
+  })
+}
+
+function DailyTotalCell(data) {
   var self = this;
 
   self.day = data.day;
@@ -247,31 +269,42 @@ function DailyTotal(data) {
   });
 }
 
-function TimeEntryRow(issueId) {
+function DailyTotalRow(rows, days) {
+  var self = this;
+
+  self.cells = ko.observableArray(
+    ko.utils.arrayMap(days, function(day) {
+      var entries = [];
+      ko.utils.arrayForEach(rows, function(row) {
+        var cell = $.grep(row(), function(te) {
+          return te.day == day && typeof te.storyId != "undefined";
+        })[0];
+        if(cell) entries.push(cell);
+      })
+      return new DailyTotalCell({day: day, entries: entries});
+    })
+  )
+
 }
 
 function ViewModel(data, days, issueIds) {
   var self = this;
 
-  self.entries = ko.observableArray(
-      ko.utils.arrayMap(issueIds, function(issueId) {
-        var row = ko.observableArray();
-        $.each(days, function(index, day) {
-          row.push(new TimeEntry(data[day][issueId], day, issueId));
-        })
-        return row;
-      })
-      )
-    //self.entries.valueHasMutated();
+  self.rows = ko.observableArray(
+    ko.utils.arrayMap(issueIds, function(issueId) {
+      return new Row(data, days, issueId);
+    })
+  )
+  //self.entries.valueHasMutated();
 
   self.addEntry = function() {
     self.entries.push(new TimeEntry)
   }
 
   self.days = window.days;
-  self.dailyTotals = []
+  self.dailyTotals = new DailyTotalRow(self.rows, days);
 
-
+/*
   self.setUpDailyTotals = function(days) {
     $.each(days, function(index, day) {
       var dailyEntries = []
@@ -285,13 +318,14 @@ function ViewModel(data, days, issueIds) {
     })
   }
 
+  */
   self.previewJsonData = ko.computed(function() {
     return JSON.stringify(ko.toJS(self.entries), null, '\t');
   });
 }
 
 window.viewModel = new ViewModel(data, days, issueIds);
-viewModel.setUpDailyTotals(days);
+//viewModel.setUpDailyTotals(days);
 
 window.knocker = ko.applyBindings(viewModel);
 

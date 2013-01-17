@@ -145,21 +145,23 @@
   </tr>
 </script>
 
-<div class="autoscroll">
-  <table id="knocokout-table" class="list">
+
+<div class="ko-scroller">
+  <table id="ko-table" class="list">
     <thead>
       <tr>
-        <th rowspan="2"><%= l('redmine_scrum.user_story') %></th>
-        <th rowspan="2"><%= l('redmine_scrum.issue') %></th>
-        <th rowspan="2"><%= l('redmine_scrum.assignee') %></th>
-        <th rowspan="2"><%= l('redmine_scrum.status') %></th>
-        <th rowspan="2" class="period-end"><%= l('redmine_scrum.estimated') %></th>
+        <th class="col1"><%= l('redmine_scrum.user_story') %></th>
+        <th class="col2"><%= l('redmine_scrum.issue') %></th>
+        <th class="col3"><%= l('redmine_scrum.assignee') %></th>
+        <th class="col4"><%= l('redmine_scrum.status') %></th>
+        <th class="col5"><%= l('redmine_scrum.estimated') %></th>
         <!-- ko foreach: days -->
         <th class="period-end" colspan="2" data-bind="text: $data" ></th>
         <!-- /ko -->
         <th colspan="2"><%= l('redmine_scrum.total') %></th>
         </tr>
         <tr>
+        <td class="col-total"></td>
         <!-- ko foreach: days -->
           <th>&sum;</th>
           <th class="period-end">R</th>
@@ -171,11 +173,11 @@
     <tbody>
       <!-- ko foreach: entries -->
       <tr> 
-        <td data-bind="text: $index"></td>
-        <td>Task</td>
-        <td>Assignee</td>
-        <td>Status</td>
-        <td class="period-end">Estimated</td>
+        <td data-bind="text: $index" class="col1"></td>
+        <td class="col2">Task</td>
+        <td class="col3">Assignee</td>
+        <td class="col4">Status</td>
+        <td class="col5">Estimated</td>
         <!-- ko foreach: $data -->
         <td data-bind="text: spent"></td>
         <td data-bind="text: left" class="period-end"></td>
@@ -183,7 +185,7 @@
       </tr>
       <!-- /ko -->
       <tr> 
-        <td colspan="5" class="period-end">Total</td>
+        <td colspan="5" class="col-total">Total</td>
         <!-- ko foreach: $root.dailyTotals -->
         <td data-bind="text: spent"></td>
         <td data-bind="text: left" class="period-end"></td>

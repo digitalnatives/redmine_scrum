@@ -1,4 +1,4 @@
-<div id="time-entry-dialog">
+<div id="time-entry-dialog" data-bind="modal: selected">
   <% form_for TimeEntry.new, :url => '/scrum_report_time_entries', :html => { :id => 'set-time-entry-hours', "data-remote" => true } do |f| %> 
     <div id="errorExplanation">
       <ul></ul>
@@ -15,7 +15,7 @@
     </p>
     <p>
       <label>Spent time:</label>
-      <%= f.text_field :hours, :size => 6, :required => true %>
+      <%= f.text_field :hours, :size => 6, :required => true, "data-bind" => "value :spent" %>
     </p>
     <p>
       <label>Activity:</label>
@@ -23,7 +23,7 @@
     </p>
     <p>
       <label>Remaining time:</label>
-      <%= f.text_field :te_remaining_hours, :size => 6 %>
+      <%= f.text_field :te_remaining_hours, :size => 6, "data-bind" => "value: left" %>
     </p>
   <% end %>
   <div class="rsindicator"> </div>

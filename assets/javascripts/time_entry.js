@@ -228,9 +228,14 @@ function Cell(data, day, issueId) {
 function Row(data, days, issueId) {
   var self = this;
 
+  self.isStory = false;
+  self.issueId = issueId;
+
   self.cells = ko.observableArray(
     ko.utils.arrayMap(days, function(day) {
-      return new Cell(data[day][issueId], day, issueId);
+      var cell = new Cell(data[day][issueId], day, issueId);
+      self.isStory = (typeof cell.storyId != "undefined") ? false : true;
+      return cell;
     })
   )
 
@@ -285,10 +290,31 @@ function DailyTotalRow(rows, days) {
     })
   )
 
+  self.spent = ko.computed(function() {
+    var sum = 0;
+    ko.utils.arrayForEach(rows(), function(row){
+      if(row.isStory) return;
+      sum += row.spent();
+    })
+    return sum;
+  })
+
+  self.left = ko.computed(function() {
+    var sum = 0;
+    ko.utils.arrayForEach(rows(), function(row){
+      if(row.isStory) return;
+      sum += row.left();
+    })
+    return sum;
+  })
+
 }
 
 function ViewModel(data, days, issueIds) {
   var self = this;
+
+  // By clicking on cells this gets set
+  self.selected = ko.observable();
 
   self.rows = ko.observableArray(
     ko.utils.arrayMap(issueIds, function(issueId) {
@@ -304,29 +330,29 @@ function ViewModel(data, days, issueIds) {
   self.days = window.days;
   self.dailyTotals = new DailyTotalRow(self.rows, days);
 
-/*
-  self.setUpDailyTotals = function(days) {
-    $.each(days, function(index, day) {
-      var dailyEntries = []
-      ko.utils.arrayForEach(self.entries(), function(row){
-        var cell = $.grep(row(), function(te) {
-          return te.day == day && typeof te.storyId != "undefined";
-        })[0];
-        if(cell) dailyEntries.push(cell);
-      })
-      self.dailyTotals.push(new DailyTotal({ day: day, entries: dailyEntries}));
-    })
-  }
-
-  */
   self.previewJsonData = ko.computed(function() {
     return JSON.stringify(ko.toJS(self.entries), null, '\t');
   });
 }
 
+ko.bindingHandlers.modal = {
+  init: function(element, valueAccessor) {
+    $(element).dialog({ show: false }).bind("hidden", function() {
+      var data = valueAccessor();
+      data(null);
+    });
+    return ko.bindingHandlers.with.init.apply(this, arguments);
+  },
+
+  update: function(element, valueAccessor) {
+    var value = ko.utils.unwrapObservable(valueAccessor());
+    $(element).dialog(value ? "open" : "close");
+
+    return ko.bindingHandlers.with.update.apply(this, arguments);
+  }
+}
+
 window.viewModel = new ViewModel(data, days, issueIds);
-//viewModel.setUpDailyTotals(days);
 
-window.knocker = ko.applyBindings(viewModel);
-
+ko.applyBindings(viewModel);
 })

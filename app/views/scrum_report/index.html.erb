@@ -131,21 +131,6 @@
 <% end %>
 </div>
 
-<script id="itemsTmpl" type="text/html">
-  <tr>
-    <td data-bind="text: identificador"></td>
-    <td data-bind="text: nome"></td>
-    <td data-bind="text: descricao"></td>
-    <td data-bind="text: unidade"></td>
-    <td data-bind="text: hora_init"></td>
-    <td data-bind="text: period_cid"></td>
-    <td class="buttons">
-      <button data-bind="click: $root.editItem">Edit</button>
-    </td>
-  </tr>
-</script>
-
-
 <div class="ko-scroller">
   <table id="ko-table" class="list">
     <thead>
@@ -179,8 +164,8 @@
         <td class="col4">Status</td>
         <td class="col5">Estimated</td>
         <!-- ko foreach: $data.cells -->
-        <td data-bind="text: spent"></td>
-        <td data-bind="text: left" class="period-end"></td>
+        <td data-bind="text: spent, click: $root.selected"></td>
+        <td data-bind="text: left, click: $root.selected" class="period-end"></td>
         <!-- /ko -->
         <td data-bind="text: spent"></td>
         <td data-bind="text: left" class="period-end"></td>
@@ -192,6 +177,8 @@
         <td data-bind="text: spent"></td>
         <td data-bind="text: left" class="period-end"></td>
         <!-- /ko -->
+        <td data-bind="text: dailyTotals.spent"></td>
+        <td data-bind="text: dailyTotals.left" class="period-end"></td>
       </tr>
     </tbody>
   </table>

@@ -275,8 +275,8 @@ function DailyTotalRow(rows, days) {
   self.cells = ko.observableArray(
     ko.utils.arrayMap(days, function(day) {
       var entries = [];
-      ko.utils.arrayForEach(rows, function(row) {
-        var cell = $.grep(row(), function(te) {
+      ko.utils.arrayForEach(rows(), function(row) {
+        var cell = $.grep(row.cells(), function(te) {
           return te.day == day && typeof te.storyId != "undefined";
         })[0];
         if(cell) entries.push(cell);

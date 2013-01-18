@@ -157,12 +157,12 @@
     </thead>
     <tbody>
       <!-- ko foreach: rows -->
-      <tr> 
-        <td data-bind="text: $index" class="col1"></td>
-        <td class="col2">Task</td>
-        <td class="col3">Assignee</td>
-        <td class="col4">Status</td>
-        <td class="col5">Estimated</td>
+      <tr data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
+        <td data-bind="text: $index, css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }" class="col1"></td>
+        <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }" class="col2">Task</td>
+        <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }" class="col3">Assignee</td>
+        <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }" class="col4">Status</td>
+        <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }" class="col5">Estimated</td>
         <!-- ko foreach: $data.cells -->
         <td data-bind="text: spent, click: $root.selected"></td>
         <td data-bind="text: left, click: $root.selected" class="period-end"></td>
@@ -174,7 +174,10 @@
       <tr> 
         <td colspan="5" class="col-total">Total</td>
         <!-- ko foreach: $root.dailyTotals.cells -->
-        <td data-bind="text: spent"></td>
+        <td data-bind="with: spent">
+        <span class="hours hours-int" data-bind="text: $data.toString().split('.')[0]"></span>
+        <span class="hours hours-dec" data-bind="text: $data.toString().split('.')[0]"></span>
+        </td>
         <td data-bind="text: left" class="period-end"></td>
         <!-- /ko -->
         <td data-bind="text: dailyTotals.spent"></td>

@@ -223,6 +223,8 @@ function Cell(data, day, issueId) {
   self.day = day;
   self.issueId = issueId;
   self.storyId = data.story_id;
+
+  self.spentFormatted = self.spent.toString().split('.')
 }
 
 function Row(data, days, issueId) {
@@ -346,8 +348,9 @@ ko.bindingHandlers.modal = {
 
   update: function(element, valueAccessor) {
     var value = ko.utils.unwrapObservable(valueAccessor());
-    $(element).dialog(value ? "open" : "close");
+    if(typeof value != "undefined" && typeof value.storyId == "undefined") return;
 
+    $(element).dialog(value ? "open" : "close");
     return ko.bindingHandlers.with.update.apply(this, arguments);
   }
 }

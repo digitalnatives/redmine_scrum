@@ -215,16 +215,37 @@ jQuery(function($) {
   });
 
 //----------------------- KNOCKOUT --------------------------------
-function Cell(data, day, issueId) {
+function Cell(data, day, issueId, prevCell) {
   var self = this;
 
   self.spent = ko.observable(data.spent);
-  self.left = ko.observable(data.left);
+  self.leftValue = ko.observable(data.left);
+  self.hasTimeEntry = ko.observable(data.has_time_entry);
   self.day = day;
   self.issueId = issueId;
   self.storyId = data.story_id;
 
+  self.prevCell = prevCell;
+
   self.spentFormatted = self.spent.toString().split('.')
+
+  self.left = ko.computed({
+    read: function() {
+      if(self.hasTimeEntry()) return self.leftValue();
+      if(prevCell) return self.prevCell.left(); 
+      return self.leftValue();
+    },
+    write: function(value) {
+      self.hasTimeEntry(true);
+      self.leftValue(value);
+    }
+  }
+/*      var date = new Date(self.day)
+      var prevDay = date.getDate() - 1;
+      date = date.toLocaleFormat('%Y-%m-');
+      date += (prevDay > 10) ? prevDay : "0" + prevDay;*/
+
+  )
 }
 
 function Row(data, days, issueId) {
@@ -232,10 +253,12 @@ function Row(data, days, issueId) {
 
   self.isStory = false;
   self.issueId = issueId;
+  self.prevCell;
 
   self.cells = ko.observableArray(
     ko.utils.arrayMap(days, function(day) {
-      var cell = new Cell(data[day][issueId], day, issueId);
+      var cell = new Cell(data[day][issueId], day, issueId, self.prevCell);
+      self.prevCell = cell;
       self.isStory = (typeof cell.storyId != "undefined") ? false : true;
       return cell;
     })

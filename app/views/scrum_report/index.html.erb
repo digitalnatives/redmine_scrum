@@ -171,13 +171,10 @@
         <td data-bind="text: left" class="period-end"></td>
       </tr>
       <!-- /ko -->
-      <tr> 
+      <tr>
         <td colspan="5" class="col-total">Total</td>
         <!-- ko foreach: $root.dailyTotals.cells -->
-        <td data-bind="with: spent">
-        <span class="hours hours-int" data-bind="text: $data.toString().split('.')[0]"></span>
-        <span class="hours hours-dec" data-bind="text: $data.toString().split('.')[0]"></span>
-        </td>
+        <td data-bind="text: spent"></td>
         <td data-bind="text: left" class="period-end"></td>
         <!-- /ko -->
         <td data-bind="text: dailyTotals.spent"></td>

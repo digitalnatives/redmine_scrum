@@ -244,7 +244,7 @@ function Row(data, days, issueId) {
   self.spent = ko.computed(function() {
     var sum = 0;
     ko.utils.arrayForEach(self.cells(), function(cell) {
-      sum += cell.spent();
+      sum += Number(cell.spent());
     })
     return sum;
   })
@@ -262,7 +262,7 @@ function DailyTotalCell(data) {
   self.spent = ko.computed(function() {
     var sum = 0;
     ko.utils.arrayForEach(data.entries, function(entry){
-      sum += entry.spent();
+      sum += Number(entry.spent());
     })
     return sum;
   });
@@ -270,7 +270,7 @@ function DailyTotalCell(data) {
   self.left = ko.computed(function() {
     var sum = 0;
     ko.utils.arrayForEach(data.entries, function(entry){
-      sum += entry.left();
+      sum += Number(entry.left());
     })
     return sum;
   });
@@ -296,7 +296,7 @@ function DailyTotalRow(rows, days) {
     var sum = 0;
     ko.utils.arrayForEach(rows(), function(row){
       if(row.isStory) return;
-      sum += row.spent();
+      sum += Number(row.spent());
     })
     return sum;
   })
@@ -305,7 +305,7 @@ function DailyTotalRow(rows, days) {
     var sum = 0;
     ko.utils.arrayForEach(rows(), function(row){
       if(row.isStory) return;
-      sum += row.left();
+      sum += Number(row.left());
     })
     return sum;
   })

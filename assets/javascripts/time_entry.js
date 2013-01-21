@@ -224,7 +224,6 @@ function Cell(data, day, issueId, prevCell) {
   self.day = day;
   self.issueId = issueId;
   self.storyId = data.story_id;
-
   self.prevCell = prevCell;
 
   self.spentFormatted = self.spent.toString().split('.')
@@ -239,13 +238,7 @@ function Cell(data, day, issueId, prevCell) {
       self.hasTimeEntry(true);
       self.leftValue(value);
     }
-  }
-/*      var date = new Date(self.day)
-      var prevDay = date.getDate() - 1;
-      date = date.toLocaleFormat('%Y-%m-');
-      date += (prevDay > 10) ? prevDay : "0" + prevDay;*/
-
-  )
+  })
 }
 
 function Row(data, days, issueId) {
@@ -281,6 +274,7 @@ function DailyTotalCell(data) {
   var self = this;
 
   self.day = data.day;
+  self.index = data.index;
 
   self.spent = ko.computed(function() {
     var sum = 0;
@@ -295,12 +289,17 @@ function DailyTotalCell(data) {
     ko.utils.arrayForEach(data.entries, function(entry){
       sum += Number(entry.left());
     })
+
+    window.bdChart.series[1].data[self.index][1] = sum;
+    window.bdChart.replot();
     return sum;
   });
 }
 
 function DailyTotalRow(rows, days) {
   var self = this;
+
+  self.index = 0;
 
   self.cells = ko.observableArray(
     ko.utils.arrayMap(days, function(day) {
@@ -311,7 +310,8 @@ function DailyTotalRow(rows, days) {
         })[0];
         if(cell) entries.push(cell);
       })
-      return new DailyTotalCell({day: day, entries: entries});
+      self.index++;
+      return new DailyTotalCell({day: day, entries: entries, index: (self.index - 1)});
     })
   )
 
@@ -335,15 +335,15 @@ function DailyTotalRow(rows, days) {
 
 }
 
-function ViewModel(data, days, issueIds) {
+function ViewModel(data) {
   var self = this;
 
   // By clicking on cells this gets set
   self.selected = ko.observable();
 
   self.rows = ko.observableArray(
-    ko.utils.arrayMap(issueIds, function(issueId) {
-      return new Row(data, days, issueId);
+    ko.utils.arrayMap(data.issue_ids, function(issueId) {
+      return new Row(data, data.days, issueId);
     })
   )
   //self.entries.valueHasMutated();
@@ -352,8 +352,8 @@ function ViewModel(data, days, issueIds) {
     self.entries.push(new TimeEntry)
   }
 
-  self.days = window.days;
-  self.dailyTotals = new DailyTotalRow(self.rows, days);
+  self.days = data.days;
+  self.dailyTotals = new DailyTotalRow(self.rows, data.days);
 
   self.previewJsonData = ko.computed(function() {
     return JSON.stringify(ko.toJS(self.entries), null, '\t');
@@ -378,7 +378,36 @@ ko.bindingHandlers.modal = {
   }
 }
 
-window.viewModel = new ViewModel(data, days, issueIds);
+window.bdChart = jQuery.jqplot('burndown', [data.ideal_line, data.remain_line], {
+  title:'Burndown Chart',
+    axes:{
+      xaxis:{
+        label: "Days",
+        renderer:$.jqplot.DateAxisRenderer,
+        ticks: data.days,
+        tickOptions:{
+          formatString:'%b&nbsp;%#d'
+        }
+      },
+      yaxis:{
+        label: "Remaining",
+        min: 0,
+        max: data.sum_estimated_hours,
+        tickOptions:{
+         formatString:'%.2f'
+        }
+      }
+    },
+    highlighter: {
+      show: true,
+      sizeAdjust: 7.5
+    },
+    cursor: {
+      show: false
+    }
+  });
+
+window.viewModel = new ViewModel(data);
 
 ko.applyBindings(viewModel);
 })

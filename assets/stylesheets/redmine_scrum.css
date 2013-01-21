@@ -27,9 +27,6 @@
     border-right: 1px solid #000 !important;
 }
 
-#ko-table td.time-entry:hover {
-  background-color: #759fcf;
-} 
 
 #time-entry-dialog label {
   width: 120px;
@@ -51,6 +48,14 @@
   color:#8686cb;
   font-weight: normal;
 }
+
+#ko-table {
+  max-height: 400px;
+}
+
+#ko-table td.time-entry:hover {
+  background-color: #759fcf;
+} 
 
 #ko-table .col1 {
   position: absolute;

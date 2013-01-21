@@ -1,16 +1,14 @@
 <% content_for :header_tags do %>
   <% javascript_tag do %>
     var data = <%= @report.data.to_json.html_safe %>
-    var days = <%= @report.days.to_a.map(&:to_s).to_json %>
-    var issueIds = [];
   <% end %>
   <%= javascript_include_tag 'knockout-2.2.0.js', :plugin => :redmine_scrum %>
   <%= javascript_include_tag 'time_entry', :plugin => :redmine_scrum %>
   <%= javascript_include_tag 'jquery/jquery.jqplot/plugins/jqplot.dateAxisRenderer.min.js', :plugin => 'redmine_backlogs' %>
   <%= javascript_include_tag 'jquery/jquery.jqplot/plugins/jqplot.cursor.min.js', :plugin => 'redmine_backlogs' %>
 
-  <%= stylesheet_link_tag 'jquery/jquery-ui.css', :plugin => :redmine_backlogs %>
   <%= stylesheet_link_tag 'redmine_scrum', :plugin => :redmine_scrum %>
+  <%= stylesheet_link_tag 'jquery/jquery-ui.css', :plugin => :redmine_backlogs %>
 
 <% end %>
 
@@ -63,7 +61,6 @@
       <% @report.issues.group_by(&:parent_id).each do |parent, tasks| %>
         <tr class="subtotal <%= cycle 'odd', 'even' %> hascontextmenu context-menu-selection">
           <% user_story = Issue.find_by_id(parent) %> 
-          <%= javascript_tag("issueIds.push(#{user_story.id})") %>
           <td colspan="4">
             <%= check_box_tag("ids[]", user_story.id, false, :id => nil, :style => "display:none") %>
             <%= link_to user_story.subject, issue_path(user_story.id) if user_story.present? %>
@@ -79,7 +76,6 @@
           <td class="hours" data-sum="<%= @report.issue_remain(@report.days.last, user_story) %>"><%= html_hours("%.2f" % @report.issue_remain(@report.days.last, user_story)) %></td>
         </tr>
         <% tasks.each do |task| %>
-          <%= javascript_tag("issueIds.push(#{task.id})") %>
           <tr id="issue-<%= task.id %>" class="<%= cycle 'odd', 'even' %> hascontextmenu context-menu-selection">
             <td data-task-id="<%= task.id %>">
               <%= check_box_tag("ids[]", task.id, false, :id => nil, :style => "display:none") %>
@@ -190,8 +186,5 @@
   <%= f.link_to 'CSV', :url => params %>
 <% end %>
 
-<%= render :partial => 'burndown', :locals => {
-  :mode => :full, 
-  :style => 'width:650px; height: 300px; margin: 0 auto', 
-} %>
+<div style="width:650px; height: 300px; margin: 0 auto" class="burndown_chart" id="burndown"></div>
 <%= context_menu issues_context_menu_path %>

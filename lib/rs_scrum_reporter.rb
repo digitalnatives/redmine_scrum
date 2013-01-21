@@ -55,6 +55,9 @@ module RS
       @data = {}
       @data[:ideal_line] = []
       @data[:remain_line] = []
+      @data[:issue_ids] = []
+      @data[:days] = @days.to_a.map(&:to_s)
+      @data[:rows] = []
       rate = (@days.to_a.size > 1) ? @sum_estimated_hours / (@days.to_a.size - 1) : 0
       @days.to_a.each_with_index do |day, idx|
         @data[day] = {}
@@ -83,7 +86,10 @@ module RS
             @data[day][issue.parent_id] = { :left => 0, :spent => 0 } unless @data[day][issue.parent_id].present?
             @data[day][issue.parent_id][:left] += issue_data[:left]
             @data[day][issue.parent_id][:spent] += issue_data[:spent]
+            # order matter when adding issues ids
+            @data[:issue_ids] << issue.parent_id
           end
+          @data[:issue_ids] << issue.id
 
           sum_data[:spent] += issue_data[:spent]
           sum_data[:left] += issue_data[:left]
@@ -94,6 +100,40 @@ module RS
         @data[:remain_line] << [ day.to_s, idx == 0 ? (@sum_estimated_hours - idx * rate) : sum_data[:left] ]
       end
       @sum_remaining_hours = @data[@days.last][:sum][:left]
+      @data[:sum_estimated_hours] = @sum_estimated_hours
+      @data[:sum_remain_hours] = @data[@days.last][:sum][:left]
+      @data[:issue_ids].uniq!
+
+      # TODO: new data structure for ko
+      @issues.each do |issue|
+        parent = Issue.find(issue.parent_id)
+        row = {
+          :story_title => parent.subject,
+          :issue_title => issue.subject,
+          :assignee => "#{issue.assigned_to}",
+          :status => "#{issue.status}"
+        }
+        row[:cells] = []
+
+        @days.to_a.each_with_index do |day, idx|
+          cell = {}
+          issue_entries = issue.time_entries.select{ |te| te.spent_on == day }.sort_by(&:updated_on)
+          entry = issue_entries.last
+          if entry.try(:te_remaining_hours).present?
+            issue.left_hours = entry.te_remaining_hours.to_f
+          end
+          cell[:id] = issue.id
+          cell[:left] = issue.left_hours.to_f
+          cell[:spent] = issue_entries.compact.sum(&:hours)
+          cell[:has_time_entry] = (issue_entries.present? ? true : false)
+          cell[:assignee_te] = issue_entries.find{ |te| te.user_id == issue.assigned_to_id }
+          cell[:story_id] = issue.parent_id
+          row[:cells] << cell
+
+        end
+
+        @data[:rows] << row
+      end
     end
 
     def run

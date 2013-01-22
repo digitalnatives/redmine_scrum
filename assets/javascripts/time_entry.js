@@ -335,11 +335,36 @@ function DailyTotalRow(rows, days) {
 
 }
 
+function TimeEntry(data) {
+  var self = this;
+
+  self.spent = data.hours;
+  self.remain = data.te_remaining_hours;
+  self.activityId = data.activity_id;
+  self.userId = data.user_id;
+
+}
+
+function Selected(data) {
+  var self = this;
+
+  self.spent = 0
+  self.left = 0
+}
+
 function ViewModel(data) {
   var self = this;
 
+  self.selEntry;
+
   // By clicking on cells this gets set
-  self.selected = ko.observable();
+  self.selected = function(data) {
+    $.getJSON('/scrum_report_time_entries/' + data.issueId + '?day=' + data.day, function(serverData){
+      var data = $.parseJSON(serverData.entries);
+      var mappedEntries = $.map(data, function(entry) { return new TimeEntry(entry) });
+      self.entries(mappedEntries);
+    })
+  }
 
   self.rows = ko.observableArray(
     ko.utils.arrayMap(data.issue_ids, function(issueId) {
@@ -362,7 +387,10 @@ function ViewModel(data) {
 
 ko.bindingHandlers.modal = {
   init: function(element, valueAccessor) {
-    $(element).dialog({ show: false }).bind("hidden", function() {
+    $(element).dialog({
+      autoOpen: false,
+      modal: true,
+    }).bind("hidden", function() {
       var data = valueAccessor();
       data(null);
     });
@@ -371,7 +399,7 @@ ko.bindingHandlers.modal = {
 
   update: function(element, valueAccessor) {
     var value = ko.utils.unwrapObservable(valueAccessor());
-    if(typeof value != "undefined" && typeof value.storyId == "undefined") return;
+    //if(typeof value != "undefined" && typeof value.storyId == "undefined") return;
 
     $(element).dialog(value ? "open" : "close");
     return ko.bindingHandlers.with.update.apply(this, arguments);

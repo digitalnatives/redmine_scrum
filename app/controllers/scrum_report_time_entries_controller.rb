@@ -42,9 +42,10 @@ class ScrumReportTimeEntriesController < ApplicationController
   end
 
   def show
-    @time_entry = TimeEntry.find(params[:time_entry])
+    issue = Issue.find(params[:id])
+    @entries = issue.time_entries.select{ |te| te.spent_on == Date.parse(params[:day]) }
     render :json => {
-      :time_entry => @time_entry.as_json(:hours, :te_remaining_hours)
+      :entries => @entries.to_json(:only => [:user_id, :activity_id, :hours, :te_remaining_hours])
     }
   end
 

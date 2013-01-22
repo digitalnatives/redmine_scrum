@@ -49,6 +49,11 @@
   font-weight: normal;
 }
 
+table#ko-table tbody tr.subtotal {
+  color: #777777;
+  font-style: italic;
+}
+
 #ko-table {
   max-height: 400px;
 }
@@ -98,4 +103,12 @@
   margin-left: 30em;
   overflow-y: visible;
   padding-bottom: 1px;
+}
+
+div.left {
+  float:left;
+}
+
+div.hidden {
+  display: none;
 }

@@ -51,3 +51,66 @@ td.time-entry:hover {
   color:#8686cb;
   font-weight: normal;
 }
+
+table.list tbody tr.subtotal {
+  color: #777777;
+  font-style: italic;
+}
+
+.list {
+  max-height: 400px;
+}
+
+.list td.time-entry:hover {
+  background-color: #759fcf;
+ } 
+
+.list .col1 {
+   position: absolute;
+   width: 6em;
+   left: 0;
+  overflow: auto;
+   top: auto;
+}
+
+.list .col2 {
+  position: absolute;
+  width: 12em;
+  left: 6em;
+  overflow: auto;
+  top: auto;
+}
+.list .col3 {
+  position: absolute;
+  width: 6em;
+  left: 18em;
+  overflow: auto;
+  top: auto;
+}
+.list .col4 {
+  position: absolute;
+  width: 6em;
+  left: 24em;
+  overflow: auto;
+  top: auto;
+}
+.list .col5 {
+  position: absolute;
+  width: 6em;
+  left: 30em;
+  overflow: auto;
+  top: auto;
+}
+.list .col-total {
+  position: absolute;
+  width: 30em;
+  left: 0;
+  overflow: auto;
+  top: auto;
+ }
+ .ko-scroller {
+   overflow-x: scroll;
+   margin-left: 30em;
+   overflow-y: visible;
+   padding-bottom: 1px;
+}

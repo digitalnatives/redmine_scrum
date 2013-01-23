@@ -28,23 +28,25 @@
   </p>
 <% end %>
 
-<div class="autoscroll">
+<div class="ko-scroller">
   <% form_tag({}) do -%>
   <%= hidden_field_tag 'back_url', url_for(params), :id => nil %>
   <table class="list" id="time-report">
     <thead>
       <tr>
-        <th rowspan="2"><%= l('redmine_scrum.user_story') %></th>
-        <th rowspan="2"><%= l('redmine_scrum.issue') %></th>
-        <th rowspan="2"><%= l('redmine_scrum.assignee') %></th>
-        <th rowspan="2"><%= l('redmine_scrum.status') %></th>
-        <th rowspan="2" class="period-end"><%= l('redmine_scrum.estimated') %></th>
+        <th class="col1"><%= l('redmine_scrum.user_story') %></th>
+        <th class="col2"><%= l('redmine_scrum.issue') %></th>
+        <th class="col3"><%= l('redmine_scrum.assignee') %></th>
+        <th class="col3"><%= l('redmine_scrum.status') %></th>
+        <th class="col4 period-end"><%= l('redmine_scrum.estimated') %></th>
         <% @report.days.each do |day| %>
           <th class="period-end" colspan="2"><%= day.to_s %></th>
         <% end %>
         <th colspan="2"><%= l('redmine_scrum.total') %></th>
       </tr>
       <tr>
+        <th class="col-total" colspan="3">&nbsp;</th>
+        <th class="col4 period-end">&nbsp;</th>
         <% @report.days.each do |day| %>
           <th>&sum;</th>
           <th class="period-end">R</th>
@@ -57,11 +59,11 @@
       <% @report.issues.group_by(&:parent_id).each do |parent, tasks| %>
         <tr class="subtotal <%= cycle 'odd', 'even' %> hascontextmenu context-menu-selection">
           <% user_story = Issue.find_by_id(parent) %> 
-          <td colspan="4">
+          <td class="col-total" colspan="3">
             <%= check_box_tag("ids[]", user_story.id, false, :id => nil, :style => "display:none") %>
             <%= link_to user_story.subject, issue_path(user_story.id) if user_story.present? %>
           </td>
-          <td class="hours period-end"><%= html_hours("%.2f" % tasks.sum(&:estimated_hours)) %></td>
+          <td class="col4 hours period-end"><%= html_hours("%.2f" % tasks.sum(&:estimated_hours)) %></td>
           <% @report.days.each do |day| %>
             <% story_total = @report.issue_spent(day, user_story) %>
             <% story_remain = @report.issue_remain(day, user_story) %>
@@ -73,13 +75,12 @@
         </tr>
         <% tasks.each do |task| %>
           <tr id="issue-<%= task.id %>" class="<%= cycle 'odd', 'even' %> hascontextmenu context-menu-selection">
-            <td data-task-id="<%= task.id %>">
+            <td data-task-id="<%= task.id %>" class="col1"><%= link_to task.subject, task %>
               <%= check_box_tag("ids[]", task.id, false, :id => nil, :style => "display:none") %>
             </td>
-            <td><%= link_to task.subject, task %></td>
-            <td><%= task.assigned_to %></td>
-            <td><%= task.status %></td>
-            <td class="hours period-end"><%= html_hours("%.2f" % task.estimated_hours) %></td>
+            <td class="col2"><%= task.assigned_to %></td>
+            <td class="col3"><%= task.status %></td>
+            <td class="col4 hours period-end"><%= html_hours("%.2f" % task.estimated_hours) %></td>
             <% @report.days.to_a.each_with_index do |day, idx| %>
               <% hours = @report.issue_spent(day, task) %>
               <% remain_hours = @report.issue_remain(day, task) %>
@@ -107,8 +108,8 @@
         <% end %>
       <% end %>
       <tr class="total">
-        <td colspan="4"><%= l('redmine_scrum.total') %></td>
-        <td class="hours period-end"><%= html_hours("%.2f" % @report.sum_estimated_hours) %></td>
+        <td class="col-total" colspan="4"><%= l('redmine_scrum.total') %></td>
+        <td class="col4 hours period-end"><%= html_hours("%.2f" % @report.sum_estimated_hours) %></td>
         <% @report.days.to_a.each_with_index do |day, idx| %>
           <% daily_total = @report.daily_spent(day) %>
           <% daily_total_remain = @report.daily_remain(day) %>

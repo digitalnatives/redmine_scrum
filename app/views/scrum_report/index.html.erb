@@ -160,8 +160,8 @@
         <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }" class="col4">Status</td>
         <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }" class="col5">Estimated</td>
         <!-- ko foreach: $data.cells -->
-        <td data-bind="text: spent, click: $root.selected"></td>
-        <td data-bind="text: left, click: $root.selected" class="period-end"></td>
+        <td data-bind="text: spent, click: $root.cellDetails"></td>
+        <td data-bind="text: left, click: $root.cellDetails" class="period-end"></td>
         <!-- /ko -->
         <td data-bind="text: spent"></td>
         <td data-bind="text: left" class="period-end"></td>

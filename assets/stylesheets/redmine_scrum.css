@@ -107,6 +107,8 @@ table#ko-table tbody tr.subtotal {
 
 div.left {
   float:left;
+  width: 250px;
+  padding: 0 3px;
 }
 
 div.hidden {

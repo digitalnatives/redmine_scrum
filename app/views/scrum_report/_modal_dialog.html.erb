@@ -1,4 +1,4 @@
-<div id="time-entry-dialog" class="hidden" data-bind="modal: selEntry">
+<div id="time-entry-dialog" class="hidden" data-bind="modal: selected">
   <div class="left">
     <% form_for TimeEntry.new, :url => '/scrum_report_time_entries', :html => { :id => 'set-time-entry-hours', "data-remote" => true } do |f| %> 
       <div id="errorExplanation">
@@ -12,6 +12,9 @@
       </p>
       <p>
       <label>Assignee:</label>
+      <span>
+        <%= f.collection_select(:user_id, @project.assignable_users, :id, :name, "data-bind" => "value: userId") %>
+      </span>
       <span id="assignee"></span>
       </p>
       <p>
@@ -20,7 +23,7 @@
       </p>
       <p>
       <label>Activity:</label>
-      <%= f.select :activity_id, activity_collection_for_select_options(@time_entry), :required => true %>
+      <%= f.select :activity_id, activity_collection_for_select_options(@time_entry), :required => true, "data-bind" => "value: activityId" %>
       </p>
       <p>
       <label>Remaining time:</label>
@@ -30,9 +33,23 @@
     <div class="rsindicator"> </div>
   </div>
   <div class="left">
-    <ul data-bind="foreach: entries">
-      <li>
-      </li>
-    </ul>
+    <table>
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Activty</th>
+          <th>Spent</th>
+          <th>Left</th>
+          </tr>
+      </thead>
+      <tbody data-bind="foreach: $root.entries">
+        <tr data-bind="click: $root.editEntry">
+          <td data-bind="text: userName"></td>
+          <td data-bind="text: activity"></td>
+          <td data-bind="text: spent"></td>
+          <td data-bind="text: left"></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>

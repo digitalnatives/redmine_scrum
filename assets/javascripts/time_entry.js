@@ -124,6 +124,7 @@ function DailyTotalRow(rows, days) {
 function TimeEntry(data) {
   var self = this;
 
+  self.id = data.id
   self.spent = ko.observable(data.spent);
   self.left = ko.observable(data.left);
   self.activityId = data.activityId;
@@ -131,7 +132,16 @@ function TimeEntry(data) {
   self.userId = data.userId;
   self.userName = data.userName;
 
-  self.info = self.userName + ' (' + self.activity + ') ' + self.spent + ' : ' + self.left;
+  self.info = self.userName + ' (' + self.activity + ') ' + self.spent() + ' : ' + self.left();
+
+  self.save = function(data) {
+    console.log(data);
+
+  }
+  
+  self.cancel = function() {
+
+  }
 }
 
 function ViewModel(data) {
@@ -157,7 +167,7 @@ function ViewModel(data) {
       var mappedEntries = $.map(data, function(entry) { return new TimeEntry(entry) });
       self.entries(mappedEntries);
       self.selectedCell(cell);
-      if(mappedEntries.size == 0){
+      if(mappedEntries.length == 0){
         self.selectedEntry(new TimeEntry({}));
       } else {
         self.selectedEntry(mappedEntries[0]);

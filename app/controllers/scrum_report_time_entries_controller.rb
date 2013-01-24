@@ -47,6 +47,7 @@ class ScrumReportTimeEntriesController < ApplicationController
     issue.time_entries.each do |te| 
       next unless te.spent_on == Date.parse(params[:day])
       @entries << {
+        :id => te.id,
         :spent => te.hours,
         :left => te.te_remaining_hours,
         :activityId => te.activity_id,

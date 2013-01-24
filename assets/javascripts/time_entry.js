@@ -124,7 +124,9 @@ function DailyTotalRow(rows, days) {
 function TimeEntry(data) {
   var self = this;
 
-  self.id = data.id
+  self.id = data.id;
+  self.issueId = data.issueId;
+  self.day = data.day;
   self.spent = ko.observable(data.spent);
   self.left = ko.observable(data.left);
   self.activityId = data.activityId;
@@ -135,10 +137,25 @@ function TimeEntry(data) {
   self.info = self.userName + ' (' + self.activity + ') ' + self.spent() + ' : ' + self.left();
 
   self.save = function(data) {
+    jsonData = {
+      time_entry: ko.toJS({
+        id: self.id,
+        issue_id: self.issueId,
+        spent_on: self.day,
+        hours: self.spent,
+        te_remaining_hours: self.left,
+        activity_id: self.activityId,
+        user_id: self.userId
+      })
+    }
+    if(self.id > 0) { 
+      $.ajax({ type: "put", url: "/scrum_report_time_entries/" + self.id, data: jsonData });
+    } else {
+      $.post("/scrum_report_time_entries", jsonData);
+    }
     console.log(data);
-
   }
-  
+
   self.cancel = function() {
 
   }

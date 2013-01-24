@@ -22,7 +22,8 @@ class ScrumReportTimeEntriesController < ApplicationController
 
   def create
     @time_entry = TimeEntry.new(params[:time_entry])
-    @time_entry.user = @time_entry.issue.assigned_to 
+    #TODO: find out how who to allow record time entry for others
+    #@time_entry.user = @time_entry.issue.assigned_to 
     @time_entry.project = @time_entry.issue.project
 
     if @time_entry.editable_by?(User.current) && @time_entry.save
@@ -48,6 +49,8 @@ class ScrumReportTimeEntriesController < ApplicationController
       next unless te.spent_on == Date.parse(params[:day])
       @entries << {
         :id => te.id,
+        :issueId => te.issue_id,
+        :day => te.spent_on,
         :spent => te.hours,
         :left => te.te_remaining_hours,
         :activityId => te.activity_id,

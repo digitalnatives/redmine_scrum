@@ -124,8 +124,8 @@ function DailyTotalRow(rows, days) {
 function TimeEntry(data) {
   var self = this;
 
-  self.spent = data.spent;
-  self.left = data.left;
+  self.spent = ko.observable(data.spent);
+  self.left = ko.observable(data.left);
   self.activityId = data.activityId;
   self.activity = data.activity;
   self.userId = data.userId;
@@ -148,23 +148,25 @@ function ViewModel(data) {
   self.entries = ko.observableArray();
 
   // By clicking on cells this gets set
-  self.selected = ko.observable();
+  self.selectedEntry = ko.observable();
+  self.selectedCell = ko.observable();
 
-  self.cellDetails = function(data) {
-    $.getJSON('/scrum_report_time_entries/' + data.issueId + '?day=' + data.day, function(serverData){
+  self.cellDetails = function(cell) {
+    $.getJSON('/scrum_report_time_entries/' + cell.issueId + '?day=' + cell.day, function(serverData){
       var data = $.parseJSON(serverData.entries);
       var mappedEntries = $.map(data, function(entry) { return new TimeEntry(entry) });
       self.entries(mappedEntries);
-      self.selected({
-        spent: data.spent,
-        left: data.left,
-      })
+      self.selectedCell(cell);
+      if(mappedEntries.size == 0){
+        self.selectedEntry(new TimeEntry({}));
+      } else {
+        self.selectedEntry(mappedEntries[0]);
+      }
     })
-
   }
 
   self.editEntry = function(entry) {
-    self.selected(new TimeEntry(entry));
+    self.selectedEntry(entry);
   }
 
   self.previewJsonData = ko.computed(function() {
@@ -172,49 +174,45 @@ function ViewModel(data) {
   });
 }
 
-ko.bindingHandlers.modal = {
+//custom binding to initialize a jQuery UI dialog
+ko.bindingHandlers.jqDialog = {
   init: function(element, valueAccessor) {
-    $(element).dialog({
-      autoOpen: false,
-      modal: true,
-      buttons: {
-        "Save": function() {
-          $('.rsindicator').addClass('rssaving');
-          TE.form.trigger('submit');
-        },
-        "Cancel": function() {
-          $(this).dialog("close");
-        }
-      },
-    }).bind("hidden", function() {
-      var data = valueAccessor();
-      data(null);
-    });
-    return ko.bindingHandlers.with.init.apply(this, arguments);
-  },
+    var options = ko.utils.unwrapObservable(valueAccessor()) || {};
 
+    //handle disposal
+    ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+      $(element).dialog("destroy");
+    }); 
+
+    $(element).dialog(options);  
+  }
+};
+
+//custom binding handler that opens/closes the dialog
+ko.bindingHandlers.openDialog = {
   update: function(element, valueAccessor) {
     var value = ko.utils.unwrapObservable(valueAccessor());
-    //if(typeof value != "undefined" && typeof value.storyId == "undefined") return;
-
-    $(element).dialog(value ? "open" : "close");
-    return ko.bindingHandlers.with.update.apply(this, arguments);
+    if (value) {
+      $(element).dialog("open");
+    } else {
+      $(element).dialog("close");
+    }
   }
 }
 
-$('#time-entry-dialog').dialog({
-  autoOpen: false,
-  modal: true,
-  width: 550,
-  buttons: {
-    "Save": function() {
-      $('.rsindicator').addClass('rssaving');
-    },
-    "Cancel": function() {
-      $(this).dialog("close");
-    }
-  }
-});
+//custom binding to initialize a jQuery UI button
+ko.bindingHandlers.jqButton = {
+  init: function(element, valueAccessor) {
+    var options = ko.utils.unwrapObservable(valueAccessor()) || {};
+
+    //handle disposal
+    ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+      $(element).button("destroy");
+    }); 
+
+    $(element).button(options);  
+  }    
+};
 
 window.bdChart = jQuery.jqplot('burndown', [data.ideal_line, data.remain_line], {
   title:'Burndown Chart',

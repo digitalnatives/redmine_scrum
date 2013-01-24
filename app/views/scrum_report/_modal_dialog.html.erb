@@ -1,4 +1,11 @@
-<div id="time-entry-dialog" class="hidden" data-bind="modal: selected">
+<div id="details" data-bind="
+  jqDialog: { autoOpen: false, resizable: false, modal: true, width: 550 }, 
+  template: { name: 'editTmpl', data: selectedEntry, if: selectedEntry }, 
+  openDialog: selectedEntry"> 
+</div>
+
+<script id="editTmpl" type="text/html">
+<div id="time-entry-dialog">
   <div class="left">
     <% form_for TimeEntry.new, :url => '/scrum_report_time_entries', :html => { :id => 'set-time-entry-hours', "data-remote" => true } do |f| %> 
       <div id="errorExplanation">
@@ -52,4 +59,10 @@
       </tbody>
     </table>
   </div>
+  <div style="clear: both; padding: 2px 0;"></div>
+  <div style="margin: 0 auto">
+  <button data-bind="jqButton: {}, click: $root.save">Accept</button>
+  <button data-bind="jqButton: {}, click: $root.cancel">Cancel</button>
+  </div>
 </div>
+</script>

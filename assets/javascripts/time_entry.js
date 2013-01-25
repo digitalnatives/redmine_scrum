@@ -130,9 +130,9 @@ function TimeEntry(data) {
   self.spent = ko.observable(data.spent);
   self.left = ko.observable(data.left);
   self.activityId = data.activityId;
-  self.activity = data.activity;
+  self.activity = ko.observable(data.activity);
   self.userId = data.userId;
-  self.userName = data.userName;
+  self.userName = ko.observable(data.userName);
 
   self.info = self.userName + ' (' + self.activity + ') ' + self.spent() + ' : ' + self.left();
 
@@ -149,15 +149,29 @@ function TimeEntry(data) {
       })
     }
     if(self.id > 0) { 
-      $.ajax({ type: "put", url: "/scrum_report_time_entries/" + self.id, data: jsonData });
+      $.ajax({ 
+        type: "put", 
+        url: "/scrum_report_time_entries/" + self.id, 
+        data: jsonData,
+        success: function(data) {
+          viewModel.selectedCell().left(data.cellLeft);
+          viewModel.selectedCell().spent(data.cellSpent);
+          self.activity(data.activity);
+          self.userName(data.userName);
+          console.log(data);
+          ko.utils.arrayForEach(viewModel.dailyTotals.cells, function(cell) {
+            window.bdChart.series[1].data[cell.index][1] = cell.spent();
+          })
+          window.bdChart.replot();
+        }
+      });
     } else {
       $.post("/scrum_report_time_entries", jsonData);
     }
-    console.log(data);
   }
 
-  self.cancel = function() {
-
+  self.cancel = function(element) {
+   $('#time-entry-dialog').dialog("close"); 
   }
 }
 

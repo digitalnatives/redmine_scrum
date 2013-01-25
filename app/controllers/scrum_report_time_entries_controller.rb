@@ -1,5 +1,7 @@
 class ScrumReportTimeEntriesController < ApplicationController
   unloadable
+  
+  before_filter :set_entries
 
   def update
     @time_entry = TimeEntry.find(params[:id])
@@ -8,10 +10,23 @@ class ScrumReportTimeEntriesController < ApplicationController
 
     if @time_entry.editable_by?(User.current) && @time_entry.update_attributes(params[:time_entry])
       update_issue(@time_entry.issue)
-      render :json => {
-        :te_id => @time_entry.id,
-        :issue_remain_hours => @time_entry.issue.attributes["remaining_hours"],
-        :last => @last 
+      spent = 0
+      left = nil 
+      assignee_present = true
+      @time_entry.issue.time_entries.sort_by(&:updated_on).each do |te| 
+        next unless te.spent_on == @time_entry.spent_on
+        spent += te.hours
+        assignee_present = true if @time_entry.issue.assigned_to_id == te.user_id
+        next if assignee_present && @time_entry.issue.assigned_to_id != te.user_id
+        left = te.te_remaining_hours 
+      end
+      render :json => { 
+        :cellSpent => spent,
+        :cellLeft => left,
+        :spent => @time_entry.hours,
+        :left => @time_entry.te_remaining_hours,
+        :activity => @time_entry.activity.to_s,
+        :userName => @time_entry.user.to_s
       }
     else
       render :json => {
@@ -43,25 +58,12 @@ class ScrumReportTimeEntriesController < ApplicationController
   end
 
   def show
-    @entries = []
     issue = Issue.find(params[:id])
     issue.time_entries.each do |te| 
       next unless te.spent_on == Date.parse(params[:day])
-      @entries << {
-        :id => te.id,
-        :issueId => te.issue_id,
-        :day => te.spent_on,
-        :spent => te.hours,
-        :left => te.te_remaining_hours,
-        :activityId => te.activity_id,
-        :activity => te.activity.to_s,
-        :userId => te.user_id,
-        :userName => te.user.to_s
-      }
+      @entries << entry_to_json(te)
     end
-    render :json => {
-      :entries => @entries.to_json
-    }
+    render :json => { :entries => @entries.to_json }
   end
 
   private
@@ -73,6 +75,24 @@ class ScrumReportTimeEntriesController < ApplicationController
         @last = true
       end
     end
+  end
+
+  def entry_to_json(te)
+    {
+      :id => te.id,
+      :issueId => te.issue_id,
+      :day => te.spent_on,
+      :spent => te.hours,
+      :left => te.te_remaining_hours,
+      :activityId => te.activity_id,
+      :activity => te.activity.to_s,
+      :userId => te.user_id,
+      :userName => te.user.to_s
+    }
+  end
+
+  def set_entries
+    @entries = []
   end
 
 end

@@ -129,12 +129,27 @@ function TimeEntry(data) {
   self.day = data.day;
   self.spent = ko.observable(data.spent);
   self.left = ko.observable(data.left);
-  self.activityId = data.activityId;
+  self.activityId = ko.observable(data.activityId);
   self.activity = ko.observable(data.activity);
-  self.userId = data.userId;
+  self.userId = ko.observable(data.userId);
   self.userName = ko.observable(data.userName);
 
   self.info = self.userName + ' (' + self.activity + ') ' + self.spent() + ' : ' + self.left();
+
+  self.title = ko.computed(function(){
+    if(self.id) {
+      return "Edit time entry"
+    } else {
+      return "New time entry"
+    }
+  });
+
+  self.replot = function() {
+    ko.utils.arrayForEach(viewModel.dailyTotals.cells, function(cell) {
+      window.bdChart.series[1].data[cell.index][1] = cell.spent();
+    })
+    window.bdChart.replot();
+  }
 
   self.save = function(data) {
     jsonData = {
@@ -156,13 +171,12 @@ function TimeEntry(data) {
         success: function(data) {
           viewModel.selectedCell().left(data.cellLeft);
           viewModel.selectedCell().spent(data.cellSpent);
+          self.activityId(data.activityId);
           self.activity(data.activity);
+          self.userId(data.userId);
           self.userName(data.userName);
+          self.replot();
           console.log(data);
-          ko.utils.arrayForEach(viewModel.dailyTotals.cells, function(cell) {
-            window.bdChart.series[1].data[cell.index][1] = cell.spent();
-          })
-          window.bdChart.replot();
         }
       });
     } else {

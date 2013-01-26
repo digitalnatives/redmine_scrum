@@ -7,6 +7,7 @@
 <script id="editTmpl" type="text/html">
 <div id="time-entry-dialog">
   <div class="left">
+    <p data-bind="text: title"></p>
     <% form_for TimeEntry.new, :url => '/scrum_report_time_entries', :html => { :id => 'set-time-entry-hours', "data-remote" => true } do |f| %> 
       <div id="errorExplanation">
         <ul></ul>
@@ -20,7 +21,7 @@
       <p>
       <label>Assignee:</label>
       <span>
-        <%= f.collection_select(:user_id, @project.assignable_users, :id, :name, "data-bind" => "value: userId") %>
+        <%= f.collection_select(:user_id, @project.assignable_users, :id, :name, {}, {"data-bind" => "value: userId"}) %>
       </span>
       <span id="assignee"></span>
       </p>
@@ -30,7 +31,7 @@
       </p>
       <p>
       <label>Activity:</label>
-      <%= f.select :activity_id, activity_collection_for_select_options(@time_entry), :required => true, "data-bind" => "value: activityId" %>
+      <%= f.select :activity_id, activity_collection_for_select_options(@time_entry), {}, {:required => true, "data-bind" => "value: activityId"} %>
       </p>
       <p>
       <label>Remaining time:</label>

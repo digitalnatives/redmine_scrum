@@ -1,33 +1,20 @@
 class ScrumReportTimeEntriesController < ApplicationController
   unloadable
   
-  before_filter :set_entries
-
   def update
     @time_entry = TimeEntry.find(params[:id])
     params[:time_entry].delete(:activity_id) if params[:time_entry][:activity_id].blank?
     params[:time_entry].delete(:issue_id)
 
     if @time_entry.editable_by?(User.current) && @time_entry.update_attributes(params[:time_entry])
-      update_issue(@time_entry.issue)
-      spent = 0
-      left = nil 
-      assignee_present = true
-      @time_entry.issue.time_entries.sort_by(&:updated_on).each do |te| 
-        next unless te.spent_on == @time_entry.spent_on
-        spent += te.hours
-        assignee_present = true if @time_entry.issue.assigned_to_id == te.user_id
-        next if assignee_present && @time_entry.issue.assigned_to_id != te.user_id
-        left = te.te_remaining_hours 
+
+      #TODO: SET Authorization rules!!!
+      if params[:time_entry][:user_id].present? && @time_entry.user_id != params[:time_entry][:user_id]
+        @time_entry.update_attribute(:user_id, params[:time_entry][:user_id])
+        update_issue(@time_entry.issue)
+        @time_entry.user.reload
       end
-      render :json => { 
-        :cellSpent => spent,
-        :cellLeft => left,
-        :spent => @time_entry.hours,
-        :left => @time_entry.te_remaining_hours,
-        :activity => @time_entry.activity.to_s,
-        :userName => @time_entry.user.to_s
-      }
+      render :json => cell_values
     else
       render :json => {
         :errors => @time_entry.errors,
@@ -58,6 +45,7 @@ class ScrumReportTimeEntriesController < ApplicationController
   end
 
   def show
+    @entries = []
     issue = Issue.find(params[:id])
     issue.time_entries.each do |te| 
       next unless te.spent_on == Date.parse(params[:day])
@@ -91,8 +79,27 @@ class ScrumReportTimeEntriesController < ApplicationController
     }
   end
 
-  def set_entries
-    @entries = []
+  def cell_values
+    spent = 0
+    left = nil 
+    assignee_present = false
+    @time_entry.issue.time_entries.sort_by(&:updated_on).each do |te| 
+      next unless te.spent_on == @time_entry.spent_on
+      spent += te.hours
+      assignee_present = true if @time_entry.issue.assigned_to_id == te.user_id
+      next if assignee_present && @time_entry.issue.assigned_to_id != te.user_id
+      left = te.te_remaining_hours 
+    end
+    { 
+      :cellSpent => spent,
+      :cellLeft => left,
+      :spent => @time_entry.hours,
+      :left => @time_entry.te_remaining_hours,
+      :activityId => @time_entry.activity_id,
+      :activity => @time_entry.activity.to_s,
+      :userId => @time_entry.user_id,
+      :userName => @time_entry.user.to_s
+    }
   end
 
 end

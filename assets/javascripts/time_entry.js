@@ -1,6 +1,81 @@
 jQuery(function($) {
 
 //----------------------- KNOCKOUT --------------------------------
+function TimeEntry(data) {
+  var self = this;
+
+  self.id = data.id;
+  self.issueId = data.issueId;
+  self.day = data.day;
+  self.spent = ko.observable(data.spent);
+  self.left = ko.observable(data.left);
+  self.activityId = ko.observable(data.activityId);
+  self.activity = ko.observable(data.activity);
+  self.userId = ko.observable(data.userId);
+  self.userName = ko.observable(data.userName);
+  self.saved = false;
+
+  self.info = self.userName + ' (' + self.activity + ') ' + self.spent() + ' : ' + self.left();
+
+  self.title = ko.computed(function(){
+    if(self.id) {
+      return "Edit time entry"
+    } else {
+      return "New time entry"
+    }
+  });
+
+  self.saveOk = function(data) {
+    viewModel.selectedCell().left(data.cellLeft);
+    viewModel.selectedCell().spent(data.cellSpent);
+    viewModel.selectedEntry(self);
+    self.activityId(data.activityId);
+    self.activity(data.activity);
+    self.userId(data.userId);
+    self.userName(data.userName);
+    ko.utils.arrayForEach(viewModel.dailyTotals.cells, function(cell) {
+      window.bdChart.series[1].data[cell.index][1] = cell.spent();
+    })
+    window.bdChart.replot();
+    self.saved = true;
+  }
+
+  self.save = function(data) {
+    var url;
+    var type;
+    jsonData = {
+      time_entry: ko.toJS({
+        id: self.id,
+        issue_id: self.issueId,
+        spent_on: self.day,
+        hours: self.spent,
+        te_remaining_hours: self.left,
+        activity_id: self.activityId,
+        user_id: self.userId
+      })
+    }
+    if(self.id > 0) { 
+      type = "put";
+      url = "/scrum_report_time_entries/" + self.id;
+    } else {
+      type = "post";
+      url = "/scrum_report_time_entries";
+    }
+    $.ajax({ 
+      type: type, 
+      url: url, 
+      data: jsonData,
+      success: function(data) {
+        self.saveOk(data);
+      }
+    });
+  }
+
+  self.cancel = function(element) {
+   $('#time-entry-dialog').dialog("close"); 
+  }
+}
+
 function Cell(data, day, issueId, prevCell) {
   var self = this;
 
@@ -121,79 +196,6 @@ function DailyTotalRow(rows, days) {
 
 }
 
-function TimeEntry(data) {
-  var self = this;
-
-  self.id = data.id;
-  self.issueId = data.issueId;
-  self.day = data.day;
-  self.spent = ko.observable(data.spent);
-  self.left = ko.observable(data.left);
-  self.activityId = ko.observable(data.activityId);
-  self.activity = ko.observable(data.activity);
-  self.userId = ko.observable(data.userId);
-  self.userName = ko.observable(data.userName);
-
-  self.info = self.userName + ' (' + self.activity + ') ' + self.spent() + ' : ' + self.left();
-
-  self.title = ko.computed(function(){
-    if(self.id) {
-      return "Edit time entry"
-    } else {
-      return "New time entry"
-    }
-  });
-
-  self.saveOk = function(data) {
-    viewModel.selectedCell().left(data.cellLeft);
-    viewModel.selectedCell().spent(data.cellSpent);
-    self.activityId(data.activityId);
-    self.activity(data.activity);
-    self.userId(data.userId);
-    self.userName(data.userName);
-    ko.utils.arrayForEach(viewModel.dailyTotals.cells, function(cell) {
-      window.bdChart.series[1].data[cell.index][1] = cell.spent();
-    })
-    window.bdChart.replot();
-  }
-
-  self.save = function(data) {
-    jsonData = {
-      time_entry: ko.toJS({
-        id: self.id,
-        issue_id: self.issueId,
-        spent_on: self.day,
-        hours: self.spent,
-        te_remaining_hours: self.left,
-        activity_id: self.activityId,
-        user_id: self.userId
-      })
-    }
-    if(self.id > 0) { 
-      $.ajax({ 
-        type: "put", 
-        url: "/scrum_report_time_entries/" + self.id, 
-        data: jsonData,
-        success: function(data) {
-          self.saveOk(data);
-        }
-      });
-    } else {
-      $.ajax({
-        type: "post",
-        url: "/scrum_report_time_entries", 
-        data: jsonData,
-        success: function(data) {
-          self.saveOk(data);
-        }
-      });
-    }
-  }
-
-  self.cancel = function(element) {
-   $('#time-entry-dialog').dialog("close"); 
-  }
-}
 
 function ViewModel(data) {
   var self = this;
@@ -218,12 +220,14 @@ function ViewModel(data) {
     $.getJSON('/scrum_report_time_entries/' + cell.issueId + '?day=' + cell.day, function(serverData){
       var data = $.parseJSON(serverData.entries);
       var mappedEntries = $.map(data, function(entry) { return new TimeEntry(entry) });
-      self.entries(mappedEntries);
       self.selectedCell(cell);
       if(mappedEntries.length == 0){
-        self.selectedEntry(new TimeEntry({issueId: cell.issueId, day: cell.day}));
+        var timeEntry = new TimeEntry({issueId: cell.issueId, day: cell.day});
+        self.selectedEntry(timeEntry);
+        self.entries([ timeEntry ]);
       } else {
         self.selectedEntry(mappedEntries[0]);
+        self.entries(mappedEntries);
       }
     })
   }
@@ -245,9 +249,9 @@ ko.bindingHandlers.jqDialog = {
     //handle disposal
     ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
       $(element).dialog("destroy");
-    }); 
+    });
 
-    $(element).dialog(options);  
+    $(element).dialog(options);
   }
 };
 
@@ -271,10 +275,10 @@ ko.bindingHandlers.jqButton = {
     //handle disposal
     ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
       $(element).button("destroy");
-    }); 
+    });
 
-    $(element).button(options);  
-  }    
+    $(element).button(options);
+  }
 };
 
 window.bdChart = jQuery.jqplot('burndown', [data.ideal_line, data.remain_line], {

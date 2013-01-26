@@ -1,6 +1,6 @@
 module RS 
   class ScrumReporter
-    attr_reader :issues, :days, :sum_estimated_hours, :sum_spent_hours, :sum_remaining_hours, :data
+    attr_reader :data
 
     def initialize(project, version)
       @project = project
@@ -9,44 +9,6 @@ module RS
       run
       set_up_day_range
       set_up_day_data
-    end
-
-    def available_criteria
-      @available_criteria || load_available_criteria
-    end
-
-    def csv_days
-      @csv_days ||= @days.inject([]){ |days, day| days.push(day, day) }
-    end
-
-    def issue_spent(day, task)
-      return 0 if @data[day][task.id].blank?
-      @data[day][task.id][:spent]
-    end
-
-    def issue_remain(day, task)
-      return 0 if @data[day][task.id].blank?
-      @data[day][task.id][:left]
-    end
-
-    def has_time_entry?(day, task)
-      @data[day][task.id][:has_time_entry]
-    end
-
-    def assignee_te(day, task)
-      @data[day][task.id][:assignee_te]
-    end
-
-    def daily_spent(day)
-      @data[day][:sum][:spent]
-    end
-
-    def daily_remain(day)
-      @data[day][:sum][:left]
-    end
-
-    def get_line(type)
-      @data[type]
     end
 
     private
@@ -105,10 +67,25 @@ module RS
       @data[:issue_ids].uniq!
 
       # TODO: new data structure for ko
+      parents = []
       @issues.each do |issue|
-        parent = Issue.find(issue.parent_id)
+        if issue.parent_id.present?
+          parent = Issue.find(issue.parent_id)
+          unless parents.include?(parent.id)
+            parent_row = {
+              :story_title => parent.subject,
+              :issue_title => parent.subject,
+              :assignee => "#{parent.assigned_to}",
+              :status => "#{parent.status}"
+            }
+            parent_row[:cells] = []
+            @data[:rows] << parent_row
+          end
+          parents << parent.id
+        end
+
         row = {
-          :story_title => parent.subject,
+          :story_title => ((parent) ? parent.subject : ""),
           :issue_title => issue.subject,
           :assignee => "#{issue.assigned_to}",
           :status => "#{issue.status}"
@@ -129,7 +106,6 @@ module RS
           cell[:assignee_te] = issue_entries.find{ |te| te.user_id == issue.assigned_to_id }
           cell[:story_id] = issue.parent_id
           row[:cells] << cell
-
         end
 
         @data[:rows] << row

@@ -36,7 +36,17 @@ class ScrumReportTimeEntriesController < ApplicationController
     issue = Issue.find(params[:id])
     issue.time_entries.each do |te| 
       next unless te.spent_on == Date.parse(params[:day])
-      @entries << entry_to_json(te)
+      @entries << {
+      :id => te.id,
+      :issueId => te.issue_id,
+      :day => te.spent_on,
+      :spent => te.hours,
+      :left => te.te_remaining_hours,
+      :activityId => te.activity_id,
+      :activity => te.activity.to_s,
+      :userId => te.user_id,
+      :userName => te.user.to_s
+    }
     end
     render :json => { :entries => @entries.to_json }
   end
@@ -50,20 +60,6 @@ class ScrumReportTimeEntriesController < ApplicationController
         @last = true
       end
     end
-  end
-
-  def entry_to_json(te)
-    {
-      :id => te.id,
-      :issueId => te.issue_id,
-      :day => te.spent_on,
-      :spent => te.hours,
-      :left => te.te_remaining_hours,
-      :activityId => te.activity_id,
-      :activity => te.activity.to_s,
-      :userId => te.user_id,
-      :userName => te.user.to_s
-    }
   end
 
   def cell_values

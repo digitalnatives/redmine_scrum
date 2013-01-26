@@ -36,17 +36,18 @@
     <thead>
       <tr>
         <th class="col1"><%= l('redmine_scrum.user_story') %></th>
-        <th class="col2"><%= l('redmine_scrum.issue') %></th>
-        <th class="col3"><%= l('redmine_scrum.assignee') %></th>
-        <th class="col4"><%= l('redmine_scrum.status') %></th>
-        <th class="col5"><%= l('redmine_scrum.estimated') %></th>
+        <th class="col2"><div><%= l('redmine_scrum.issue') %></div>
+        <span><%= l('redmine_scrum.assignee') %></span>
+        <span><%= l('redmine_scrum.status') %></span>
+        </th>
+        <th class="col3"><%= l('redmine_scrum.estimated') %></th>
         <!-- ko foreach: days -->
         <th class="period-end" colspan="2" data-bind="text: $data" ></th>
         <!-- /ko -->
         <th colspan="2"><%= l('redmine_scrum.total') %></th>
         </tr>
         <tr>
-        <th class="col-total">&nbsp;</th>
+        <th colspan="3" class="col-total">&nbsp;</th>
         <!-- ko foreach: days -->
           <th>&sum;</th>
           <th class="period-end">R</th>
@@ -58,11 +59,13 @@
     <tbody>
       <!-- ko foreach: rows -->
       <tr data-bind="css: { subtotal: $data.isStory == true, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
-        <td data-bind="text: $index, css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }" class="col1"></td>
-        <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }" class="col2">Task</td>
-        <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }" class="col3">Assignee</td>
-        <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }" class="col4">Status</td>
-        <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }" class="col5">Estimated</td>
+        <td data-bind="text: storySubject, css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }" class="col1"></td>
+        <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }" class="col2">
+          <div data-bind="text: subject"></div>
+          <span><select data-bind="visible: !isStory, options: $root.assignees, optionsText: 'name', value: assignee"></select></span>
+          <span><select data-bind="visible: !isStory, options: $root.statuses, optionsText: 'name', value: currentStatus"></select></span>
+        </td>
+        <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }" class="col3">Estimated</td>
         <!-- ko foreach: $data.cells -->
         <td data-bind="text: spent, click: $root.cellDetails"></td>
         <td data-bind="text: left, click: $root.cellDetails" class="period-end"></td>
@@ -72,7 +75,7 @@
       </tr>
       <!-- /ko -->
       <tr>
-        <td colspan="5" class="col-total">Total</td>
+        <td colspan="3" class="col-total">Total</td>
         <!-- ko foreach: $root.dailyTotals.cells -->
         <td data-bind="text: spent"></td>
         <td data-bind="text: left" class="period-end"></td>

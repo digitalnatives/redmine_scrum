@@ -42,12 +42,14 @@ module RS
           issue_data[:has_time_entry] = (issue_entries.present? ? true : false)
           issue_data[:assignee_te] = issue_entries.find{ |te| te.user_id == issue.assigned_to_id }
           issue_data[:story_id] = issue.parent_id
+          issue_data[:subject] = issue.subject
           @data[day][issue.id] = issue_data
 
           if issue.parent_id.present?
             @data[day][issue.parent_id] = { :left => 0, :spent => 0 } unless @data[day][issue.parent_id].present?
             @data[day][issue.parent_id][:left] += issue_data[:left]
             @data[day][issue.parent_id][:spent] += issue_data[:spent]
+            @data[day][issue.parent_id][:story_subject] = issue.parent_subject
             # order matter when adding issues ids
             @data[:issue_ids] << issue.parent_id
           end
@@ -65,6 +67,7 @@ module RS
       @data[:sum_estimated_hours] = @sum_estimated_hours
       @data[:sum_remain_hours] = @data[@days.last][:sum][:left]
       @data[:issue_ids].uniq!
+      @data[:assignees] = @project.assignable_users.map{ |u| { :name => u.to_s, :id => u.id }}
 
       # TODO: new data structure for ko
       parents = []
@@ -127,6 +130,7 @@ module RS
                            issues.status_id, 
                            issues.tracker_id,
                            issues.subject, 
+                           parents.subject AS parent_subject,
                            COALESCE(issues.remaining_hours, 0) AS remaining_hours,
                            COALESCE(issues.estimated_hours, 0) AS estimated_hours,
                            COALESCE(issues.estimated_hours, 0) AS left_hours,

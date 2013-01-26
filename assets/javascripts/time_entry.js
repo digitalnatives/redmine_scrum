@@ -1,6 +1,21 @@
 jQuery(function($) {
 
 //----------------------- KNOCKOUT --------------------------------
+function Assignee(data) {
+  var self = this;
+
+  self.id = data.id
+  self.name = data.name
+}
+
+function IssueStatus(data) {
+  var self = this;
+
+  self.id = data.id;
+  self.name = data.name;
+
+}
+
 function TimeEntry(data) {
   var self = this;
 
@@ -108,6 +123,12 @@ function Row(data, days, issueId) {
   self.isStory = false;
   self.issueId = issueId;
   self.prevCell;
+  self.storySubject = data[days[0]][issueId].story_subject || ".";
+  self.subject = data[days[0]][issueId].subject || ".";
+  self.assigneeId = ko.observable(data[days[0]][issueId].assignee_id);
+  self.statusId = ko.observable(data[days[0]][issueId].status_id);
+  self.assignee = ko.observable();
+  self.currentStatus = ko.observable();
 
   self.cells = ko.observableArray(
     ko.utils.arrayMap(days, function(day) {
@@ -196,7 +217,6 @@ function DailyTotalRow(rows, days) {
 
 }
 
-
 function ViewModel(data) {
   var self = this;
 
@@ -204,9 +224,13 @@ function ViewModel(data) {
     ko.utils.arrayMap(data.issue_ids, function(issueId) {
       return new Row(data, data.days, issueId);
     })
-  )
+  );
   self.days = data.days;
   self.dailyTotals = new DailyTotalRow(self.rows, data.days);
+
+  self.assignees = ko.utils.arrayMap(data.assignees, function(assignee) {
+      return new Assignee(assignee);
+  });
 
   self.entries = ko.observableArray();
 

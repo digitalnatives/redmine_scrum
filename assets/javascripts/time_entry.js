@@ -144,7 +144,13 @@ function TimeEntry(data) {
     }
   });
 
-  self.replot = function() {
+  self.saveOk = function(data) {
+    viewModel.selectedCell().left(data.cellLeft);
+    viewModel.selectedCell().spent(data.cellSpent);
+    self.activityId(data.activityId);
+    self.activity(data.activity);
+    self.userId(data.userId);
+    self.userName(data.userName);
     ko.utils.arrayForEach(viewModel.dailyTotals.cells, function(cell) {
       window.bdChart.series[1].data[cell.index][1] = cell.spent();
     })
@@ -169,18 +175,18 @@ function TimeEntry(data) {
         url: "/scrum_report_time_entries/" + self.id, 
         data: jsonData,
         success: function(data) {
-          viewModel.selectedCell().left(data.cellLeft);
-          viewModel.selectedCell().spent(data.cellSpent);
-          self.activityId(data.activityId);
-          self.activity(data.activity);
-          self.userId(data.userId);
-          self.userName(data.userName);
-          self.replot();
-          console.log(data);
+          self.saveOk(data);
         }
       });
     } else {
-      $.post("/scrum_report_time_entries", jsonData);
+      $.ajax({
+        type: "post",
+        url: "/scrum_report_time_entries", 
+        data: jsonData,
+        success: function(data) {
+          self.saveOk(data);
+        }
+      });
     }
   }
 
@@ -202,10 +208,12 @@ function ViewModel(data) {
 
   self.entries = ko.observableArray();
 
-  // By clicking on cells this gets set
+  // Set by cellDetails
   self.selectedEntry = ko.observable();
+  // Set by cellDetails
   self.selectedCell = ko.observable();
 
+  // By clicking on cells this gets set
   self.cellDetails = function(cell) {
     $.getJSON('/scrum_report_time_entries/' + cell.issueId + '?day=' + cell.day, function(serverData){
       var data = $.parseJSON(serverData.entries);
@@ -213,7 +221,7 @@ function ViewModel(data) {
       self.entries(mappedEntries);
       self.selectedCell(cell);
       if(mappedEntries.length == 0){
-        self.selectedEntry(new TimeEntry({}));
+        self.selectedEntry(new TimeEntry({issueId: cell.issueId, day: cell.day}));
       } else {
         self.selectedEntry(mappedEntries[0]);
       }

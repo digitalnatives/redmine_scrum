@@ -7,13 +7,7 @@ class ScrumReportTimeEntriesController < ApplicationController
     params[:time_entry].delete(:issue_id)
 
     if @time_entry.editable_by?(User.current) && @time_entry.update_attributes(params[:time_entry])
-
-      #TODO: SET Authorization rules!!!
-      if params[:time_entry][:user_id].present? && @time_entry.user_id != params[:time_entry][:user_id]
-        @time_entry.update_attribute(:user_id, params[:time_entry][:user_id])
-        update_issue(@time_entry.issue)
-        @time_entry.user.reload
-      end
+      set_time_entry_user
       render :json => cell_values
     else
       render :json => {
@@ -23,20 +17,13 @@ class ScrumReportTimeEntriesController < ApplicationController
   end
 
   def create
-    @time_entry = TimeEntry.new(params[:time_entry])
-    #TODO: find out how who to allow record time entry for others
-    #@time_entry.user = @time_entry.issue.assigned_to 
+    user = User.find(params[:time_entry][:user_id])
+    @time_entry = TimeEntry.new(params[:time_entry].merge(:user => user))
     @time_entry.project = @time_entry.issue.project
 
     if @time_entry.editable_by?(User.current) && @time_entry.save
-      prev_remain_hours = @time_entry.issue.attributes["remaining_hours"]
-      update_issue(@time_entry.issue)
-      render :json => {
-        :te_id => @time_entry.id,
-        :issue_remain_hours => @time_entry.issue.attributes["remaining_hours"],
-        :prev_remain_hours => prev_remain_hours,
-        :last => @last
-      }
+      set_time_entry_user
+      render :json => cell_values
     else
       render :json => {
         :errors => @time_entry.errors,
@@ -100,6 +87,15 @@ class ScrumReportTimeEntriesController < ApplicationController
       :userId => @time_entry.user_id,
       :userName => @time_entry.user.to_s
     }
+  end
+
+  def set_time_entry_user
+    #TODO: SET Authorization rules!!!
+    if params[:time_entry][:user_id].present? && @time_entry.user_id != params[:time_entry][:user_id]
+      @time_entry.update_attribute(:user_id, params[:time_entry][:user_id])
+      @time_entry.user.reload
+      #update_issue(@time_entry.issue)
+    end
   end
 
 end

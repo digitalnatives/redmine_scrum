@@ -68,16 +68,15 @@ module RS
 
       # TODO: new data structure for ko
       parents = []
+      parent_row = {}
       @issues.each do |issue|
         if issue.parent_id.present?
           parent = Issue.find(issue.parent_id)
           unless parents.include?(parent.id)
-            parent_row = {
-              :story_title => parent.subject,
-              :issue_title => parent.subject,
-              :assignee => "#{parent.assigned_to}",
-              :status => "#{parent.status}"
-            }
+            parent_row[:story_title] = parent.subject
+            parent_row[:issue_title] = parent.subject
+            parent_row[:assignee] = "#{parent.assigned_to}"
+            parent_row[:status] = "#{parent.status}"
             parent_row[:cells] = []
             @data[:rows] << parent_row
           end
@@ -91,6 +90,9 @@ module RS
           :status => "#{issue.status}"
         }
         row[:cells] = []
+
+        parent_spent = 0
+        parent_left = nil
 
         @days.to_a.each_with_index do |day, idx|
           cell = {}

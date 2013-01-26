@@ -134,11 +134,12 @@ module RS
                            sum(time_entries.hours) AS spent_time,
                            min(time_entries.spent_on) AS first_time_entry,
                            max(time_entries.spent_on) AS last_time_entry",
-                           :joins => "LEFT JOIN time_entries ON (time_entries.issue_id = issues.id)",# LEFT JOIN versions ON issues.fixed_version_id = versions.id",
+                           :joins => "INNER JOIN issues parents ON issues.parent_id = parents.id
+                           LEFT JOIN time_entries ON (time_entries.issue_id = issues.id)",# LEFT JOIN versions ON issues.fixed_version_id = versions.id",
                            :include => [ :status, :assigned_to, :tracker ],
                            :conditions => [ @conditions, @condition_vars ],
                            :group => 'issues.id',
-                           :order => 'issues.parent_id DESC, issues.id ASC')
+                           :order => 'parents.position ASC, issues.parent_id ASC, issues.id ASC')
       @sum_estimated_hours = @issues.sum(&:estimated_hours) 
       @sum_spent_hours = @issues.map(&:spent_time).compact.map(&:to_f).sum
     end

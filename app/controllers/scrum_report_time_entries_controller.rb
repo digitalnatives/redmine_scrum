@@ -1,6 +1,6 @@
 class ScrumReportTimeEntriesController < ApplicationController
   unloadable
-  
+
   def update
     @time_entry = TimeEntry.find(params[:id])
     params[:time_entry].delete(:activity_id) if params[:time_entry][:activity_id].blank?
@@ -74,6 +74,7 @@ class ScrumReportTimeEntriesController < ApplicationController
       left = te.te_remaining_hours 
     end
     { 
+      :id => @time_entry.id,
       :cellSpent => spent,
       :cellLeft => left,
       :spent => @time_entry.hours,

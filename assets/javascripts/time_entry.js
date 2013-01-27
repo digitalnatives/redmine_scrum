@@ -19,7 +19,7 @@ function IssueStatus(data) {
 function TimeEntry(data) {
   var self = this;
 
-  self.id = data.id;
+  self.id = ko.observable(data.id);
   self.issueId = data.issueId;
   self.day = data.day;
   self.spent = ko.observable(data.spent);
@@ -33,7 +33,7 @@ function TimeEntry(data) {
   self.info = self.userName + ' (' + self.activity + ') ' + self.spent() + ' : ' + self.left();
 
   self.title = ko.computed(function(){
-    if(self.id) {
+    if(self.id()) {
       return "Edit time entry"
     } else {
       return "New time entry"
@@ -43,11 +43,12 @@ function TimeEntry(data) {
   self.saveOk = function(data) {
     viewModel.selectedCell().left(data.cellLeft);
     viewModel.selectedCell().spent(data.cellSpent);
-    viewModel.editEntry(self);
     self.activityId(data.activityId);
     self.activity(data.activity);
     self.userId(data.userId);
     self.userName(data.userName);
+    self.id(data.id);
+    viewModel.selectedEntry(self);
     ko.utils.arrayForEach(viewModel.dailyTotals.cells, function(cell) {
       window.bdChart.series[1].data[cell.index][1] = cell.spent();
     })
@@ -69,9 +70,9 @@ function TimeEntry(data) {
         user_id: self.userId
       })
     }
-    if(self.id > 0) { 
+    if(self.id() > 0) { 
       type = "put";
-      url = "/scrum_report_time_entries/" + self.id;
+      url = "/scrum_report_time_entries/" + self.id();
     } else {
       type = "post";
       url = "/scrum_report_time_entries";
@@ -88,6 +89,16 @@ function TimeEntry(data) {
 
   self.cancel = function(element) {
     viewModel.selectedEntry("");
+  }
+
+  self.newEntry = function() {
+    self.id("");
+    self.userId("");
+    self.activityId("");
+    self.spent("");
+    self.left("");
+    viewModel.entries.push(self);
+    viewModel.selectedEntry(self);
   }
 }
 
@@ -114,7 +125,28 @@ function Cell(data, day, issueId, prevCell) {
       self.hasTimeEntry(true);
       self.leftValue(value);
     }
-  })
+  }).extend({ throttle: 500 });
+}
+
+function StoryCell(data, day, issueId) {
+  var self = this;
+
+  self.day = day;
+  self.storyId = issueId;
+
+  self.spent = ko.computed(function() {
+    var sum = 0;
+    ko.utils.arrayForEach(rows(), function(row) {
+      ko.utils.arrayForEach(row.cells(), function(cell) {
+        if(te.day == day && te.storyId == self.storyId) {
+          sum += Number(cell.spent());
+        }
+      })
+    })
+    return sum;
+  });
+
+  self.left = ko.computed();
 }
 
 function Row(data, days, issueId) {
@@ -133,9 +165,13 @@ function Row(data, days, issueId) {
 
   self.cells = ko.observableArray(
     ko.utils.arrayMap(days, function(day) {
-      var cell = new Cell(data[day][issueId], day, issueId, self.prevCell);
-      self.prevCell = cell;
-      return cell;
+      //if(self.isStory) {
+        //return new StoryCell(data[day][issueId], day, issueId);
+      //} else {
+        var cell = new Cell(data[day][issueId], day, issueId, self.prevCell);
+        self.prevCell = cell;
+        return cell;
+      //}
     })
   )
 
@@ -164,7 +200,8 @@ function DailyTotalCell(data) {
       sum += Number(entry.spent());
     })
     return sum;
-  });
+  }).extend({ throttle: 500 });
+
 
   self.left = ko.computed(function() {
     var sum = 0;
@@ -175,7 +212,7 @@ function DailyTotalCell(data) {
     window.bdChart.series[1].data[self.index][1] = sum;
     window.bdChart.replot();
     return sum;
-  });
+  }).extend({ throttle: 500 });
 }
 
 function DailyTotalRow(rows, days) {
@@ -342,7 +379,6 @@ $('#ko-body-right table.ko-table-right').width($('#ko-header-right table.ko-tabl
 $('#ko-body-right').scroll(function() {
   $('#ko-header-right').scrollLeft($(this).scrollLeft());
   $('#ko-body-left').scrollTop($(this).scrollTop());
-  console.log("scrolled")
 });
 
 })

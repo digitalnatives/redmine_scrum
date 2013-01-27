@@ -50,26 +50,28 @@
 }
 
 .time-entry {
-  color: #484848;
+  color: #777777;
   font-weight: bold;
 }
 
 table.list {
   margin-bottom: 0px;
+  font-size: 11px;
 }
 
 table.list tbody tr.subtotal {
-  color: #777777;
+  color: #484848;
   font-style: italic;
   font-weight: bold;
+  font-size: 12px;
 }
 
-table.list td.time-entry:hover {
+table.list td.time-entry:hover, table.list td.no-time-entry:hover {
   background-color: #759fcf;
 } 
 
 table.list th {
-  height: 28px;
+  font-size: 12px;
 }
 
 table.list td {
@@ -119,4 +121,7 @@ table.list td {
 
 .left {
   float: left;
+}
+.task-title {
+  margin-left: 3em;
 }

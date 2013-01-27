@@ -39,10 +39,6 @@
     <thead>
       <tr>
         <th><%= l('redmine_scrum.user_story') %></th>
-        <th><div><%= l('redmine_scrum.issue') %></div>
-        <span><%= l('redmine_scrum.assignee') %></span>
-        <span><%= l('redmine_scrum.status') %></span>
-        </th>
         <th><%= l('redmine_scrum.estimated') %></th>
         </tr>
         <tr>
@@ -79,13 +75,13 @@
       <!-- ko foreach: rows -->
       <tr class="hascontextmenu context-menu-selection" data-bind="css: { subtotal: $data.isStory == true, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
         <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
-        <span data-bind="text: storySubject"></span>
-        <input type="checkbox" name="ids[]", data-bind="value: issueId" style="display:none">
-        </td>
-        <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
+          <input type="checkbox" name="ids[]", data-bind="value: issueId" style="display:none">
+          <div data-bind="text: storySubject"></div>
+          <div class="task-title">
           <div data-bind="text: subject"></div>
-          <span><select data-bind="visible: !isStory, options: $root.assignees, optionsText: 'name', value: assignee"></select></span>
-          <span><select data-bind="visible: !isStory, options: $root.statuses, optionsText: 'name', value: currentStatus"></select></span>
+            <span><select data-bind="visible: !isStory, options: $root.assignees, optionsText: 'name', value: assignee"></select></span>
+            <span><select data-bind="visible: !isStory, options: $root.statuses, optionsText: 'name', value: currentStatus"></select></span>
+          </div>
         </td>
         <td data-bind="text: estimated, css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"></td>
       </tr>
@@ -103,10 +99,10 @@
   <table class="list ko-table-right">
     <tbody>
       <!-- ko foreach: rows -->
-      <tr data-bind="attr: { id: 'issue-'+ issueId  }, css: { 'no-time-entry': isStory == false, subtotal: isStory == true, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
+      <tr data-bind="attr: { id: 'issue-'+ issueId  }, css: { 'no-time-entry': !isStory, subtotal: isStory, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
         <!-- ko foreach: $data.cells -->
         <td data-bind="text: spent, click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry}"></td>
-        <td class="period-end" data-bind="text: left, click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry}"></td>
+        <td data-bind="text: left, click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry}" class="period-end"></td>
         <!-- /ko -->
         <td data-bind="text: spent"></td>
         <td data-bind="text: left" class="period-end"></td>

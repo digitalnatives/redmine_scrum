@@ -70,6 +70,7 @@ module RS
       @data[:assignees] = @project.assignable_users.map{ |u| { :name => u.to_s, :id => u.id }}
 
       # TODO: new data structure for ko
+=begin
       parents = []
       parent_row = {}
       @issues.each do |issue|
@@ -90,12 +91,10 @@ module RS
           :story_title => ((parent) ? parent.subject : ""),
           :issue_title => issue.subject,
           :assignee => "#{issue.assigned_to}",
-          :status => "#{issue.status}"
+          :status => "#{issue.status}",
+          :statuses => issue.new_statuses_allowed_to.map { |i| { :id => i.id, :name => i.name } }
         }
         row[:cells] = []
-
-        parent_spent = 0
-        parent_left = nil
 
         @days.to_a.each_with_index do |day, idx|
           cell = {}
@@ -110,11 +109,14 @@ module RS
           cell[:has_time_entry] = (issue_entries.present? ? true : false)
           cell[:assignee_te] = issue_entries.find{ |te| te.user_id == issue.assigned_to_id }
           cell[:story_id] = issue.parent_id
+          cell[:day] = day.to_s
           row[:cells] << cell
         end
 
         @data[:rows] << row
+        @data[:assignees] = @project.assignable_users.map{ |u| { :name => u.to_s, :id => u.id }}
       end
+=end
     end
 
     def run

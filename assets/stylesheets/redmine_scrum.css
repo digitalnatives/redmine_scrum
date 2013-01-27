@@ -49,6 +49,11 @@
   font-weight: normal;
 }
 
+.time-entry {
+  color: #484848;
+  font-weight: bold;
+}
+
 table.list {
   margin-bottom: 0px;
 }
@@ -63,6 +68,14 @@ table.list td.time-entry:hover {
   background-color: #759fcf;
 } 
 
+table.list th {
+  height: 28px;
+}
+
+table.list td {
+  height: 45px;
+}
+
 .ko-report-block {
   clear: both;
 }
@@ -71,6 +84,7 @@ table.list td.time-entry:hover {
   float:left;
   width: 384px;
 }
+
 .ko-right {
   float:left;
   width: 1260px;
@@ -81,23 +95,16 @@ table.list td.time-entry:hover {
 }
 
 #ko-body-left {
-  height: 100%;
+  height: 700px;
   overflow-x: hidden;
   overflow-y: hidden;
 }
+
 #ko-body-right {
-  height: 100%;
+  height: 720px;
   width: 1280px;
-  overflow-x: scroll;
-  overflow-y: scroll;
-}
-
-.list th {
-  height: 28px;
-}
-
-div.hidden {
-  display: none;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 
 .hidden-row {
@@ -108,4 +115,8 @@ div.hidden {
   visibility: collapse;
   padding 0 4px;
   font-weight: bold;
+}
+
+.left {
+  float: left;
 }

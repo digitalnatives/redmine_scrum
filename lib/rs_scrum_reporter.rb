@@ -43,6 +43,7 @@ module RS
           issue_data[:assignee_te] = issue_entries.find{ |te| te.user_id == issue.assigned_to_id }
           issue_data[:story_id] = issue.parent_id
           issue_data[:subject] = issue.subject
+          issue_data[:estimated] = issue.estimated_hours
           @data[day][issue.id] = issue_data
 
           if issue.parent_id.present?
@@ -50,6 +51,7 @@ module RS
             @data[day][issue.parent_id][:left] += issue_data[:left]
             @data[day][issue.parent_id][:spent] += issue_data[:spent]
             @data[day][issue.parent_id][:story_subject] = issue.parent_subject
+            @data[day][issue.parent_id][:estimated] = issue.parent_estimated_hours
             # order matter when adding issues ids
             @data[:issue_ids] << issue.parent_id
           end
@@ -133,6 +135,7 @@ module RS
                            issues.tracker_id,
                            issues.subject, 
                            parents.subject AS parent_subject,
+                           parents.estimated_hours AS parent_estimated_hours, 
                            COALESCE(issues.remaining_hours, 0) AS remaining_hours,
                            COALESCE(issues.estimated_hours, 0) AS estimated_hours,
                            COALESCE(issues.estimated_hours, 0) AS left_hours,

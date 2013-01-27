@@ -30,6 +30,7 @@
   <% end %>
   </p>
 <% end %>
+<% form_tag({}) do -%>
 
 <div id="ko-report">
 <div class="ko-report-block">
@@ -76,20 +77,21 @@
   <table class="list ko-table-left">
     <tbody>
       <!-- ko foreach: rows -->
-      <tr data-bind="css: { subtotal: $data.isStory == true, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
-        <td data-bind="text: storySubject, css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"></td>
+      <tr class="hascontextmenu context-menu-selection" data-bind="css: { subtotal: $data.isStory == true, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
+        <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
+        <span data-bind="text: storySubject"></span>
+        <input type="checkbox" name="ids[]", data-bind="value: issueId" style="display:none">
+        </td>
         <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
           <div data-bind="text: subject"></div>
-          <!-- 
           <span><select data-bind="visible: !isStory, options: $root.assignees, optionsText: 'name', value: assignee"></select></span>
           <span><select data-bind="visible: !isStory, options: $root.statuses, optionsText: 'name', value: currentStatus"></select></span>
-          -->
         </td>
-        <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">Estimated</td>
+        <td data-bind="text: estimated, css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"></td>
       </tr>
       <!-- /ko -->
       <tr>
-        <td colspan="3">Total</td>
+        <th colspan="3">Total</th>
       </tr>
       <tr>
         <td colspan="3">&nbsp;</td>
@@ -101,10 +103,10 @@
   <table class="list ko-table-right">
     <tbody>
       <!-- ko foreach: rows -->
-      <tr data-bind="css: { subtotal: $data.isStory == true, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
+      <tr data-bind="attr: { id: 'issue-'+ issueId  }, css: { 'no-time-entry': isStory == false, subtotal: isStory == true, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
         <!-- ko foreach: $data.cells -->
-        <td data-bind="text: spent, click: $root.cellDetails"></td>
-        <td data-bind="text: left, click: $root.cellDetails" class="period-end"></td>
+        <td data-bind="text: spent, click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry}"></td>
+        <td class="period-end" data-bind="text: left, click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry}"></td>
         <!-- /ko -->
         <td data-bind="text: spent"></td>
         <td data-bind="text: left" class="period-end"></td>
@@ -112,11 +114,11 @@
       <!-- /ko -->
       <tr>
         <!-- ko foreach: $root.dailyTotals.cells -->
-        <td data-bind="text: spent"></td>
-        <td data-bind="text: left" class="period-end"></td>
+        <th data-bind="text: spent"></th>
+        <th data-bind="text: left" class="period-end"></th>
         <!-- /ko -->
-        <td data-bind="text: dailyTotals.spent"></td>
-        <td data-bind="text: dailyTotals.left" class="period-end"></td>
+        <th data-bind="text: dailyTotals.spent"></th>
+        <th data-bind="text: dailyTotals.left" class="period-end"></th>
       </tr>
     <tr class="hidden-row">
         <!-- ko foreach: days -->
@@ -128,6 +130,7 @@
 </div>
 </div>
 </div>
+<% end %>
 
 <div style="clear: both;"></div>
 

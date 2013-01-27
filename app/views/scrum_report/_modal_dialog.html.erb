@@ -1,7 +1,7 @@
 <div id="details" data-bind="
-  jqDialog: { autoOpen: false, resizable: false, modal: true, width: 550 }, 
-  template: { name: 'editTmpl', data: selectedEntry, if: selectedEntry }, 
-  openDialog: selectedEntry"> 
+  jqDialog: { autoOpen: false, resizable: true, modal: true, width: 550 }, 
+  template: { name: 'editTmpl', data: $root.selectedEntry, if: $root.selectedEntry }, 
+  openDialog: $root.selectedEntry"> 
 </div>
 
 <script id="editTmpl" type="text/html">
@@ -16,7 +16,7 @@
       <%= f.hidden_field :issue_id %>
       <%= f.hidden_field :spent_on %>
       <label>Day:</label>
-      <span id="spent-on-day"></span>
+      <span data-bind="text: day"></span>
       </p>
       <p>
       <label>Assignee:</label>

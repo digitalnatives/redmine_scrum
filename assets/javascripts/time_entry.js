@@ -43,7 +43,7 @@ function TimeEntry(data) {
   self.saveOk = function(data) {
     viewModel.selectedCell().left(data.cellLeft);
     viewModel.selectedCell().spent(data.cellSpent);
-    viewModel.selectedEntry(self);
+    viewModel.editEntry(self);
     self.activityId(data.activityId);
     self.activity(data.activity);
     self.userId(data.userId);
@@ -87,7 +87,7 @@ function TimeEntry(data) {
   }
 
   self.cancel = function(element) {
-   $('#time-entry-dialog').dialog("close"); 
+    viewModel.selectedEntry("");
   }
 }
 
@@ -120,21 +120,21 @@ function Cell(data, day, issueId, prevCell) {
 function Row(data, days, issueId) {
   var self = this;
 
-  self.isStory = false;
+  self.isStory = (typeof data[days[0]][issueId].story_id != "undefined") ? false : true
   self.issueId = issueId;
   self.prevCell;
-  self.storySubject = data[days[0]][issueId].story_subject || ".";
-  self.subject = data[days[0]][issueId].subject || ".";
+  self.storySubject = data[days[0]][issueId].story_subject;
+  self.subject = data[days[0]][issueId].subject;
   self.assigneeId = ko.observable(data[days[0]][issueId].assignee_id);
   self.statusId = ko.observable(data[days[0]][issueId].status_id);
   self.assignee = ko.observable();
   self.currentStatus = ko.observable();
+  self.estimated = data[days[0]][issueId].estimated;
 
   self.cells = ko.observableArray(
     ko.utils.arrayMap(days, function(day) {
       var cell = new Cell(data[day][issueId], day, issueId, self.prevCell);
       self.prevCell = cell;
-      self.isStory = (typeof cell.storyId != "undefined") ? false : true;
       return cell;
     })
   )

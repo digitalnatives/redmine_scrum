@@ -337,4 +337,12 @@ window.bdChart = jQuery.jqplot('burndown', [data.ideal_line, data.remain_line], 
 window.viewModel = new ViewModel(data);
 
 ko.applyBindings(viewModel);
+
+$('#ko-body-right table.ko-table-right').width($('#ko-header-right table.ko-table-right').width())
+$('#ko-body-right').scroll(function() {
+  $('#ko-header-right').scrollLeft($(this).scrollLeft());
+  $('#ko-body-left').scrollTop($(this).scrollTop());
+  console.log("scrolled")
+});
+
 })

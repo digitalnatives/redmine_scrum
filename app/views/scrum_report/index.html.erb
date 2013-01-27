@@ -31,23 +31,35 @@
   </p>
 <% end %>
 
-<div class="ko-scroller">
-  <table id="ko-table" class="list">
+<div id="ko-report">
+<div class="ko-report-block">
+<div id="ko-header-left" class="ko-left">
+  <table class="list ko-table-left">
     <thead>
       <tr>
-        <th class="col1"><%= l('redmine_scrum.user_story') %></th>
-        <th class="col2"><div><%= l('redmine_scrum.issue') %></div>
+        <th><%= l('redmine_scrum.user_story') %></th>
+        <th><div><%= l('redmine_scrum.issue') %></div>
         <span><%= l('redmine_scrum.assignee') %></span>
         <span><%= l('redmine_scrum.status') %></span>
         </th>
-        <th class="col3"><%= l('redmine_scrum.estimated') %></th>
+        <th><%= l('redmine_scrum.estimated') %></th>
+        </tr>
+        <tr>
+        <th colspan="3">&nbsp;</th>
+        </tr>
+    </thead>
+    </table>
+</div>
+<div id="ko-header-right" class="ko-right ko-header-scroller">
+  <table class="list ko-table-right">
+    <thead>
+      <tr>
         <!-- ko foreach: days -->
         <th class="period-end" colspan="2" data-bind="text: $data" ></th>
         <!-- /ko -->
         <th colspan="2"><%= l('redmine_scrum.total') %></th>
         </tr>
         <tr>
-        <th colspan="3" class="col-total">&nbsp;</th>
         <!-- ko foreach: days -->
           <th>&sum;</th>
           <th class="period-end">R</th>
@@ -56,16 +68,40 @@
         <th>R</th>
         </tr>
     </thead>
+    </table>
+</div>
+</div>
+<div class="ko-report-block">
+<div id="ko-body-left" class="ko-left">
+  <table class="list ko-table-left">
     <tbody>
       <!-- ko foreach: rows -->
       <tr data-bind="css: { subtotal: $data.isStory == true, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
-        <td data-bind="text: storySubject, css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }" class="col1"></td>
-        <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }" class="col2">
+        <td data-bind="text: storySubject, css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"></td>
+        <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
           <div data-bind="text: subject"></div>
+          <!-- 
           <span><select data-bind="visible: !isStory, options: $root.assignees, optionsText: 'name', value: assignee"></select></span>
           <span><select data-bind="visible: !isStory, options: $root.statuses, optionsText: 'name', value: currentStatus"></select></span>
+          -->
         </td>
-        <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }" class="col3">Estimated</td>
+        <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">Estimated</td>
+      </tr>
+      <!-- /ko -->
+      <tr>
+        <td colspan="3">Total</td>
+      </tr>
+      <tr>
+        <td colspan="3">&nbsp;</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div id="ko-body-right" class="ko-right">
+  <table class="list ko-table-right">
+    <tbody>
+      <!-- ko foreach: rows -->
+      <tr data-bind="css: { subtotal: $data.isStory == true, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
         <!-- ko foreach: $data.cells -->
         <td data-bind="text: spent, click: $root.cellDetails"></td>
         <td data-bind="text: left, click: $root.cellDetails" class="period-end"></td>
@@ -75,7 +111,6 @@
       </tr>
       <!-- /ko -->
       <tr>
-        <td colspan="3" class="col-total">Total</td>
         <!-- ko foreach: $root.dailyTotals.cells -->
         <td data-bind="text: spent"></td>
         <td data-bind="text: left" class="period-end"></td>
@@ -83,9 +118,18 @@
         <td data-bind="text: dailyTotals.spent"></td>
         <td data-bind="text: dailyTotals.left" class="period-end"></td>
       </tr>
+    <tr class="hidden-row">
+        <!-- ko foreach: days -->
+        <th class="hidden-cell period-end" colspan="2" data-bind="text: $data" ></th>
+        <!-- /ko -->
+        </tr>
     </tbody>
   </table>
 </div>
+</div>
+</div>
+
+<div style="clear: both;"></div>
 
 <pre data-bind="text: previewJsonData"></pre> 
 

@@ -89,7 +89,7 @@ table.list td {
 
 .ko-right {
   float:left;
-  width: 1260px;
+  max-width: 1260px;
 }
 
 #ko-header-right {
@@ -97,13 +97,13 @@ table.list td {
 }
 
 #ko-body-left {
-  height: 700px;
+  max-height: 700px;
   overflow-x: hidden;
   overflow-y: hidden;
 }
 
 #ko-body-right {
-  height: 720px;
+  max-height: 720px;
   width: 1280px;
   overflow-x: auto;
   overflow-y: auto;

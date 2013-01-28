@@ -75,7 +75,7 @@ table.list th {
 }
 
 table.list td {
-  height: 45px;
+  height: 24px;
 }
 
 .ko-report-block {
@@ -121,7 +121,4 @@ table.list td {
 
 .left {
   float: left;
-}
-.task-title {
-  margin-left: 3em;
 }

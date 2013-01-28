@@ -92,13 +92,12 @@ function TimeEntry(data) {
   }
 
   self.newEntry = function() {
-    self.id("");
-    self.userId("");
-    self.activityId("");
-    self.spent("");
-    self.left("");
-    viewModel.entries.push(self);
-    viewModel.selectedEntry(self);
+    newEntry = new TimeEntry({
+      issueId: self.issueId,
+      day: self.day
+    })
+    viewModel.entries.push(newEntry);
+    viewModel.selectedEntry(newEntry);
   }
 }
 
@@ -132,27 +131,36 @@ function StoryCell(data, day, issueId) {
   var self = this;
 
   self.day = day;
-  self.storyId = issueId;
+  self.isStory = true
+  self.issueId = issueId;
+  self.spent = ko.observable(data.spent);
+  self.left = ko.observable(data.left);
+  self.hasTimeEntry = false;
 
+  /*
   self.spent = ko.computed(function() {
     var sum = 0;
-    ko.utils.arrayForEach(rows(), function(row) {
-      ko.utils.arrayForEach(row.cells(), function(cell) {
-        if(te.day == day && te.storyId == self.storyId) {
-          sum += Number(cell.spent());
-        }
-      })
+    ko.utils.arrayForEach(self.cells(), function(cell) {
+      sum += Number(cell.spent());
     })
     return sum;
   });
 
-  self.left = ko.computed();
+  self.left = ko.computed(function() {
+    var sum = 0;
+    ko.utils.arrayForEach(self.cells(), function(cell) {
+      sum += Number(cell.left());
+    })
+    return sum;
+  });
+  */
 }
 
 function Row(data, days, issueId) {
   var self = this;
 
   self.isStory = (typeof data[days[0]][issueId].story_id != "undefined") ? false : true
+  self.storyId = data[days[0]][issueId].story_id;
   self.issueId = issueId;
   self.prevCell;
   self.storySubject = data[days[0]][issueId].story_subject;
@@ -165,13 +173,13 @@ function Row(data, days, issueId) {
 
   self.cells = ko.observableArray(
     ko.utils.arrayMap(days, function(day) {
-      //if(self.isStory) {
-        //return new StoryCell(data[day][issueId], day, issueId);
-      //} else {
+      if(self.isStory) {
+        return new StoryCell(data[day][issueId], day, issueId);
+      } else {
         var cell = new Cell(data[day][issueId], day, issueId, self.prevCell);
         self.prevCell = cell;
         return cell;
-      //}
+      }
     })
   )
 
@@ -199,7 +207,7 @@ function DailyTotalCell(data) {
     ko.utils.arrayForEach(data.entries, function(entry){
       sum += Number(entry.spent());
     })
-    return sum;
+    return Math.round(sum * 100) / 100;
   }).extend({ throttle: 500 });
 
 
@@ -211,7 +219,7 @@ function DailyTotalCell(data) {
 
     window.bdChart.series[1].data[self.index][1] = sum;
     window.bdChart.replot();
-    return sum;
+    return Math.round(sum * 100) / 100;
   }).extend({ throttle: 500 });
 }
 

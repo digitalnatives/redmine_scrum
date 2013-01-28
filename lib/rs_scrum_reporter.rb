@@ -196,10 +196,12 @@ module RS
         sprint_start = @version.try(:sprint_start_date)
         sprint_end = @version.try(:effective_date)
 
+        from << first_time_entry if first_time_entry
         from << sprint_start if sprint_start.present?
         @from = from.min
         @from = [ @version.try(:created_on).to_date, Date.today ].min unless @from.present? unless @from.present?
 
+        to << last_time_entry if last_time_entry
         to << sprint_end if sprint_end.present?
         @to = to.max
         @to = [ @version.try(:created_on).to_date, Date.today].max unless @to.present?

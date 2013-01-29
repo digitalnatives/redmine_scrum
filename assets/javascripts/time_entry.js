@@ -124,7 +124,7 @@ function Cell(data, day, issueId, prevCell) {
       self.hasTimeEntry(true);
       self.leftValue(value);
     }
-  }).extend({ throttle: 500 });
+  });
 }
 
 function StoryCell(data, day, issueId) {
@@ -208,7 +208,7 @@ function DailyTotalCell(data) {
       sum += Number(entry.spent());
     })
     return Math.round(sum * 100) / 100;
-  }).extend({ throttle: 500 });
+  });
 
 
   self.left = ko.computed(function() {
@@ -217,10 +217,8 @@ function DailyTotalCell(data) {
       sum += Number(entry.left());
     })
 
-    window.bdChart.series[1].data[self.index][1] = sum;
-    window.bdChart.replot();
     return Math.round(sum * 100) / 100;
-  }).extend({ throttle: 500 });
+  });
 }
 
 function DailyTotalRow(rows, days) {

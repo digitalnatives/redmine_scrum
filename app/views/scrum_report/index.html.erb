@@ -75,8 +75,7 @@
               css: { subtotal: $data.isStory == true, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }
               "> 
           <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
-            <div data-bind="text: storySubject"></div>
-            <div data-bind="text: subject"></div>
+            <div data-bind="text: formattedSubject()"></div>
               <span><select data-bind="visible: !isStory, options: $root.assignees, optionsText: 'name', value: assignee"></select></span>
               <span><select data-bind="visible: !isStory, options: $root.statuses, optionsText: 'name', value: currentStatus"></select></span>
           </td>

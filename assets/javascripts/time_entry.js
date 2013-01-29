@@ -31,6 +31,7 @@ function TimeEntry(data) {
   self.saved = false;
   self.hasErrors = ko.observable(false);
   self.subject = data.subject;
+  self.errors = ko.observableArray();
 
   self.info = self.userName + ' (' + self.activity + ') ' + self.spent() + ' : ' + self.left();
 
@@ -87,6 +88,10 @@ function TimeEntry(data) {
       data: jsonData,
       success: function(data) {
         self.saveOk(data);
+      },
+      error: function(data, textStatus, error) {
+        $.parseJSON(data.responseText);
+        console.log(data);
       }
     });
   }
@@ -174,6 +179,13 @@ function Row(data, issueId, assignee) {
   self.assignee = ko.observable(assignee);
   self.currentStatus = ko.observable();
   self.estimated = data[data.days[0]][issueId].estimated;
+  self.formattedSubject = function () {
+    if(self.isStory) {
+      return '#' + self.issueId + ': ' + self.storySubject;
+    } else {
+      return '#' + self.issueId + ': ' + self.subject;
+    }
+  }
 
   self.cells = ko.observableArray(
     ko.utils.arrayMap(data.days, function(day) {
@@ -313,7 +325,7 @@ function ViewModel(data) {
   }
 
   self.previewJsonData = ko.computed(function() {
-    return JSON.stringify(ko.toJS(self.entries), null, '\t');
+    //return JSON.stringify(ko.toJS(self.entries), null, '\t');
   });
 }
 

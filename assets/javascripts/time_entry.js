@@ -29,6 +29,8 @@ function TimeEntry(data) {
   self.userId = ko.observable(data.userId);
   self.userName = ko.observable(data.userName);
   self.saved = false;
+  self.hasErrors = ko.observable(false);
+  self.subject = data.subject;
 
   self.info = self.userName + ' (' + self.activity + ') ' + self.spent() + ' : ' + self.left();
 
@@ -59,6 +61,8 @@ function TimeEntry(data) {
   self.save = function(data) {
     var url;
     var type;
+
+    self.hasErrors(false);
     jsonData = {
       time_entry: ko.toJS({
         id: self.id,
@@ -111,7 +115,7 @@ function Cell(data, day, issueId, prevCell) {
   self.issueId = issueId;
   self.storyId = data.story_id;
   self.prevCell = prevCell;
-
+  self.subject = data.subject;
   self.spentFormatted = self.spent.toString().split('.')
 
   self.left = ko.computed({
@@ -156,23 +160,23 @@ function StoryCell(data, day, issueId) {
   */
 }
 
-function Row(data, days, issueId) {
+function Row(data, issueId, assignee) {
   var self = this;
 
-  self.isStory = (typeof data[days[0]][issueId].story_id != "undefined") ? false : true
-  self.storyId = data[days[0]][issueId].story_id;
+  self.isStory = (typeof data[data.days[0]][issueId].story_id != "undefined") ? false : true
+  self.storyId = data[data.days[0]][issueId].story_id;
   self.issueId = issueId;
   self.prevCell;
-  self.storySubject = data[days[0]][issueId].story_subject;
-  self.subject = data[days[0]][issueId].subject;
-  self.assigneeId = ko.observable(data[days[0]][issueId].assignee_id);
-  self.statusId = ko.observable(data[days[0]][issueId].status_id);
-  self.assignee = ko.observable();
+  self.storySubject = data[data.days[0]][issueId].story_subject;
+  self.subject = data[data.days[0]][issueId].subject;
+  self.assigneeId = ko.observable(data[data.days[0]][issueId].assignee_id);
+  self.statusId = ko.observable(data[data.days[0]][issueId].status_id);
+  self.assignee = ko.observable(assignee);
   self.currentStatus = ko.observable();
-  self.estimated = data[days[0]][issueId].estimated;
+  self.estimated = data[data.days[0]][issueId].estimated;
 
   self.cells = ko.observableArray(
-    ko.utils.arrayMap(days, function(day) {
+    ko.utils.arrayMap(data.days, function(day) {
       if(self.isStory) {
         return new StoryCell(data[day][issueId], day, issueId);
       } else {
@@ -263,33 +267,38 @@ function DailyTotalRow(rows, days) {
 function ViewModel(data) {
   var self = this;
 
-  self.rows = ko.observableArray(
-    ko.utils.arrayMap(data.issue_ids, function(issueId) {
-      return new Row(data, data.days, issueId);
-    })
-  );
   self.days = data.days;
-  self.dailyTotals = new DailyTotalRow(self.rows, data.days);
-
-  self.assignees = ko.utils.arrayMap(data.assignees, function(assignee) {
-      return new Assignee(assignee);
-  });
-
-  self.entries = ko.observableArray();
-
   // Set by cellDetails
   self.selectedEntry = ko.observable();
   // Set by cellDetails
   self.selectedCell = ko.observable();
+  self.entries = ko.observableArray();
+  self.assignees = ko.utils.arrayMap(data.assignees, function(assignee) {
+      return new Assignee(assignee);
+  });
+
+  self.rows = ko.observableArray(
+    ko.utils.arrayMap(data.issue_ids, function(issueId) {
+      var assignee = $.grep(self.assignees, function(a) {
+        return a.id == data[data.days[0]][issueId].assignee_id;
+      })[0]
+      return new Row(data, issueId, assignee);
+    })
+  );
+
+  self.dailyTotals = new DailyTotalRow(self.rows, data.days);
 
   // By clicking on cells this gets set
   self.cellDetails = function(cell) {
     $.getJSON('/scrum_report_time_entries/' + cell.issueId + '?day=' + cell.day, function(serverData){
       var data = $.parseJSON(serverData.entries);
-      var mappedEntries = $.map(data, function(entry) { return new TimeEntry(entry) });
+      var mappedEntries = $.map(data, function(entry) { 
+        entry.subject = cell.subject;
+        return new TimeEntry(entry);
+      });
       self.selectedCell(cell);
       if(mappedEntries.length == 0){
-        var timeEntry = new TimeEntry({issueId: cell.issueId, day: cell.day});
+        var timeEntry = new TimeEntry({issueId: cell.issueId, day: cell.day, subject: cell.subject});
         self.selectedEntry(timeEntry);
         self.entries([ timeEntry ]);
       } else {
@@ -328,6 +337,9 @@ ko.bindingHandlers.openDialog = {
     var value = ko.utils.unwrapObservable(valueAccessor());
     if (value) {
       $(element).dialog("open");
+      $(element).dialog({
+        title: value.subject 
+      });
     } else {
       $(element).dialog("close");
     }
@@ -381,10 +393,20 @@ window.viewModel = new ViewModel(data);
 
 ko.applyBindings(viewModel);
 
+// Set row height to same
+var otherTrs = jQuery('.ko-table-right').last().find("tr");
+jQuery('.ko-table-left').last().find("tr").each(function(index,row) {
+  jQuery(otherTrs[index]).height(jQuery(row).height());
+})
+// Set table width same
 $('#ko-body-right table.ko-table-right').width($('#ko-header-right table.ko-table-right').width())
+
+// Follow scroll
 $('#ko-body-right').scroll(function() {
   $('#ko-header-right').scrollLeft($(this).scrollLeft());
   $('#ko-body-left').scrollTop($(this).scrollTop());
 });
 
+// cleanup
+window.data = null;
 })

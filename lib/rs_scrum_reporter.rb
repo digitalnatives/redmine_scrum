@@ -43,7 +43,9 @@ module RS
           issue_data[:assignee_te] = issue_entries.find{ |te| te.user_id == issue.assigned_to_id }
           issue_data[:story_id] = issue.parent_id
           issue_data[:subject] = issue.subject
+          issue_data[:assignee_id] = issue.assigned_to_id
           issue_data[:estimated] = issue.estimated_hours
+          issue_data[:subject] = issue.subject
           @data[day][issue.id] = issue_data
 
           if issue.parent_id.present?

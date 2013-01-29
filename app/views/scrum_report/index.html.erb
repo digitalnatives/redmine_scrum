@@ -17,10 +17,6 @@
 <%= render "modal_dialog" %>
 
 <% form_tag({:controller => 'scrum_report', :action => 'index', :project_id => @project},:method => :get, :id => 'query_form') do %>
-  <%# @report.criteria.each do |criterion| %>
-    <%#= hidden_field_tag 'criteria[]', criterion, :id => nil %>
-  <%# end %>
-
   <p>
     <label for='version_id'><%= l('redmine_scrum.label_sprint') %></label>:
     <% if @versions.present? %>
@@ -38,13 +34,13 @@
   <table class="list ko-table-left">
     <thead>
       <tr>
-        <th><%= l('redmine_scrum.user_story') %></th>
-        <th><%= l('redmine_scrum.assignee') %></th>
-        <th><%= l('redmine_scrum.status') %></th>
+        <th><%= l('redmine_scrum.user_story') %>
+       <br /><%= l('redmine_scrum.assignee') %> <%= l('redmine_scrum.status') %>
+        </th>
         <th><%= l('redmine_scrum.estimated') %></th>
         </tr>
         <tr>
-        <th colspan="4">&nbsp;</th>
+        <th colspan="2">&nbsp;</th>
         </tr>
     </thead>
     </table>
@@ -68,35 +64,34 @@
         </tr>
     </thead>
     </table>
-</div>
-</div>
-<div class="ko-report-block">
-<div id="ko-body-left" class="ko-left">
-  <table class="list ko-table-left">
-    <tbody>
-      <!-- ko foreach: rows -->
-      <tr class="hascontextmenu context-menu-selection" data-bind="css: { subtotal: $data.isStory == true, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
-        <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
-          <input type="checkbox" name="ids[]", data-bind="value: issueId" style="display:none">
-          <div data-bind="text: storySubject"></div>
-          <div data-bind="text: subject"></div>
-        </td>
-        <td>
-            <span><select data-bind="visible: !isStory, options: $root.assignees, optionsText: 'name', value: assignee"></select></span>
-        </td>
-        <td>
-            <span><select data-bind="visible: !isStory, options: $root.statuses, optionsText: 'name', value: currentStatus"></select></span>
-        </td>
-        <td data-bind="text: estimated, css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"></td>
-      </tr>
-      <!-- /ko -->
-      <tr>
-        <th colspan="4"><%= l('redmine_scrum.total') %></th>
-      </tr>
-      <tr>
-        <td colspan="3">&nbsp;</td>
-      </tr>
-    </tbody>
+    </div>
+  </div>
+  <div class="ko-report-block">
+  <div id="ko-body-left" class="ko-left">
+    <table class="list ko-table-left">
+      <tbody>
+        <!-- ko foreach: rows -->
+        <tr class="hascontextmenu context-menu-selection" data-bind="attr: { id: 'issue-'+ issueId  },
+              css: { subtotal: $data.isStory == true, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }
+              "> 
+          <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
+            <div data-bind="text: storySubject"></div>
+            <div data-bind="text: subject"></div>
+              <span><select data-bind="visible: !isStory, options: $root.assignees, optionsText: 'name', value: assignee"></select></span>
+              <span><select data-bind="visible: !isStory, options: $root.statuses, optionsText: 'name', value: currentStatus"></select></span>
+          </td>
+          <td data-bind="text: estimated, css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
+            <input type="checkbox" name="ids[]", data-bind="value: issueId" style="display:none">
+          </td>
+        </tr>
+        <!-- /ko -->
+        <tr>
+          <th colspan="2"><%= l('redmine_scrum.total') %></th>
+        </tr>
+        <tr>
+        <td colspan="2">&nbsp;</td>
+        </tr>
+      </tbody>
   </table>
 </div>
 <div id="ko-body-right" class="ko-right">

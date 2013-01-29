@@ -1,5 +1,5 @@
 <div id="details" data-bind="
-  jqDialog: { autoOpen: false, resizable: true, modal: true, width: 550 }, 
+  jqDialog: { autoOpen: false, resizable: true, modal: true, width: 580 }, 
   template: { name: 'editTmpl', data: $root.selectedEntry, if: $root.selectedEntry }, 
   openDialog: $root.selectedEntry"> 
 </div>
@@ -9,7 +9,7 @@
   <div class="left">
     <p data-bind="text: title"></p>
     <% form_for TimeEntry.new, :url => '/scrum_report_time_entries', :html => { :id => 'set-time-entry-hours', "data-remote" => true } do |f| %> 
-      <div id="errorExplanation">
+      <div id="errorExplanation" data-bind="visible: hasErrors">
         <ul></ul>
       </div>
       <p>
@@ -44,16 +44,17 @@
     <table>
       <thead>
         <tr>
-          <th>User</th>
-          <th>Activty</th>
+          <th>User / Acitvity</th>
           <th>Spent</th>
           <th>Left</th>
           </tr>
       </thead>
       <tbody data-bind="foreach: $root.entries">
         <tr data-bind="click: $root.editEntry">
-          <td data-bind="text: userName"></td>
-          <td data-bind="text: activity"></td>
+          <td>
+            <span data-bind="text: userName">
+            <span data-bind="text: activity">
+          </td>
           <td data-bind="text: spent"></td>
           <td data-bind="text: left"></td>
         </tr>

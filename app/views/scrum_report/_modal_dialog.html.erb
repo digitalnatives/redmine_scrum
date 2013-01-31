@@ -9,8 +9,10 @@
   <div class="left">
     <p data-bind="text: title"></p>
     <% form_for TimeEntry.new, :url => '/scrum_report_time_entries', :html => { :id => 'set-time-entry-hours', "data-remote" => true } do |f| %> 
-      <div id="errorExplanation" data-bind="visible: hasErrors">
+      <div id="errorExplanation" data-bind="visible: errors().length > 0">
         <ul data-bind="foreach: errors">
+          <li data-bind="text: id + ': ' + name">
+          </li>
         </ul>
       </div>
       <p>

@@ -29,7 +29,6 @@ function TimeEntry(data) {
   self.userId = ko.observable(data.userId);
   self.userName = ko.observable(data.userName);
   self.saved = false;
-  self.hasErrors = ko.observable(false);
   self.subject = data.subject;
   self.errors = ko.observableArray();
 
@@ -63,7 +62,7 @@ function TimeEntry(data) {
     var url;
     var type;
 
-    self.hasErrors(false);
+    self.errors([]);
     jsonData = {
       time_entry: ko.toJS({
         id: self.id,
@@ -90,7 +89,9 @@ function TimeEntry(data) {
         self.saveOk(data);
       },
       error: function(data, textStatus, error) {
-        $.parseJSON(data.responseText);
+        $.parseJSON(data.responseText).errors.each(function(element) {
+          self.errors.push({ id: element[0], name: element[1] })
+        });
         console.log(data);
       }
     });

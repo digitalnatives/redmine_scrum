@@ -27,7 +27,7 @@ class ScrumReportController < ApplicationController
     if params[:version_id].present?
       @version = @project.versions.find(params[:version_id])
     else
-      @version = @project.versions.last
+      @version = @project.versions.find(:first, :conditions => [ "sprint_start_date <= ? AND effective_date >= ?", Date.today, Date.today ]) || @project.versions.last
     end
   rescue ActiveRecord::RecordNotFound
     render_404

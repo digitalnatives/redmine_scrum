@@ -5,9 +5,9 @@ class ScrumReportTimeEntriesController < ApplicationController
     @time_entry = TimeEntry.find(params[:id])
     params[:time_entry].delete(:activity_id) if params[:time_entry][:activity_id].blank?
     params[:time_entry].delete(:issue_id)
+    set_time_entry_user
 
     if @time_entry.editable_by?(User.current) && @time_entry.update_attributes(params[:time_entry])
-      set_time_entry_user
       render :json => cell_values
     else
       render :json => {
@@ -17,12 +17,11 @@ class ScrumReportTimeEntriesController < ApplicationController
   end
 
   def create
-    user = User.find(params[:time_entry][:user_id])
-    @time_entry = TimeEntry.new(params[:time_entry].merge(:user => user))
+    @time_entry = TimeEntry.new(params[:time_entry])
     @time_entry.project = @time_entry.issue.project
+    set_time_entry_user
 
     if @time_entry.editable_by?(User.current) && @time_entry.save
-      set_time_entry_user
       render :json => cell_values
     else
       render :json => {
@@ -86,13 +85,14 @@ class ScrumReportTimeEntriesController < ApplicationController
     }
   end
 
+  # http://www.redmine.org/projects/redmine/wiki/RedmineRoles
   def set_time_entry_user
-    #TODO: SET Authorization rules!!!
-    if params[:time_entry][:user_id].present? && @time_entry.user_id != params[:time_entry][:user_id]
-      @time_entry.update_attribute(:user_id, params[:time_entry][:user_id])
-      @time_entry.user.reload
-      #update_issue(@time_entry.issue)
-    end
+    user = User.find(params[:time_entry][:user_id])
+    @time_entry.user = user
+    #@time_entry.user.reload
+    return if @time_entry.user == User.current
+
+    @time_entry.errors.add(:user_id, :invalid) unless User.current.allowed_to?(:manage_project_activities, @time_entry.project) && User.current.allowed_to?(:edit_time_entries, @time_entry.project)
   end
 
 end

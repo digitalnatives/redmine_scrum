@@ -104,7 +104,8 @@ function TimeEntry(data) {
   self.newEntry = function() {
     newEntry = new TimeEntry({
       issueId: self.issueId,
-      day: self.day
+      day: self.day,
+      subject: self.subject
     })
     viewModel.entries.push(newEntry);
     viewModel.selectedEntry(newEntry);

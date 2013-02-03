@@ -31,7 +31,7 @@
 <div id="ko-report">
 <div class="ko-report-block">
 <div id="ko-header-left" class="ko-left">
-  <table class="list ko-table-left">
+  <table id="ko-table-header-left" class="list">
     <thead>
       <tr>
         <th><%= l('redmine_scrum.user_story') %>
@@ -46,7 +46,7 @@
     </table>
 </div>
 <div id="ko-header-right" class="ko-right ko-header-scroller">
-  <table class="list ko-table-right">
+  <table id="ko-table-header-right" class="list">
     <thead>
       <tr>
         <!-- ko foreach: days -->
@@ -68,7 +68,7 @@
   </div>
   <div class="ko-report-block">
   <div id="ko-body-left" class="ko-left">
-    <table class="list ko-table-left">
+    <table id="ko-table-body-left" class="list">
       <tbody>
         <!-- ko foreach: rows -->
         <tr class="hascontextmenu context-menu-selection" data-bind="attr: { id: 'issue-'+ issueId  },
@@ -94,7 +94,7 @@
   </table>
 </div>
 <div id="ko-body-right" class="ko-right">
-  <table class="list ko-table-right">
+  <table id="ko-table-body-right" class="list">
     <tbody>
       <!-- ko foreach: rows -->
       <tr data-bind="attr: { id: 'issue-'+ issueId  }, css: { 'no-time-entry': !isStory, subtotal: isStory, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 

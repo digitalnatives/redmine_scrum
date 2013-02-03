@@ -418,12 +418,12 @@ $.each(viewModel.rows(), function(index, row) {
 ko.applyBindings(viewModel);
 
 // Set row height to same
-var otherTrs = jQuery('.ko-table-right').last().find("tr");
-jQuery('.ko-table-left').last().find("tr").each(function(index,row) {
+var otherTrs = jQuery('#ko-table-body-right').last().find("tr");
+jQuery('#ko-table-body-left').last().find("tr").each(function(index,row) {
   jQuery(otherTrs[index]).height(jQuery(row).height());
 })
 // Set table width same
-$('#ko-body-right table.ko-table-right').width($('#ko-header-right table.ko-table-right').width())
+$('#ko-table-body-right').width($('#ko-table-header-right').width())
 
 // Follow scroll
 $('#ko-body-right').scroll(function() {

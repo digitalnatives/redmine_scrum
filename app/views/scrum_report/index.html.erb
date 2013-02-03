@@ -82,7 +82,8 @@
         </tr>
         <!-- /ko -->
         <tr>
-          <th colspan="2"><%= l('redmine_scrum.total') %></th>
+          <th><%= l('redmine_scrum.total') %></th>
+          <th><%= @report.data[:sum_estimated_hours] %></th>
         </tr>
       </tbody>
   </table>

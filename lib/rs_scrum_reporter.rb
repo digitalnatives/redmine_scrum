@@ -157,8 +157,7 @@ module RS
 
     def default_conditions
       @conditions = "issues.project_id = :project_id 
-                  AND issues.tracker_id = :tracker_id
-                  AND issues.estimated_hours IS NOT NULL"
+                  AND issues.tracker_id = :tracker_id"
                   #AND versions.status != 'closed'"
       @condition_vars = { 
         :project_id => @project.id,

@@ -143,11 +143,9 @@ function StoryCell(data, day, issueId) {
   self.day = day;
   self.isStory = true
   self.issueId = issueId;
-  self.spent = ko.observable(data.spent);
-  self.left = ko.observable(data.left);
   self.hasTimeEntry = false;
+  self.cells = ko.observableArray();
 
-  /*
   self.spent = ko.computed(function() {
     var sum = 0;
     ko.utils.arrayForEach(self.cells(), function(cell) {
@@ -163,7 +161,6 @@ function StoryCell(data, day, issueId) {
     })
     return sum;
   });
-  */
 }
 
 function Row(data, issueId, assignee) {
@@ -403,6 +400,19 @@ window.bdChart = jQuery.jqplot('burndown', [data.ideal_line, data.remain_line], 
   });
 
 window.viewModel = new ViewModel(data);
+
+$.each(viewModel.rows(), function(index, row) {
+  if(!row.isStory) return;
+
+  var storyRow = row;
+  $.each(viewModel.rows(), function(index, row) {
+    if(row.storyId == storyRow.issueId) {
+      for(var i = 0; i < row.cells().length; i++) {
+        storyRow.cells()[i].cells.push(row.cells()[i]);
+      }
+    }
+  });
+});
 
 ko.applyBindings(viewModel);
 

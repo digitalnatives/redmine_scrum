@@ -103,7 +103,7 @@ table.list tr {
 
 #ko-body-right {
   max-height: 720px;
-  width: 1280px;
+  max-width: 1280px;
   overflow-x: auto;
   overflow-y: auto;
 }
@@ -120,4 +120,26 @@ table.list tr {
 
 .left {
   float: left;
+}
+
+#ko-table-header-right {
+  table-layout: fixed;
+}
+#ko-table-header-right th span {
+  width: 50%;
+  display: inline-block;
+}
+
+#ko-table-header-right th {
+  width: 100px;
+}
+
+#ko-table-body-right {
+  table-layout: fixed;
+}
+
+#ko-table-body-right th, #ko-table-body-right td {
+  width: 50px;
+  text-align: right;
+  vertical-align: middle;
 }

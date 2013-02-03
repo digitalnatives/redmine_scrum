@@ -35,13 +35,10 @@
     <thead>
       <tr>
         <th><%= l('redmine_scrum.user_story') %>
-       <br /><%= l('redmine_scrum.assignee') %> <%= l('redmine_scrum.status') %>
+        <br /><%= l('redmine_scrum.assignee') %> <%= l('redmine_scrum.status') %>
         </th>
         <th><%= l('redmine_scrum.estimated') %></th>
-        </tr>
-        <tr>
-        <th colspan="2">&nbsp;</th>
-        </tr>
+      </tr>
     </thead>
     </table>
 </div>
@@ -50,18 +47,18 @@
     <thead>
       <tr>
         <!-- ko foreach: days -->
-        <th class="period-end" colspan="2" data-bind="text: $data" ></th>
+        <th class="period-end">
+          <div class="day-title" data-bind="text: $data"></div>
+          <span>&sum;</span>
+          <span>R</span>
+        </th>
         <!-- /ko -->
-        <th colspan="2"><%= l('redmine_scrum.total') %></th>
-        </tr>
-        <tr>
-        <!-- ko foreach: days -->
-          <th>&sum;</th>
-          <th class="period-end">R</th>
-        <!-- /ko -->
-        <th>&sum;</th>
-        <th>R</th>
-        </tr>
+        <th>
+          <div class="day-title"><%= l('redmine_scrum.total') %></div>
+          <span>&sum;</span>
+          <span>R</span>
+        </th>
+      </tr>
     </thead>
     </table>
     </div>
@@ -87,9 +84,6 @@
         <tr>
           <th colspan="2"><%= l('redmine_scrum.total') %></th>
         </tr>
-        <tr>
-        <td colspan="2">&nbsp;</td>
-        </tr>
       </tbody>
   </table>
 </div>
@@ -114,11 +108,6 @@
         <th data-bind="text: dailyTotals.spent"></th>
         <th data-bind="text: dailyTotals.left" class="period-end"></th>
       </tr>
-    <tr class="hidden-row">
-        <!-- ko foreach: days -->
-        <th class="hidden-cell period-end" colspan="2" data-bind="text: $data" ></th>
-        <!-- /ko -->
-        </tr>
     </tbody>
   </table>
 </div>

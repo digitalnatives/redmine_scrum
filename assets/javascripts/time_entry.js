@@ -51,8 +51,8 @@ function TimeEntry(data) {
     self.userName(data.userName);
     self.id(data.id);
     viewModel.selectedEntry(self);
-    ko.utils.arrayForEach(viewModel.dailyTotals.cells, function(cell) {
-      window.bdChart.series[1].data[cell.index][1] = cell.spent();
+    ko.utils.arrayForEach(viewModel.dailyTotals.cells(), function(cell) {
+      window.bdChart.series[1].data[cell.index][1] = cell.left();
     })
     window.bdChart.replot();
     self.saved = true;

@@ -143,3 +143,7 @@ table.list tr {
   text-align: right;
   vertical-align: middle;
 }
+#ko-table-body-left td.estimated {
+  text-align: right;
+  vertical-align: middle;
+}

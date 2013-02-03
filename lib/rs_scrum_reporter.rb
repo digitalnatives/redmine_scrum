@@ -46,6 +46,7 @@ module RS
           issue_data[:assignee_id] = issue.assigned_to_id
           issue_data[:estimated] = issue.estimated_hours
           issue_data[:subject] = issue.subject
+          issue_data[:status] = issue.status.to_s
           @data[day][issue.id] = issue_data
 
           if issue.parent_id.present?

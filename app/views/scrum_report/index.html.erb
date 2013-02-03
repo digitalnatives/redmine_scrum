@@ -74,9 +74,11 @@
           <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
             <div data-bind="text: formattedSubject()"></div>
               <span><select data-bind="visible: !isStory, options: $root.assignees, optionsText: 'name', value: assignee"></select></span>
-              <span><select data-bind="visible: !isStory, options: $root.statuses, optionsText: 'name', value: currentStatus"></select></span>
+              <span data-bind="visible: !isStory, text: currentStatus"></span>
           </td>
-          <td data-bind="text: estimated, css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
+          <td class="estimated" data-bind="attr: { 'data-task-id': issueId },
+          css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
+            <span data-bind="text: estimated"></span>
             <input type="checkbox" name="ids[]", data-bind="value: issueId" style="display:none">
           </td>
         </tr>

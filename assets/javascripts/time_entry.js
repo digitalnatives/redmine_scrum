@@ -28,6 +28,7 @@ function TimeEntry(data) {
   self.activity = ko.observable(data.activity);
   self.userId = ko.observable(data.userId);
   self.userName = ko.observable(data.userName);
+  self.assigneeId = data.assigneeId;
   self.saved = false;
   self.subject = data.subject;
   self.errors = ko.observableArray();
@@ -123,7 +124,8 @@ function Cell(data, day, issueId, prevCell) {
   self.storyId = data.story_id;
   self.prevCell = prevCell;
   self.subject = data.subject;
-  self.spentFormatted = self.spent.toString().split('.')
+  self.spentFormatted = self.spent.toString().split('.');
+  self.assigneeId = data.assignee_id;
 
   self.left = ko.computed({
     read: function() {
@@ -309,7 +311,7 @@ function ViewModel(data) {
       });
       self.selectedCell(cell);
       if(mappedEntries.length == 0){
-        var timeEntry = new TimeEntry({issueId: cell.issueId, day: cell.day, subject: cell.subject});
+        var timeEntry = new TimeEntry({issueId: cell.issueId, day: cell.day, subject: cell.subject, assigneeId: cell.assigneeId});
         self.selectedEntry(timeEntry);
         self.entries([ timeEntry ]);
       } else {
@@ -347,6 +349,7 @@ ko.bindingHandlers.openDialog = {
   update: function(element, valueAccessor) {
     var value = ko.utils.unwrapObservable(valueAccessor());
     if (value) {
+      $(element).find('#time_entry_user_id').val(value.assigneeId);
       $(element).dialog("open");
       $(element).dialog({
         title: value.subject 

@@ -95,8 +95,14 @@
       <!-- ko foreach: rows -->
       <tr data-bind="attr: { id: 'issue-'+ issueId  }, css: { 'no-time-entry': !isStory, subtotal: isStory, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
         <!-- ko foreach: $data.cells -->
-        <td data-bind="text: spent().toFixed(2), click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry }"></td>
-        <td data-bind="text: left().toFixed(2), click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry }" class="period-end"></td>
+          <!-- ko if: $parent.isStory -->
+            <td data-bind="text: spent().toFixed(2)"></td>
+            <td data-bind="text: left().toFixed(2)" class="period-end"></td>
+          <!-- /ko -->
+          <!-- ko ifnot: $parent.isStory -->
+            <td data-bind="text: spent().toFixed(2), click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry }"></td>
+            <td data-bind="text: left().toFixed(2), click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry }" class="period-end"></td>
+          <!-- /ko -->
         <!-- /ko -->
         <td data-bind="text: spent"></td>
         <td data-bind="text: left" class="period-end"></td>

@@ -177,7 +177,7 @@ function Row(data, issueId, assignee) {
   self.statusId = ko.observable(data[data.days[0]][issueId].status_id);
   self.assignee = ko.observable(assignee);
   self.currentStatus = data[data.days[0]][issueId].status;
-  self.estimated = data[data.days[0]][issueId].estimated;
+  self.estimated = Number(data[data.days[0]][issueId].estimated);
   self.formattedSubject = function () {
     if(self.isStory) {
       return '#' + self.issueId + ': ' + self.storySubject;

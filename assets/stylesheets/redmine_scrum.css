@@ -69,12 +69,24 @@ table.list td.time-entry:hover, table.list td.no-time-entry:hover {
   background-color: #759fcf;
 } 
 
+table.list td {
+  padding: 2px 1px;
+}
+
 table.list th {
   font-size: 12px;
 }
 
 table.list tr {
   height: 24px;
+}
+
+table.list select { 
+  font-size: 10px;
+}
+
+.task-title, .task-assignee {
+  margin-left: 20px;
 }
 
 .ko-report-block {
@@ -106,16 +118,6 @@ table.list tr {
   max-width: 1280px;
   overflow-x: auto;
   overflow-y: auto;
-}
-
-.hidden-row {
-  height: 0 !important;
-}
-
-.hidden-cell {
-  visibility: collapse;
-  padding 0 4px;
-  font-weight: bold;
 }
 
 .left {

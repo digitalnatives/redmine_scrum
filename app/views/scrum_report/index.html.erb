@@ -72,13 +72,12 @@
               css: { subtotal: $data.isStory == true, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }
               "> 
           <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
-            <div data-bind="text: formattedSubject()"></div>
-              <span><select data-bind="visible: !isStory, options: $root.assignees, optionsText: 'name', value: assignee"></select></span>
+            <div data-bind="text: formattedSubject(), css: { 'task-title': !isStory }"></div>
+              <span class="task-assignee"><select data-bind="visible: !isStory, options: $root.assignees, optionsText: 'name', value: assignee"></select></span>
               <span data-bind="visible: !isStory, text: currentStatus"></span>
           </td>
-          <td class="estimated" data-bind="attr: { 'data-task-id': issueId },
-          css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
-            <span data-bind="text: estimated"></span>
+          <td class="estimated" data-bind="attr: { 'data-task-id': issueId }, css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
+            <span data-bind="text: estimated.toFixed(2)"></span>
             <input type="checkbox" name="ids[]", data-bind="value: issueId" style="display:none">
           </td>
         </tr>
@@ -96,8 +95,8 @@
       <!-- ko foreach: rows -->
       <tr data-bind="attr: { id: 'issue-'+ issueId  }, css: { 'no-time-entry': !isStory, subtotal: isStory, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
         <!-- ko foreach: $data.cells -->
-        <td data-bind="text: spent, click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry }"></td>
-        <td data-bind="text: left, click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry }" class="period-end"></td>
+        <td data-bind="text: spent().toFixed(2), click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry }"></td>
+        <td data-bind="text: left().toFixed(2), click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry }" class="period-end"></td>
         <!-- /ko -->
         <td data-bind="text: spent"></td>
         <td data-bind="text: left" class="period-end"></td>
@@ -105,11 +104,11 @@
       <!-- /ko -->
       <tr>
         <!-- ko foreach: $root.dailyTotals.cells -->
-        <th data-bind="text: spent"></th>
-        <th data-bind="text: left" class="period-end"></th>
+        <th data-bind="text: spent().toFixed(2)"></th>
+        <th data-bind="text: left().toFixed(2)" class="period-end"></th>
         <!-- /ko -->
-        <th data-bind="text: dailyTotals.spent"></th>
-        <th data-bind="text: dailyTotals.left" class="period-end"></th>
+        <th data-bind="text: dailyTotals.spent().toFixed(2)"></th>
+        <th data-bind="text: dailyTotals.left().toFixed(2)" class="period-end"></th>
       </tr>
     </tbody>
   </table>

@@ -16,29 +16,29 @@
         </ul>
       </div>
       <p>
-      <%= f.hidden_field :issue_id %>
-      <%= f.hidden_field :spent_on %>
-      <label>Day:</label>
-      <span data-bind="text: day"></span>
+        <%= f.hidden_field :issue_id %>
+        <%= f.hidden_field :spent_on %>
+        <label>Day:</label>
+        <span data-bind="text: day"></span>
       </p>
       <p>
-      <label>Assignee:</label>
-      <span>
-        <%= f.collection_select(:user_id, @project.assignable_users, :id, :name, {}, {"data-bind" => "value: userId"}) %>
-      </span>
-      <span id="assignee"></span>
+        <label>Assignee:</label>
+        <span>
+          <%= f.collection_select(:user_id, @project.assignable_users, :id, :name, {}, {"data-bind" => "value: userId"}) %>
+        </span>
+        <span id="assignee"></span>
       </p>
       <p>
-      <label>Spent time:</label>
-      <%= f.text_field :hours, :size => 6, :required => true, "data-bind" => "value :spent" %>
+        <label>Spent time:</label>
+        <%= f.text_field :hours, :size => 6, :required => true, "data-bind" => "value :spent" %>
       </p>
       <p>
-      <label>Activity:</label>
-      <%= f.select :activity_id, activity_collection_for_select_options(@time_entry), {}, {:required => true, "data-bind" => "value: activityId"} %>
+        <label>Activity:</label>
+        <%= f.select :activity_id, activity_collection_for_select_options(@time_entry), {}, {:required => true, "data-bind" => "value: activityId"} %>
       </p>
       <p>
-      <label>Remaining time:</label>
-      <%= f.text_field :te_remaining_hours, :size => 6, "data-bind" => "value: left" %>
+        <label>Remaining time:</label>
+        <%= f.text_field :te_remaining_hours, :size => 6, "data-bind" => "value: left" %>
       </p>
     <% end %>
     <div class="rsindicator"> </div>

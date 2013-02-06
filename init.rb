@@ -6,6 +6,7 @@ else
 end.to_prepare do
   require_dependency 'rs_scrum_reporter'
   require_dependency 'redmine_scrum_hooks'
+  require_dependency 'time_entry_patch'
 end
 
 Redmine::Plugin.register :redmine_scrum do

@@ -248,7 +248,7 @@ function DailyTotalRow(rows, days) {
       var entries = [];
       ko.utils.arrayForEach(rows(), function(row) {
         var cell = $.grep(row.cells(), function(te) {
-          return te.day == day && typeof te.storyId == "undefined";
+          return te.day == day && typeof te.storyId != "undefined";
         })[0];
         if(cell) entries.push(cell);
       })
@@ -349,7 +349,7 @@ ko.bindingHandlers.openDialog = {
   update: function(element, valueAccessor) {
     var value = ko.utils.unwrapObservable(valueAccessor());
     if (value) {
-      $(element).find('#time_entry_user_id').val(value.assigneeId);
+      if(!value.id()) { $(element).find('#time_entry_user_id').val(value.assigneeId); }
       $(element).dialog("open");
       $(element).dialog({
         title: value.subject 

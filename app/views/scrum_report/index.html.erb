@@ -100,12 +100,12 @@
             <td data-bind="text: left().toFixed(2)" class="period-end"></td>
           <!-- /ko -->
           <!-- ko ifnot: $parent.isStory -->
-            <td data-bind="text: spent().toFixed(2), click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry }"></td>
-            <td data-bind="text: left().toFixed(2), click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry }" class="period-end"></td>
+            <td data-bind="text: spent().toFixed(2), click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry(), 'no-time-entry': !hasTimeEntry() }"></td>
+            <td data-bind="text: left().toFixed(2), click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry(), 'no-time-entry': !hasTimeEntry() }" class="period-end"></td>
           <!-- /ko -->
         <!-- /ko -->
-        <td data-bind="text: spent"></td>
-        <td data-bind="text: left" class="period-end"></td>
+        <td data-bind="text: spent().toFixed(2)"></td>
+        <td data-bind="text: left().toFixed(2)" class="period-end"></td>
       </tr>
       <!-- /ko -->
       <tr>

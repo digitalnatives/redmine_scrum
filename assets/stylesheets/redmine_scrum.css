@@ -43,14 +43,8 @@
   padding: 8px 0;
 }
 
-.no-time-entry {
-  color:#8686cb;
-  font-weight: normal;
-}
-
-.time-entry {
-  color: #777777;
-  font-weight: bold;
+.dialog-left {
+  float: left;
 }
 
 table.list {
@@ -83,6 +77,16 @@ table.list tr {
 
 table.list select { 
   font-size: 10px;
+}
+
+.no-time-entry {
+  color:#8686cb;
+  font-weight: normal;
+}
+
+.time-entry {
+  color: #777777;
+  font-weight: bold;
 }
 
 .task-title, .task-assignee {
@@ -118,10 +122,6 @@ table.list select {
   max-width: 1280px;
   overflow-x: auto;
   overflow-y: auto;
-}
-
-.left {
-  float: left;
 }
 
 #ko-table-header-right {

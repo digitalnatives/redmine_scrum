@@ -248,7 +248,7 @@ function DailyTotalRow(rows, days) {
       var entries = [];
       ko.utils.arrayForEach(rows(), function(row) {
         var cell = $.grep(row.cells(), function(te) {
-          return te.day == day && typeof te.storyId != "undefined";
+          return te.day == day && typeof te.storyId == "undefined";
         })[0];
         if(cell) entries.push(cell);
       })

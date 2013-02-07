@@ -8,6 +8,7 @@
 <div id="time-entry-dialog">
   <div class="dialog-left period-end">
     <p data-bind="text: title"></p>
+    <div class="rsindicator"></div>
     <% form_for TimeEntry.new, :url => '/scrum_report_time_entries', :html => { :id => 'set-time-entry-hours', "data-remote" => true } do |f| %> 
       <div id="errorExplanation" data-bind="visible: errors().length > 0">
         <ul data-bind="foreach: errors">
@@ -22,7 +23,7 @@
         <span data-bind="text: day"></span>
       </p>
       <p>
-        <label>Assignee:</label>
+        <label>User:</label>
         <span>
           <%= f.collection_select(:user_id, @project.assignable_users, :id, :name, {}, {"data-bind" => "value: userId"}) %>
         </span>

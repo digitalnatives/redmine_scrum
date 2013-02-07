@@ -82,6 +82,7 @@ function TimeEntry(data) {
       type = "post";
       url = "/scrum_report_time_entries";
     }
+    $('.rsindicator').addClass('rssaving');
     $.ajax({ 
       type: type, 
       url: url, 
@@ -95,6 +96,9 @@ function TimeEntry(data) {
         });
         console.log(data);
       }
+    })
+    .always(function() {
+      $('.rsindicator').removeClass('rssaving');
     });
   }
 
@@ -218,10 +222,11 @@ function DailyTotalCell(data) {
 
   self.day = data.day;
   self.index = data.index;
+  self.cells = ko.observableArray();
 
   self.spent = ko.computed(function() {
     var sum = 0;
-    ko.utils.arrayForEach(data.entries, function(entry){
+    ko.utils.arrayForEach(self.cells(), function(entry){
       sum += Number(entry.spent());
     })
     return Math.round(sum * 100) / 100;
@@ -230,7 +235,7 @@ function DailyTotalCell(data) {
 
   self.left = ko.computed(function() {
     var sum = 0;
-    ko.utils.arrayForEach(data.entries, function(entry){
+    ko.utils.arrayForEach(self.cells(), function(entry){
       sum += Number(entry.left());
     })
 
@@ -245,15 +250,8 @@ function DailyTotalRow(rows, days) {
 
   self.cells = ko.observableArray(
     ko.utils.arrayMap(days, function(day) {
-      var entries = [];
-      ko.utils.arrayForEach(rows(), function(row) {
-        var cell = $.grep(row.cells(), function(te) {
-          return te.day == day && typeof te.storyId != "undefined";
-        })[0];
-        if(cell) entries.push(cell);
-      })
       self.index++;
-      return new DailyTotalCell({day: day, entries: entries, index: (self.index - 1)});
+      return new DailyTotalCell({day: day, index: (self.index - 1)});
     })
   )
 
@@ -416,6 +414,9 @@ $.each(viewModel.rows(), function(index, row) {
       }
     }
   });
+  for(var i = 0; i < viewModel.dailyTotals.cells().length; i++) {
+    viewModel.dailyTotals.cells()[i].cells.push(storyRow.cells()[i]);
+  }
 });
 
 ko.applyBindings(viewModel);

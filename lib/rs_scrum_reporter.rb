@@ -30,7 +30,9 @@ module RS
           issue_data = {}
 
           issue_entries = issue.time_entries.select{ |te| te.spent_on == day }.sort_by(&:updated_on)
-          entry = issue_entries.last
+          # Important! If assigned to user has time entry on given day that is what we display in table since he/she responsible for the task
+          entry = issue_entries.select{ |te| te.user_id == issue.assigned_to_id}.last
+          entry = issue_entries.last unless entry
 
           if entry.try(:te_remaining_hours).present?
             issue.left_hours = entry.te_remaining_hours.to_f

@@ -9,7 +9,7 @@
   left: 150px;
   padding: 2px;
   position: absolute;
-  top: 51px;
+  top: 28px;
   width: 16px;
 }
 .rssaving {
@@ -27,10 +27,6 @@
     border-right: 1px solid #000 !important;
 }
 
-td.time-entry:hover {
-  background-color: #759fcf;
-} 
-
 #time-entry-dialog label {
   width: 120px;
   float: left
@@ -47,7 +43,119 @@ td.time-entry:hover {
   padding: 8px 0;
 }
 
+.dialog-left {
+  float: left;
+}
+
+table.list {
+  margin-bottom: 0px;
+  font-size: 11px;
+}
+
+table.list tbody tr.subtotal {
+  color: #484848;
+  font-style: italic;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+table.list td.time-entry:hover, table.list td.no-time-entry:hover {
+  background-color: #759fcf;
+} 
+
+table.list td {
+  padding: 2px 1px;
+}
+
+table.list th {
+  font-size: 12px;
+}
+
+table.list tr {
+  height: 24px;
+}
+
+table.list select { 
+  font-size: 10px;
+}
+
 .no-time-entry {
   color:#8686cb;
   font-weight: normal;
+}
+
+.time-entry {
+  color: #777777;
+  font-weight: bold;
+}
+
+.task-title, .task-assignee {
+  margin-left: 20px;
+}
+
+.ko-report-block {
+  clear: both;
+}
+
+.ko-left {
+  float:left;
+  width: 384px;
+}
+
+.ko-right {
+  float:left;
+  max-width: 760px;
+}
+
+#ko-header-right {
+  overflow-x: hidden;
+}
+
+#ko-body-left {
+  max-height: 700px;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+#ko-body-right {
+  max-height: 720px;
+  max-width: 780px;
+  overflow-x: scroll;
+  overflow-y: scroll;
+}
+
+#ko-table-header-right {
+  table-layout: fixed;
+}
+#ko-table-header-right th span {
+  width: 50%;
+  display: inline-block;
+}
+
+#ko-table-header-right th {
+  width: 100px;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
+
+#ko-table-body-right {
+  table-layout: fixed;
+}
+
+#ko-table-body-right th, #ko-table-body-right td {
+  width: 50px;
+  text-align: right;
+  vertical-align: middle;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
+#ko-table-body-left td.estimated {
+  text-align: right;
+  vertical-align: middle;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
+
+tr.context-menu-selection, tr.context-menu-selection:hover {
+  color: #484848 !important;
 }

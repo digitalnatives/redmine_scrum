@@ -1,30 +1,75 @@
-<div id="time-entry-dialog">
-  <% form_for TimeEntry.new, :url => '/scrum_report_time_entries', :html => { :id => 'set-time-entry-hours', "data-remote" => true } do |f| %> 
-    <div id="errorExplanation">
-      <ul></ul>
-    </div>
-    <p>
-     <%= f.hidden_field :issue_id %>
-     <%= f.hidden_field :spent_on %>
-     <label>Day:</label>
-     <span id="spent-on-day"></span>
-    </p>
-    <p>
-      <label>Assignee:</label>
-      <span id="assignee"></span>
-    </p>
-    <p>
-      <label>Spent time:</label>
-      <%= f.text_field :hours, :size => 6, :required => true %>
-    </p>
-    <p>
-      <label>Activity:</label>
-      <%= f.select :activity_id, activity_collection_for_select_options(@time_entry), :required => true %>
-    </p>
-    <p>
-      <label>Remaining time:</label>
-      <%= f.text_field :te_remaining_hours, :size => 6 %>
-    </p>
-  <% end %>
-  <div class="rsindicator"> </div>
+<div id="details" data-bind="
+  jqDialog: { autoOpen: false, resizable: true, modal: true, width: 600 }, 
+  template: { name: 'editTmpl', data: $root.selectedEntry, if: $root.selectedEntry }, 
+  openDialog: $root.selectedEntry"> 
 </div>
+
+<script id="editTmpl" type="text/html">
+<div id="time-entry-dialog">
+  <div class="dialog-left period-end">
+    <p data-bind="text: title"></p>
+    <div class="rsindicator"></div>
+    <% form_for TimeEntry.new, :url => '/scrum_report_time_entries', :html => { :id => 'set-time-entry-hours', "data-remote" => true } do |f| %> 
+      <div id="errorExplanation" data-bind="visible: errors().length > 0">
+        <ul data-bind="foreach: errors">
+          <li data-bind="text: id + ': ' + name">
+          </li>
+        </ul>
+      </div>
+      <p>
+        <%= f.hidden_field :issue_id %>
+        <%= f.hidden_field :spent_on %>
+        <label>Day:</label>
+        <span data-bind="text: day"></span>
+      </p>
+      <p>
+        <label>User:</label>
+        <span>
+          <%= f.collection_select(:user_id, @project.assignable_users, :id, :name, {}, {"data-bind" => "value: userId"}) %>
+        </span>
+        <span id="assignee"></span>
+      </p>
+      <p>
+        <label>Spent time:</label>
+        <%= f.text_field :hours, :size => 6, :required => true, "data-bind" => "value :spent" %>
+      </p>
+      <p>
+        <label>Activity:</label>
+        <%= f.select :activity_id, activity_collection_for_select_options(@time_entry), {}, {:required => true, "data-bind" => "value: activityId"} %>
+      </p>
+      <p>
+        <label>Remaining time:</label>
+        <%= f.text_field :te_remaining_hours, :size => 6, "data-bind" => "value: left" %>
+      </p>
+    <% end %>
+    <div class="rsindicator"> </div>
+  </div>
+  <div class="dialog-left">
+    <table>
+      <thead>
+        <tr>
+          <th>User / Acitvity</th>
+          <th>Spent</th>
+          <th>Left</th>
+          </tr>
+      </thead>
+      <tbody data-bind="foreach: $root.entries">
+        <tr data-bind="click: $root.editEntry">
+          <td>
+            <span data-bind="text: userName">
+            <span data-bind="text: activity">
+          </td>
+          <td data-bind="text: spent"></td>
+          <td data-bind="text: left"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="clear: both; padding: 2px 0;"></div>
+  <div style="margin: 0 auto">
+  <button data-bind="jqButton: {}, click: save">Save</button>
+  <button data-bind="jqButton: {}, click: cancel">Cancel</button>
+  <button data-bind="jqButton: {}, click: newEntry, if: id">New Entry</button>
+  </div>
+</div>
+</script>

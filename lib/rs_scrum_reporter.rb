@@ -1,6 +1,6 @@
 module RS 
   class ScrumReporter
-    attr_reader :issues, :days, :sum_estimated_hours, :sum_spent_hours, :sum_remaining_hours
+    attr_reader :data
 
     def initialize(project, version)
       @project = project
@@ -11,50 +11,15 @@ module RS
       set_up_day_data
     end
 
-    def available_criteria
-      @available_criteria || load_available_criteria
-    end
-
-    def csv_days
-      @csv_days ||= @days.inject([]){ |days, day| days.push(day, day) }
-    end
-
-    def issue_spent(day, task)
-      return 0 if @data[day][task.id].blank?
-      @data[day][task.id][:spent]
-    end
-
-    def issue_remain(day, task)
-      return 0 if @data[day][task.id].blank?
-      @data[day][task.id][:left]
-    end
-
-    def has_time_entry?(day, task)
-      @data[day][task.id][:has_time_entry]
-    end
-
-    def assignee_te(day, task)
-      @data[day][task.id][:assignee_te]
-    end
-
-    def daily_spent(day)
-      @data[day][:sum][:spent]
-    end
-
-    def daily_remain(day)
-      @data[day][:sum][:left]
-    end
-
-    def get_line(type)
-      @data[type]
-    end
-
     private
 
     def set_up_day_data
       @data = {}
       @data[:ideal_line] = []
       @data[:remain_line] = []
+      @data[:issue_ids] = []
+      @data[:days] = @days.to_a.map(&:to_s)
+      @data[:rows] = []
       rate = (@days.to_a.size > 1) ? @sum_estimated_hours / (@days.to_a.size - 1) : 0
       @days.to_a.each_with_index do |day, idx|
         @data[day] = {}
@@ -65,24 +30,38 @@ module RS
           issue_data = {}
 
           issue_entries = issue.time_entries.select{ |te| te.spent_on == day }.sort_by(&:updated_on)
-          entry = issue_entries.last
+          # Important! If assigned to user has time entry on given day that is what we display in table since he/she responsible for the task
+          entry = issue_entries.select{ |te| te.user_id == issue.assigned_to_id}.last
+          entry = issue_entries.last unless entry
 
           if entry.try(:te_remaining_hours).present?
             issue.left_hours = entry.te_remaining_hours.to_f
           end
 
+          issue_data[:id] = issue.id
           issue_data[:left] = issue.left_hours.to_f
           issue_data[:spent] = issue_entries.compact.sum(&:hours)
           issue_data[:has_time_entry] = (issue_entries.present? ? true : false)
           issue_data[:assignee_te] = issue_entries.find{ |te| te.user_id == issue.assigned_to_id }
           issue_data[:story_id] = issue.parent_id
+          issue_data[:subject] = issue.subject
+          issue_data[:assignee_id] = issue.assigned_to_id
+          issue_data[:assignee_name] = issue.assigned_to.to_s
+          issue_data[:estimated] = issue.estimated_hours
+          issue_data[:subject] = issue.subject
+          issue_data[:status] = issue.status.to_s
           @data[day][issue.id] = issue_data
 
           if issue.parent_id.present?
             @data[day][issue.parent_id] = { :left => 0, :spent => 0 } unless @data[day][issue.parent_id].present?
             @data[day][issue.parent_id][:left] += issue_data[:left]
             @data[day][issue.parent_id][:spent] += issue_data[:spent]
+            @data[day][issue.parent_id][:story_subject] = issue.parent_subject
+            @data[day][issue.parent_id][:estimated] = issue.parent_estimated_hours
+            # order matter when adding issues ids
+            @data[:issue_ids] << issue.parent_id
           end
+          @data[:issue_ids] << issue.id
 
           sum_data[:spent] += issue_data[:spent]
           sum_data[:left] += issue_data[:left]
@@ -93,6 +72,59 @@ module RS
         @data[:remain_line] << [ day.to_s, idx == 0 ? (@sum_estimated_hours - idx * rate) : sum_data[:left] ]
       end
       @sum_remaining_hours = @data[@days.last][:sum][:left]
+      @data[:sum_estimated_hours] = @sum_estimated_hours
+      @data[:sum_remain_hours] = @data[@days.last][:sum][:left]
+      @data[:issue_ids].uniq!
+      @data[:assignees] = @project.assignable_users.map{ |u| { :name => u.to_s, :id => u.id }}
+
+      # TODO: new data structure for ko
+=begin
+      parents = []
+      parent_row = {}
+      @issues.each do |issue|
+        if issue.parent_id.present?
+          parent = Issue.find(issue.parent_id)
+          unless parents.include?(parent.id)
+            parent_row[:story_title] = parent.subject
+            parent_row[:issue_title] = parent.subject
+            parent_row[:assignee] = "#{parent.assigned_to}"
+            parent_row[:status] = "#{parent.status}"
+            parent_row[:cells] = []
+            @data[:rows] << parent_row
+          end
+          parents << parent.id
+        end
+
+        row = {
+          :story_title => ((parent) ? parent.subject : ""),
+          :issue_title => issue.subject,
+          :assignee => "#{issue.assigned_to}",
+          :status => "#{issue.status}",
+          :statuses => issue.new_statuses_allowed_to.map { |i| { :id => i.id, :name => i.name } }
+        }
+        row[:cells] = []
+
+        @days.to_a.each_with_index do |day, idx|
+          cell = {}
+          issue_entries = issue.time_entries.select{ |te| te.spent_on == day }.sort_by(&:updated_on)
+          entry = issue_entries.last
+          if entry.try(:te_remaining_hours).present?
+            issue.left_hours = entry.te_remaining_hours.to_f
+          end
+          cell[:id] = issue.id
+          cell[:left] = issue.left_hours.to_f
+          cell[:spent] = issue_entries.compact.sum(&:hours)
+          cell[:has_time_entry] = (issue_entries.present? ? true : false)
+          cell[:assignee_te] = issue_entries.find{ |te| te.user_id == issue.assigned_to_id }
+          cell[:story_id] = issue.parent_id
+          cell[:day] = day.to_s
+          row[:cells] << cell
+        end
+
+        @data[:rows] << row
+        @data[:assignees] = @project.assignable_users.map{ |u| { :name => u.to_s, :id => u.id }}
+      end
+=end
     end
 
     def run
@@ -108,6 +140,8 @@ module RS
                            issues.status_id, 
                            issues.tracker_id,
                            issues.subject, 
+                           parents.subject AS parent_subject,
+                           parents.estimated_hours AS parent_estimated_hours, 
                            COALESCE(issues.remaining_hours, 0) AS remaining_hours,
                            COALESCE(issues.estimated_hours, 0) AS estimated_hours,
                            COALESCE(issues.estimated_hours, 0) AS left_hours,
@@ -127,8 +161,7 @@ module RS
 
     def default_conditions
       @conditions = "issues.project_id = :project_id 
-                  AND issues.tracker_id = :tracker_id
-                  AND issues.estimated_hours IS NOT NULL"
+                  AND issues.tracker_id = :tracker_id"
                   #AND versions.status != 'closed'"
       @condition_vars = { 
         :project_id => @project.id,
@@ -168,10 +201,12 @@ module RS
         sprint_start = @version.try(:sprint_start_date)
         sprint_end = @version.try(:effective_date)
 
+        from << first_time_entry if first_time_entry
         from << sprint_start if sprint_start.present?
         @from = from.min
         @from = [ @version.try(:created_on).to_date, Date.today ].min unless @from.present? unless @from.present?
 
+        to << last_time_entry if last_time_entry
         to << sprint_end if sprint_end.present?
         @to = to.max
         @to = [ @version.try(:created_on).to_date, Date.today].max unless @to.present?

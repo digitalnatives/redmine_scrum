@@ -1,11 +1,14 @@
 <% content_for :header_tags do %>
-  <%= javascript_include_tag 'time_entry', :plugin => :redmine_scrum %>
-  <%= javascript_include_tag 'jquery/jquery.jqplot/plugins/jqplot.dateAxisRenderer.min.js', :plugin => 'redmine_backlogs' %>
-  <%= javascript_include_tag 'jquery/jquery.jqplot/plugins/jqplot.cursor.min.js', :plugin => 'redmine_backlogs' %>
-
   <%= stylesheet_link_tag 'jquery/jquery-ui.css', :plugin => :redmine_backlogs %>
   <%= stylesheet_link_tag 'redmine_scrum', :plugin => :redmine_scrum %>
 
+  <%= javascript_include_tag 'knockout-2.2.0.js', :plugin => :redmine_scrum %>
+  <%= javascript_include_tag 'jquery/jquery.jqplot/plugins/jqplot.dateAxisRenderer.min.js', :plugin => 'redmine_backlogs' %>
+  <%= javascript_include_tag 'jquery/jquery.jqplot/plugins/jqplot.cursor.min.js', :plugin => 'redmine_backlogs' %>
+  <%= javascript_include_tag 'time_entry', :plugin => :redmine_scrum %>
+  <% javascript_tag do %>
+    var data = <%= @report.data.to_json.html_safe %>
+  <% end %>
 <% end %>
 
 <% html_title l('redmine_scrum.scrum_report') %>
@@ -14,10 +17,6 @@
 <%= render "modal_dialog" %>
 
 <% form_tag({:controller => 'scrum_report', :action => 'index', :project_id => @project},:method => :get, :id => 'query_form') do %>
-  <%# @report.criteria.each do |criterion| %>
-    <%#= hidden_field_tag 'criteria[]', criterion, :id => nil %>
-  <%# end %>
-
   <p>
     <label for='version_id'><%= l('redmine_scrum.label_sprint') %></label>:
     <% if @versions.present? %>
@@ -27,108 +26,112 @@
   <% end %>
   </p>
 <% end %>
+<% form_tag({}) do -%>
 
-<div class="autoscroll">
-  <% form_tag({}) do -%>
-  <%= hidden_field_tag 'back_url', url_for(params), :id => nil %>
-  <table class="list" id="time-report">
+<div id="ko-report">
+<div class="ko-report-block">
+<div id="ko-header-left" class="ko-left">
+  <table id="ko-table-header-left" class="list">
     <thead>
       <tr>
-        <th rowspan="2"><%= l('redmine_scrum.user_story') %></th>
-        <th rowspan="2"><%= l('redmine_scrum.issue') %></th>
-        <th rowspan="2"><%= l('redmine_scrum.assignee') %></th>
-        <th rowspan="2"><%= l('redmine_scrum.status') %></th>
-        <th rowspan="2" class="period-end"><%= l('redmine_scrum.estimated') %></th>
-        <% @report.days.each do |day| %>
-          <th class="period-end" colspan="2"><%= day.to_s %></th>
-        <% end %>
-        <th colspan="2"><%= l('redmine_scrum.total') %></th>
-      </tr>
-      <tr>
-        <% @report.days.each do |day| %>
-          <th>&sum;</th>
-          <th class="period-end">R</th>
-        <% end %>
-        <th>&sum;</th>
-        <th>R</th>
+        <th><%= l('redmine_scrum.user_story') %>
+        <br /><%= l('redmine_scrum.assignee') %> <%= l('redmine_scrum.status') %>
+        </th>
+        <th><%= l('redmine_scrum.estimated') %></th>
       </tr>
     </thead>
-    <tbody>
-      <% @report.issues.group_by(&:parent_id).each do |parent, tasks| %>
-        <tr class="subtotal <%= cycle 'odd', 'even' %> hascontextmenu context-menu-selection">
-          <% user_story = Issue.find_by_id(parent) %> 
-          <td colspan="4">
-            <%= check_box_tag("ids[]", user_story.id, false, :id => nil, :style => "display:none") %>
-            <%= link_to user_story.subject, issue_path(user_story.id) if user_story.present? %>
+    </table>
+</div>
+<div id="ko-header-right" class="ko-right ko-header-scroller">
+  <table id="ko-table-header-right" class="list">
+    <thead>
+      <tr>
+        <!-- ko foreach: days -->
+        <th class="period-end">
+          <div class="day-title" data-bind="text: $data"></div>
+          <span>&sum;</span>
+          <span>R</span>
+        </th>
+        <!-- /ko -->
+        <th>
+          <div class="day-title"><%= l('redmine_scrum.total') %></div>
+          <span>&sum;</span>
+          <span>R</span>
+        </th>
+      </tr>
+    </thead>
+    </table>
+    </div>
+  </div>
+  <div class="ko-report-block">
+  <div id="ko-body-left" class="ko-left">
+    <table id="ko-table-body-left" class="list">
+      <tbody>
+        <!-- ko foreach: rows -->
+        <tr class="hascontextmenu context-menu-selection" data-bind="attr: { id: 'issue-'+ issueId  },
+              css: { subtotal: $data.isStory == true, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }
+              "> 
+          <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
+            <div data-bind="text: formattedSubject(), css: { 'task-title': !isStory }"></div>
+            <div data-bind="visible: !isStory">
+              <span class="task-assignee" data-bind="text: assigneeName"></span> || 
+              <span data-bind="visible: !isStory, text: currentStatus"></span>
+              </div>
           </td>
-          <td class="hours period-end"><%= html_hours("%.2f" % tasks.sum(&:estimated_hours)) %></td>
-          <% @report.days.each do |day| %>
-            <% story_total = @report.issue_spent(day, user_story) %>
-            <% story_remain = @report.issue_remain(day, user_story) %>
-            <td class="hours" data-sum="<%= story_total %> "><%= html_hours("%.2f" % story_total ) %></td>
-            <td class="hours period-end" data-sum="<%= story_remain %>"><%= html_hours("%.2f" % story_remain ) %></td>
-          <% end %>
-          <td class="hours" data-sum="<%= tasks.map(&:spent_time).compact.map(&:to_f).sum %>"><%= html_hours("%.2f" % tasks.map(&:spent_time).compact.map(&:to_f).sum) %></td>
-          <td class="hours" data-sum="<%= @report.issue_remain(@report.days.last, user_story) %>"><%= html_hours("%.2f" % @report.issue_remain(@report.days.last, user_story)) %></td>
+          <td class="estimated" data-bind="attr: { 'data-task-id': issueId }, css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
+            <span data-bind="text: estimated.toFixed(2)"></span>
+            <input type="checkbox" name="ids[]", data-bind="value: issueId" style="display:none">
+          </td>
         </tr>
-        <% tasks.each do |task| %>
-          <tr id="issue-<%= task.id %>" class="<%= cycle 'odd', 'even' %> hascontextmenu context-menu-selection">
-            <td data-task-id="<%= task.id %>">
-              <%= check_box_tag("ids[]", task.id, false, :id => nil, :style => "display:none") %>
-            </td>
-            <td><%= link_to task.subject, task %></td>
-            <td><%= task.assigned_to %></td>
-            <td><%= task.status %></td>
-            <td class="hours period-end"><%= html_hours("%.2f" % task.estimated_hours) %></td>
-            <% @report.days.to_a.each_with_index do |day, idx| %>
-              <% hours = @report.issue_spent(day, task) %>
-              <% remain_hours = @report.issue_remain(day, task) %>
-              <% assignee_te = @report.assignee_te(day, task) %>
-              <td class="hours time-entry period-start" 
-                data-te-idx="<%= idx %>"
-                data-te-task-id="<%= task.id %>"
-                data-te-assigned-to-id='<%= task.assigned_to_id %>'
-                data-te-spent-on="<%= day %>"
-                data-te-id='<%= assignee_te.try(:id) %>'
-                data-te-hours='<%= assignee_te.try(:hours) %>'
-                data-te-remain='<%= assignee_te.try(:te_remaining_hours) %>'
-                data-te-sum-hours='<%= hours || 0 %>'
-                data-te-sum-remain='<%= remain_hours.to_f %>'
-                data-te-type="hours">
-                <%= format_hours_helper(hours, @report.has_time_entry?(day, task)) %>
-              </td>
-              <td class="hours time-entry period-end" data-te-type="remaining">
-                <%= format_hours_helper(remain_hours, @report.has_time_entry?(day, task)) %>
-              </td>
-            <% end %>
-            <td class="hours" data-sum="<%= task.spent_time %>"><%= html_hours("%.2f" % task.spent_time.to_f) %></td>
-            <td class="hours" data-sum="<%= @report.issue_remain(@report.days.last, task) %>"><%= html_hours("%.2f" % @report.issue_remain(@report.days.last, task)) %></td>
-          </tr>
-        <% end %>
-      <% end %>
-      <tr class="total">
-        <td colspan="4"><%= l('redmine_scrum.total') %></td>
-        <td class="hours period-end"><%= html_hours("%.2f" % @report.sum_estimated_hours) %></td>
-        <% @report.days.to_a.each_with_index do |day, idx| %>
-          <% daily_total = @report.daily_spent(day) %>
-          <% daily_total_remain = @report.daily_remain(day) %>
-          <td class="hours" data-sum="<%= daily_total %>"><%= html_hours("%.2f" % daily_total ) %></td>
-          <td class="hours period-end" data-sum="<%= (daily_total_remain || 0) %>"><%= html_hours("%.2f" % daily_total_remain ) %></td>
-        <% end %>
-        <td class="hours" data-sum="<%= @report.sum_spent_hours %>"><%= html_hours("%.2f" % @report.sum_spent_hours ) %></td>
-        <td class="hours" data-sum="<%= @report.sum_remaining_hours %>"><%= html_hours("%.2f" % @report.sum_remaining_hours) %></td>
+        <!-- /ko -->
+        <tr>
+          <th><%= l('redmine_scrum.total') %></th>
+          <th><%= @report.data[:sum_estimated_hours] %></th>
+        </tr>
+      </tbody>
+  </table>
+</div>
+<div id="ko-body-right" class="ko-right">
+  <table id="ko-table-body-right" class="list">
+    <tbody>
+      <!-- ko foreach: rows -->
+      <tr data-bind="attr: { id: 'issue-'+ issueId  }, css: { 'no-time-entry': !isStory, subtotal: isStory, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
+        <!-- ko foreach: $data.cells -->
+          <!-- ko if: $parent.isStory -->
+            <td data-bind="text: spent().toFixed(2)"></td>
+            <td data-bind="text: left().toFixed(2)" class="period-end"></td>
+          <!-- /ko -->
+          <!-- ko ifnot: $parent.isStory -->
+            <td data-bind="text: spent().toFixed(2), click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry(), 'no-time-entry': !hasTimeEntry() }"></td>
+            <td data-bind="text: left().toFixed(2), click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry(), 'no-time-entry': !hasTimeEntry() }" class="period-end"></td>
+          <!-- /ko -->
+        <!-- /ko -->
+        <td data-bind="text: spent().toFixed(2)"></td>
+        <td data-bind="text: left().toFixed(2)" class="period-end"></td>
+      </tr>
+      <!-- /ko -->
+      <tr>
+        <!-- ko foreach: $root.dailyTotals.cells -->
+        <th data-bind="text: spent().toFixed(2)"></th>
+        <th data-bind="text: left().toFixed(2)" class="period-end"></th>
+        <!-- /ko -->
+        <th data-bind="text: dailyTotals.spent().toFixed(2)"></th>
+        <th data-bind="text: dailyTotals.left().toFixed(2)" class="period-end"></th>
       </tr>
     </tbody>
   </table>
-<% end %>
 </div>
+</div>
+</div>
+<% end %>
+
+<div style="clear: both;"></div>
+
+<pre data-bind="text: previewJsonData"></pre> 
 
 <% other_formats_links do |f| %>
   <%= f.link_to 'CSV', :url => params %>
 <% end %>
 
-<%= render :partial => 'burndown', :locals => {
-  :mode => :full, 
-  :style => 'width:650px; height: 300px; margin: 0 auto', 
-} %>
+<div style="width:650px; height: 300px; margin: 0 auto" class="burndown_chart" id="burndown"></div>
 <%= context_menu issues_context_menu_path %>

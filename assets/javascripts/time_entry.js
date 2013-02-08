@@ -309,7 +309,11 @@ function ViewModel(data) {
       });
       self.selectedCell(cell);
       if(mappedEntries.length == 0){
-        var timeEntry = new TimeEntry({issueId: cell.issueId, day: cell.day, subject: cell.subject, assigneeId: cell.assigneeId});
+        var timeEntry = new TimeEntry({issueId: cell.issueId, 
+            day: cell.day, 
+            subject: cell.subject, 
+            userId: cell.assigneeId,
+            assigneeId: cell.assigneeId});
         self.selectedEntry(timeEntry);
         self.entries([ timeEntry ]);
       } else {

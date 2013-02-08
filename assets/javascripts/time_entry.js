@@ -181,9 +181,11 @@ function Row(data, issueId, assignee) {
   self.subject = data[data.days[0]][issueId].subject;
   self.assigneeId = ko.observable(data[data.days[0]][issueId].assignee_id);
   self.statusId = ko.observable(data[data.days[0]][issueId].status_id);
-  self.assignee = ko.observable(assignee);
+  self.assignee = assignee;
   self.currentStatus = data[data.days[0]][issueId].status;
   self.estimated = Number(data[data.days[0]][issueId].estimated);
+  self.assigneeName = data[data.days[0]][issueId].assignee_name;
+
   self.formattedSubject = function () {
     if(self.isStory) {
       return '#' + self.issueId + ': ' + self.storySubject;

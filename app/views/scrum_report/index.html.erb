@@ -73,8 +73,10 @@
               "> 
           <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
             <div data-bind="text: formattedSubject(), css: { 'task-title': !isStory }"></div>
-              <span class="task-assignee"><select data-bind="visible: !isStory, options: $root.assignees, optionsText: 'name', value: assignee"></select></span>
+            <div data-bind="visible: !isStory">
+              <span class="task-assignee" data-bind="text: assigneeName"></span> || 
               <span data-bind="visible: !isStory, text: currentStatus"></span>
+              </div>
           </td>
           <td class="estimated" data-bind="attr: { 'data-task-id': issueId }, css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
             <span data-bind="text: estimated.toFixed(2)"></span>

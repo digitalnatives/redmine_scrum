@@ -46,6 +46,7 @@ module RS
           issue_data[:story_id] = issue.parent_id
           issue_data[:subject] = issue.subject
           issue_data[:assignee_id] = issue.assigned_to_id
+          issue_data[:assignee_name] = issue.assigned_to.to_s
           issue_data[:estimated] = issue.estimated_hours
           issue_data[:subject] = issue.subject
           issue_data[:status] = issue.status.to_s

@@ -435,15 +435,6 @@ $('#ko-body-right').scroll(function() {
   $('#ko-body-left').scrollTop($(this).scrollTop());
 });
 
-
-if(jQuery('#ko-body-right')[0].scrollWidth > jQuery('#ko-body-right').width()) {
-  $('#ko-body-right').addClass('taller');
-}
-
-if(jQuery('#ko-body-right')[0].scrollHeight > jQuery('#ko-body-right').height()) {
-  $('#ko-body-right').addClass('wider');
-}
-
 // cleanup
 window.data = null;
 })

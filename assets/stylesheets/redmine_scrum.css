@@ -118,18 +118,10 @@ table.list select {
 }
 
 #ko-body-right {
-  max-height: 700px;
-  max-width: 1260px;
-  overflow-x: auto;
-  overflow-y: auto;
-}
-
-#ko-body-right.taller {
   max-height: 720px;
-}
-
-#ko-body-right.wider {
   max-width: 1280px;
+  overflow-x: scroll;
+  overflow-y: scroll;
 }
 
 #ko-table-header-right {

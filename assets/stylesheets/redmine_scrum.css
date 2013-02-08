@@ -118,10 +118,18 @@ table.list select {
 }
 
 #ko-body-right {
-  max-height: 720px;
-  max-width: 1280px;
+  max-height: 700px;
+  max-width: 1260px;
   overflow-x: auto;
   overflow-y: auto;
+}
+
+#ko-body-right.taller {
+  max-height: 720px;
+}
+
+#ko-body-right.wider {
+  max-width: 1280px;
 }
 
 #ko-table-header-right {
@@ -134,6 +142,8 @@ table.list select {
 
 #ko-table-header-right th {
   width: 100px;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
 }
 
 #ko-table-body-right {
@@ -144,8 +154,16 @@ table.list select {
   width: 50px;
   text-align: right;
   vertical-align: middle;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
 }
 #ko-table-body-left td.estimated {
   text-align: right;
   vertical-align: middle;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
+
+tr.context-menu-selection, tr.context-menu-selection:hover {
+  color: #484848 !important;
 }

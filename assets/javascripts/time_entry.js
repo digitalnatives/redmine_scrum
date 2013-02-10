@@ -289,6 +289,7 @@ function ViewModel(data) {
   self.assignees = ko.utils.arrayMap(data.assignees, function(assignee) {
       return new Assignee(assignee);
   });
+  self.filterAssignee = ko.observable();
 
   self.rows = ko.observableArray(
     ko.utils.arrayMap(data.issue_ids, function(issueId) {

@@ -27,14 +27,18 @@
     border-right: 1px solid #000 !important;
 }
 
+#time-entry-dialog {
+  font-size: 11px;
+}
+
 #time-entry-dialog label {
   width: 120px;
-  float: left
+  float: left;
 }
 
 #time-entry-dialog input, #time-entry-dialog span {
   width: 120px;
-  float: left
+  float: left;
 }
 
 #time-entry-dialog p {
@@ -156,6 +160,11 @@ table.list select {
   -moz-box-sizing: border-box;
 }
 
+/* preventing right click context menu hide issue */
 tr.context-menu-selection, tr.context-menu-selection:hover {
   color: #484848 !important;
+}
+
+tr.context-menu-selection a, tr.context-menu-selection a:hover {
+  color: #005782 !important;
 }

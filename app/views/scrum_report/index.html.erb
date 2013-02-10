@@ -108,8 +108,8 @@
               <td data-bind="text: left().toFixed(2)" class="period-end"></td>
             <!-- /ko -->
             <!-- ko ifnot: $parent.isStory -->
-              <td data-bind="text: spent().toFixed(2), click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry(), 'no-time-entry': !hasTimeEntry() }"></td>
-              <td data-bind="text: left().toFixed(2), click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry(), 'no-time-entry': !hasTimeEntry() }" class="period-end"></td>
+              <td data-bind="text: spent().toFixed(2), click: $root.cellDetails, css:{ 'time-entry': !!timeEntryCount(), 'no-time-entry': !timeEntryCount() }"></td>
+              <td data-bind="text: left().toFixed(2), click: $root.cellDetails, css:{ 'time-entry': !!timeEntryCount(), 'no-time-entry': !timeEntryCount() }" class="period-end"></td>
             <!-- /ko -->
           <!-- /ko -->
           <th data-bind="text: spent().toFixed(2)"></th>

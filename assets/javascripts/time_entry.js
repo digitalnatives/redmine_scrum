@@ -117,45 +117,45 @@ function TimeEntry(data) {
   }
 }
 
-function Cell(data, day, issueId, prevCell) {
+function Cell(data, prevCell) {
   var self = this;
 
   self.spent = ko.observable(data.spent);
   self.leftValue = ko.observable(data.left);
-  self.hasTimeEntry = ko.observable(data.has_time_entry);
-  self.day = day;
-  self.issueId = issueId;
+  self.timeEntryCount = ko.observable(data.time_entry_count);
+  self.day = data.day;
+  self.issueId = data.issue_id;
   self.storyId = data.story_id;
   self.prevCell = prevCell;
   self.subject = data.subject;
-  self.spentFormatted = self.spent.toString().split('.');
   self.assigneeId = data.assignee_id;
+  self.formattedSubject = '#' + self.issueId + ': ' + self.subject;
 
   self.left = ko.computed({
     read: function() {
-      if(self.hasTimeEntry()) return self.leftValue();
+      if(!!self.timeEntryCount()) return self.leftValue();
       if(prevCell) return self.prevCell.left(); 
       return self.leftValue();
     },
     write: function(value) {
-      self.hasTimeEntry(true);
+      self.timeEntryCount(self.timeEntryCount() + 1);
       self.leftValue(value);
     }
   });
 }
 
-function StoryCell(data, day, issueId) {
+function StoryCell(data) {
   var self = this;
 
-  self.day = day;
+  self.day = data.day;
   self.isStory = true
-  self.issueId = issueId;
-  self.hasTimeEntry = false;
-  self.cells = ko.observableArray();
+  self.issueId = data.issue_id;
+  self.timeEntryCount = 0;
+  self.observedCells = ko.observableArray();
 
   self.spent = ko.computed(function() {
     var sum = 0;
-    ko.utils.arrayForEach(self.cells(), function(cell) {
+    ko.utils.arrayForEach(self.observedCells(), function(cell) {
       sum += Number(cell.spent());
     })
     return sum;
@@ -163,45 +163,45 @@ function StoryCell(data, day, issueId) {
 
   self.left = ko.computed(function() {
     var sum = 0;
-    ko.utils.arrayForEach(self.cells(), function(cell) {
+    ko.utils.arrayForEach(self.observedCells(), function(cell) {
       sum += Number(cell.left());
     })
     return sum;
   });
 }
 
-function Row(data, issueId, assignee) {
+function Row(data, assignee) {
   var self = this;
 
-  self.isStory = (typeof data[data.days[0]][issueId].story_id != "undefined") ? false : true
-  self.storyId = data[data.days[0]][issueId].story_id;
-  self.issueId = issueId;
+  self.isStory = data.is_story;
+  self.storyId = data.story_id;
+  self.issueId = data.issue_id;
   self.prevCell;
-  self.storySubject = data[data.days[0]][issueId].story_subject;
-  self.subject = data[data.days[0]][issueId].subject;
-  self.assigneeId = ko.observable(data[data.days[0]][issueId].assignee_id);
-  self.statusId = ko.observable(data[data.days[0]][issueId].status_id);
+  self.storySubject = data.story_subject;
+  self.subject = data.subject;
+  self.assigneeId = ko.observable(data.assignee_id);
+  self.statusId = ko.observable(data.status_id);
   self.assignee = assignee;
-  self.currentStatus = data[data.days[0]][issueId].status;
-  self.estimated = Number(data[data.days[0]][issueId].estimated);
-  self.assigneeName = data[data.days[0]][issueId].assignee_name;
+  self.currentStatus = data.status;
+  self.estimated = Number(data.estimated);
+  self.assigneeName = data.assignee_name;
 
   self.formattedSubject = function () {
     if(self.isStory) {
-      return '#' + self.issueId + ': ' + self.storySubject;
+      return '#' + self.storyId + ': ' + self.storySubject;
     } else {
       return '#' + self.issueId + ': ' + self.subject;
     }
   }
 
   self.cells = ko.observableArray(
-    ko.utils.arrayMap(data.days, function(day) {
+    ko.utils.arrayMap(data.cells, function(cell) {
       if(self.isStory) {
-        return new StoryCell(data[day][issueId], day, issueId);
+        return new StoryCell(cell);
       } else {
-        var cell = new Cell(data[day][issueId], day, issueId, self.prevCell);
-        self.prevCell = cell;
-        return cell;
+        var currentCell = new Cell(cell, self.prevCell);
+        self.prevCell = currentCell;
+        return currentCell;
       }
     })
   )
@@ -224,11 +224,11 @@ function DailyTotalCell(data) {
 
   self.day = data.day;
   self.index = data.index;
-  self.cells = ko.observableArray();
+  self.observedCells = ko.observableArray();
 
   self.spent = ko.computed(function() {
     var sum = 0;
-    ko.utils.arrayForEach(self.cells(), function(entry){
+    ko.utils.arrayForEach(self.observedCells(), function(entry){
       sum += Number(entry.spent());
     })
     return Math.round(sum * 100) / 100;
@@ -237,7 +237,7 @@ function DailyTotalCell(data) {
 
   self.left = ko.computed(function() {
     var sum = 0;
-    ko.utils.arrayForEach(self.cells(), function(entry){
+    ko.utils.arrayForEach(self.observedCells(), function(entry){
       sum += Number(entry.left());
     })
 
@@ -292,11 +292,11 @@ function ViewModel(data) {
   self.filterAssignee = ko.observable();
 
   self.rows = ko.observableArray(
-    ko.utils.arrayMap(data.issue_ids, function(issueId) {
+    ko.utils.arrayMap(data.rows, function(row) {
       var assignee = $.grep(self.assignees, function(a) {
-        return a.id == data[data.days[0]][issueId].assignee_id;
+        return a.id == row.assignee_id;
       })[0]
-      return new Row(data, issueId, assignee);
+      return new Row(row, assignee);
     })
   );
 
@@ -307,7 +307,7 @@ function ViewModel(data) {
     $.getJSON('/scrum_report_time_entries/' + cell.issueId + '?day=' + cell.day, function(serverData){
       var data = $.parseJSON(serverData.entries);
       var mappedEntries = $.map(data, function(entry) { 
-        entry.subject = cell.subject;
+        entry.subject = cell.formattedSubject;
         return new TimeEntry(entry);
       });
       self.selectedCell(cell);
@@ -410,21 +410,26 @@ window.bdChart = jQuery.jqplot('burndown', [data.ideal_line, data.remain_line], 
 
 window.viewModel = new ViewModel(data);
 
+var storyRow;
 $.each(viewModel.rows(), function(index, row) {
-  if(!row.isStory) return;
-
-  var storyRow = row;
-  $.each(viewModel.rows(), function(index, row) {
+  if(row.isStory){
+    for(var i = 0; i < viewModel.dailyTotals.cells().length; i++) {
+      viewModel.dailyTotals.cells()[i].observedCells.push(row.cells()[i]);
+    }
+    storyRow = row;
+  } 
+  else {
     if(row.storyId == storyRow.issueId) {
       for(var i = 0; i < row.cells().length; i++) {
-        storyRow.cells()[i].cells.push(row.cells()[i]);
+        storyRow.cells()[i].observedCells.push(row.cells()[i]);
       }
     }
-  });
-  for(var i = 0; i < viewModel.dailyTotals.cells().length; i++) {
-    viewModel.dailyTotals.cells()[i].cells.push(storyRow.cells()[i]);
   }
 });
+ko.utils.arrayForEach(viewModel.dailyTotals.cells(), function(cell) {
+  window.bdChart.series[1].data[cell.index][1] = cell.left();
+})
+window.bdChart.replot();
 
 ko.applyBindings(viewModel);
 
@@ -443,5 +448,5 @@ $('#ko-body-right').scroll(function() {
 });
 
 // cleanup
-window.data = null;
+//window.data = null;
 })

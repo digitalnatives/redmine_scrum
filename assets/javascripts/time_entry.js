@@ -313,8 +313,8 @@ function ViewModel(data) {
       self.selectedCell(cell);
       if(mappedEntries.length == 0){
         var timeEntry = new TimeEntry({issueId: cell.issueId, 
-            day: cell.day, 
-            subject: cell.subject, 
+            day: cell.day,
+            subject: cell.formattedSubject,
             userId: cell.assigneeId,
             assigneeId: cell.assigneeId});
         self.selectedEntry(timeEntry);

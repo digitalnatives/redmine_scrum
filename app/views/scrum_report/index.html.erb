@@ -26,6 +26,8 @@
   <% end %>
   <label for="filter-assignee"><%= l('redmine_scrum.assignee') %>:</label>
   <select id="filter-assignee" data-bind="options: assignees, optionsText: 'name',  value: filterAssignee, optionsCaption: 'All'"></select>
+  <label for="filter-status"><%= l('redmine_scrum.status') %>:</label>
+  <select id="filter-status" data-bind="options: issueStatuses, optionsText: 'name',  value: filterStatus, optionsCaption: 'All'"></select>
   </p>
 <% end %>
 <% form_tag({}) do -%>
@@ -71,8 +73,8 @@
       <tbody>
         <!-- ko foreach: rows -->
         <tr class="hascontextmenu context-menu-selection" data-bind="attr: { id: 'issue-'+ issueId  },
-              visible: isStory || !$root.filterAssignee() || ($root.filterAssignee() && $root.filterAssignee() == assignee),
-              css: { subtotal: $data.isStory == true, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
+              visible: isVisible({ byAssignee: $root.filterAssignee(), byStatus: $root.filterStatus() }),
+              css: { subtotal: $data.isStory, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
           <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
             <div data-bind=", css: { 'task-title': !isStory }">
               <a data-bind="attr: { href: '/issues/' + issueId }, text: formattedSubject()"></a>
@@ -100,7 +102,7 @@
       <tbody>
         <!-- ko foreach: rows -->
         <tr data-bind="attr: { id: 'issue-'+ issueId  },
-          visible: isStory || !$root.filterAssignee() || ($root.filterAssignee() && $root.filterAssignee() == assignee),
+          visible: isVisible({ byAssignee: $root.filterAssignee(), byStatus: $root.filterStatus() }),
           css: { 'no-time-entry': !isStory, subtotal: isStory, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
           <!-- ko foreach: $data.cells -->
             <!-- ko if: $parent.isStory -->

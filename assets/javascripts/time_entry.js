@@ -13,7 +13,6 @@ function IssueStatus(data) {
 
   self.id = data.id;
   self.name = data.name;
-
 }
 
 function TimeEntry(data) {
@@ -102,7 +101,7 @@ function TimeEntry(data) {
     });
   }
 
-  self.cancel = function(element) {
+  self.close = function(element) {
     viewModel.selectedEntry("");
   }
 
@@ -217,6 +216,20 @@ function Row(data, assignee) {
   self.left = ko.computed(function() {
     return self.cells().last().left();
   })
+
+  self.isVisible = function(filter) {
+    if(self.isStory) return true;
+    if(!filter.byStatus && !filter.byAssignee) return true; 
+    if(!!filter.byStatus && !!filter.byAssignee) {
+      return (self.statusId() == filter.byStatus.id && self.assigneeId() == filter.byAssignee.id) ? true : false;
+    }
+    if(!!filter.byStatus) {
+      return (self.statusId() == filter.byStatus.id) ? true : false;
+    }
+    if(!!filter.byAssignee) {
+      return (self.assigneeId() == filter.byAssignee.id) ? true : false;
+    }
+  }
 }
 
 function DailyTotalCell(data) {
@@ -289,7 +302,11 @@ function ViewModel(data) {
   self.assignees = ko.utils.arrayMap(data.assignees, function(assignee) {
       return new Assignee(assignee);
   });
+  self.issueStatuses = ko.utils.arrayMap(data.issue_statuses, function(issueStatus) {
+      return new IssueStatus(issueStatus);
+  });
   self.filterAssignee = ko.observable();
+  self.filterStatus = ko.observable();
 
   self.rows = ko.observableArray(
     ko.utils.arrayMap(data.rows, function(row) {

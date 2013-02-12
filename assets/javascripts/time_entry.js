@@ -141,6 +141,7 @@ function Cell(data, prevCell) {
       self.leftValue(value);
     }
   });
+
 }
 
 function StoryCell(data) {
@@ -167,6 +168,7 @@ function StoryCell(data) {
     })
     return sum;
   });
+
 }
 
 function Row(data, assignee) {
@@ -345,6 +347,18 @@ function ViewModel(data) {
 
   self.editEntry = function(entry) {
     self.selectedEntry(entry);
+  }
+
+  self.isToday = function(day) {
+    cellDay = new Date(Date.parse(day))
+    today = new Date()
+    if(cellDay.getDate() == today.getDate() &&
+       cellDay.getMonth() ==  today.getMonth() &&
+       cellDay.getFullYear() == today.getFullYear()) { 
+      return true;
+    } else { 
+      return false; 
+    }
   }
 
   self.previewJsonData = ko.computed(function() {

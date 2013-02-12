@@ -51,7 +51,7 @@
       <thead>
         <tr>
           <!-- ko foreach: days -->
-          <th class="period-end">
+          <th class="period-end" data-bind="css: { today: $root.isToday($data) }">
             <div class="day-title" data-bind="text: $data"></div>
             <span>&sum;</span>
             <span>R</span>
@@ -106,12 +106,18 @@
           css: { 'no-time-entry': !isStory, subtotal: isStory, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
           <!-- ko foreach: $data.cells -->
             <!-- ko if: $parent.isStory -->
-              <td data-bind="text: spent().toFixed(2)"></td>
-              <td data-bind="text: left().toFixed(2)" class="period-end"></td>
+              <td data-bind="text: spent().toFixed(2), css: { 'today': $root.isToday(day) }"></td>
+              <td data-bind="text: left().toFixed(2), css: { 'today': $root.isToday(day) }" class="period-end"></td>
             <!-- /ko -->
             <!-- ko ifnot: $parent.isStory -->
-              <td data-bind="text: spent().toFixed(2), click: $root.cellDetails, css:{ 'time-entry': !!timeEntryCount(), 'no-time-entry': !timeEntryCount() }"></td>
-              <td data-bind="text: left().toFixed(2), click: $root.cellDetails, css:{ 'time-entry': !!timeEntryCount(), 'no-time-entry': !timeEntryCount() }" class="period-end"></td>
+              <td data-bind="text: spent().toFixed(2), click: $root.cellDetails, 
+                css:{ 'time-entry': !!timeEntryCount(), 
+                      'no-time-entry': !timeEntryCount(),
+                      'today': $root.isToday(day) }"></td>
+              <td data-bind="text: left().toFixed(2), click: $root.cellDetails, 
+                css:{ 'time-entry': !!timeEntryCount(), 
+                      'no-time-entry': !timeEntryCount(),
+                      'today': $root.isToday(day) }" class="period-end"></td>
             <!-- /ko -->
           <!-- /ko -->
           <th data-bind="text: spent().toFixed(2)"></th>
@@ -120,8 +126,8 @@
         <!-- /ko -->
         <tr class="subtotal">
           <!-- ko foreach: $root.dailyTotals.cells -->
-          <th data-bind="text: spent().toFixed(2)"></th>
-          <th data-bind="text: left().toFixed(2)" class="period-end"></th>
+          <th data-bind="text: spent().toFixed(2), css: {'today': $root.isToday(day) }"></th>
+          <th data-bind="text: left().toFixed(2), css: {'today': $root.isToday(day) }" class="period-end"></th>
           <!-- /ko -->
           <th data-bind="text: dailyTotals.spent().toFixed(2)"></th>
           <th data-bind="text: dailyTotals.left().toFixed(2)" class="period-end"></th>

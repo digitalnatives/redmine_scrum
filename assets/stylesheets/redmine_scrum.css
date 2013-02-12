@@ -71,6 +71,10 @@ table.list td {
   padding: 2px 1px;
 }
 
+table.list .today {
+  background-color: #e6f0f2;
+}
+
 table.list th {
   border: 1px solid #D7D7D7;
 }

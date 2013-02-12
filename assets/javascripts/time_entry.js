@@ -103,6 +103,7 @@ function TimeEntry(data) {
 
   self.close = function(element) {
     viewModel.selectedEntry("");
+    viewModel.selectedCell("");
   }
 
   self.newEntry = function() {
@@ -349,6 +350,7 @@ function ViewModel(data) {
     self.selectedEntry(entry);
   }
 
+  // highlight today row in table
   self.isToday = function(day) {
     cellDay = new Date(Date.parse(day))
     today = new Date()

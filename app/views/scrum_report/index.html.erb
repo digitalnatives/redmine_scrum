@@ -113,11 +113,13 @@
               <td data-bind="text: spent().toFixed(2), click: $root.cellDetails, 
                 css:{ 'time-entry': !!timeEntryCount(), 
                       'no-time-entry': !timeEntryCount(),
-                      'today': $root.isToday(day) }"></td>
+                      'today': $root.isToday(day),
+                      'selected': $root.selectedCell() == $data }"></td>
               <td data-bind="text: left().toFixed(2), click: $root.cellDetails, 
                 css:{ 'time-entry': !!timeEntryCount(), 
                       'no-time-entry': !timeEntryCount(),
-                      'today': $root.isToday(day) }" class="period-end"></td>
+                      'today': $root.isToday(day),
+                      'selected': $root.selectedCell() == $data }" class="period-end"></td>
             <!-- /ko -->
           <!-- /ko -->
           <th data-bind="text: spent().toFixed(2)"></th>

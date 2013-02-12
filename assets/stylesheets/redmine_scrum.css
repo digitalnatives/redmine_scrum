@@ -72,7 +72,7 @@ table.list td {
 }
 
 table.list th {
-  font-size: 12px;
+  border: 1px solid #D7D7D7;
 }
 
 table.list tr {
@@ -131,6 +131,7 @@ table.list select {
 #ko-table-header-right {
   table-layout: fixed;
 }
+
 #ko-table-header-right th span {
   width: 50%;
   display: inline-block;
@@ -153,6 +154,7 @@ table.list select {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
 }
+
 #ko-table-body-left td.estimated {
   text-align: right;
   vertical-align: middle;

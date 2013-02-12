@@ -84,13 +84,13 @@
               <span data-bind="visible: !isStory, text: currentStatus"></span>
               </div>
           </td>
-          <td class="estimated" data-bind="attr: { 'data-task-id': issueId }, css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
+          <th class="estimated" data-bind="attr: { 'data-task-id': issueId }, css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
             <span data-bind="text: estimated.toFixed(2)"></span>
             <input type="checkbox" name="ids[]", data-bind="value: issueId" style="display:none">
-          </td>
+          </th>
         </tr>
         <!-- /ko -->
-        <tr>
+        <tr class="subtotal">
           <th><%= l('redmine_scrum.total') %></th>
           <th><%= @report.data[:sum_estimated_hours] %></th>
         </tr>
@@ -118,7 +118,7 @@
           <th data-bind="text: left().toFixed(2)" class="period-end"></th>
         </tr>
         <!-- /ko -->
-        <tr>
+        <tr class="subtotal">
           <!-- ko foreach: $root.dailyTotals.cells -->
           <th data-bind="text: spent().toFixed(2)"></th>
           <th data-bind="text: left().toFixed(2)" class="period-end"></th>

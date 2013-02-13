@@ -105,22 +105,18 @@
           visible: isVisible({ byAssignee: $root.filterAssignee(), byStatus: $root.filterStatus() }),
           css: { 'no-time-entry': !isStory, subtotal: isStory, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
           <!-- ko foreach: $data.cells -->
-            <!-- ko if: $parent.isStory -->
-              <td data-bind="text: spent().toFixed(2), css: { 'today': $root.isToday(day) }"></td>
-              <td data-bind="text: left().toFixed(2), css: { 'today': $root.isToday(day) }" class="period-end"></td>
-            <!-- /ko -->
-            <!-- ko ifnot: $parent.isStory -->
-              <td class="clickable" data-bind="text: spent().toFixed(2),
-                css:{ 'time-entry': !!timeEntryCount(), 
-                      'no-time-entry': !timeEntryCount(),
+              <td data-bind="text: spent().toFixed(2),
+                css:{ 'time-entry': !$parent.isStory && !!timeEntryCount() ,
+                      'no-time-entry': !$parent.isStory && !timeEntryCount(),
+                      'clickable': !$parent.isStory,
                       'today': $root.isToday(day),
-                      'selected': $root.selectedCell() == $data }"></td>
+                      'selected': !$parent.isStory && $root.selectedCell() == $data }"></td>
               <td data-bind="text: left().toFixed(2),
-                css:{ 'time-entry': !!timeEntryCount(), 
-                      'no-time-entry': !timeEntryCount(),
+                css:{ 'time-entry': !$parent.isStory && !!timeEntryCount() ,
+                      'no-time-entry': !$parent.isStory && !timeEntryCount(),
+                      'clickable': !$parent.isStory,
                       'today': $root.isToday(day),
-                      'selected': $root.selectedCell() == $data }" class="clickable period-end"></td>
-            <!-- /ko -->
+                      'selected': !$parent.isStory && $root.selectedCell() == $data }" class="period-end"></td>
           <!-- /ko -->
           <th data-bind="text: spent().toFixed(2)"></th>
           <th data-bind="text: left().toFixed(2)" class="period-end"></th>

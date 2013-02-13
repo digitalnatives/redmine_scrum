@@ -324,26 +324,27 @@ function ViewModel(data) {
 
   // By clicking on cells this gets set
   self.cellDetails = function(cell) {
-    $.getJSON('/scrum_report_time_entries/' + cell.issueId + '?day=' + cell.day, function(serverData){
-      var data = $.parseJSON(serverData.entries);
-      var mappedEntries = $.map(data, function(entry) { 
-        entry.subject = cell.formattedSubject;
-        return new TimeEntry(entry);
-      });
+    if(cell.timeEntryCount() == 0) {
       self.selectedCell(cell);
-      if(mappedEntries.length == 0){
-        var timeEntry = new TimeEntry({issueId: cell.issueId, 
-            day: cell.day,
-            subject: cell.formattedSubject,
-            userId: cell.assigneeId,
-            assigneeId: cell.assigneeId});
-        self.selectedEntry(timeEntry);
-        self.entries([ timeEntry ]);
-      } else {
+      var timeEntry = new TimeEntry({issueId: cell.issueId, 
+        day: cell.day,
+          subject: cell.formattedSubject,
+          userId: cell.assigneeId,
+          assigneeId: cell.assigneeId});
+      self.selectedEntry(timeEntry);
+      self.entries([ timeEntry ]);
+    } else {
+      $.getJSON('/scrum_report_time_entries/' + cell.issueId + '?day=' + cell.day, function(serverData){
+        var data = $.parseJSON(serverData.entries);
+        var mappedEntries = $.map(data, function(entry) { 
+          entry.subject = cell.formattedSubject;
+          return new TimeEntry(entry);
+        });
+        self.selectedCell(cell);
         self.selectedEntry(mappedEntries[0]);
         self.entries(mappedEntries);
-      }
-    })
+      })
+    }
   }
 
   self.editEntry = function(entry) {
@@ -471,6 +472,7 @@ var otherTrs = jQuery('#ko-table-body-right').last().find("tr");
 jQuery('#ko-table-body-left').last().find("tr").each(function(index,row) {
   jQuery(otherTrs[index]).height(jQuery(row).height());
 })
+
 // Set table width same
 $('#ko-table-body-right').width($('#ko-table-header-right').width())
 
@@ -480,6 +482,9 @@ $('#ko-body-right').scroll(function() {
   $('#ko-body-left').scrollTop($(this).scrollTop());
 });
 
+// scroll to today on page load
+jQuery('#ko-body-right').animate({scrollLeft: jQuery('.today').first().position().left - (jQuery('#ko-body-right').position().left * 1.7)}, 'fast')
+
 // cleanup
-//window.data = null;
+window.data = null;
 })

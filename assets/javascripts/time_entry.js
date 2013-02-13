@@ -485,6 +485,13 @@ $('#ko-body-right').scroll(function() {
 // scroll to today on page load
 jQuery('#ko-body-right').animate({scrollLeft: jQuery('.today').first().position().left - (jQuery('#ko-body-right').position().left * 1.7)}, 'fast')
 
+$("#ko-table-body-right").delegate("td.clickable", "click", function() {
+  var context = ko.contextFor(this);
+  if(context) {
+    context.$root.cellDetails(context.$data);
+  }
+});
+
 // cleanup
 window.data = null;
 })

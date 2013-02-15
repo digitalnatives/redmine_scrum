@@ -75,7 +75,7 @@ function TimeEntry(data) {
         user_id: self.userId
       })
     }
-    if(self.id() > 0) { 
+    if(self.id() > 0) {
       type = "put";
       url = "/scrum_report_time_entries/" + self.id();
     } else {
@@ -83,9 +83,9 @@ function TimeEntry(data) {
       url = "/scrum_report_time_entries";
     }
     $('.rsindicator').addClass('rssaving');
-    $.ajax({ 
-      type: type, 
-      url: url, 
+    $.ajax({
+      type: type,
+      url: url,
       data: jsonData,
       success: function(data) {
         self.saveOk(data);
@@ -134,7 +134,7 @@ function Cell(data, day, issueId, prevCell) {
   self.left = ko.computed({
     read: function() {
       if(self.hasTimeEntry()) return self.leftValue();
-      if(prevCell) return self.prevCell.left(); 
+      if(prevCell) return self.prevCell.left();
       return self.leftValue();
     },
     write: function(value) {
@@ -305,15 +305,15 @@ function ViewModel(data) {
   self.cellDetails = function(cell) {
     $.getJSON('/scrum_report_time_entries/' + cell.issueId + '?day=' + cell.day, function(serverData){
       var data = $.parseJSON(serverData.entries);
-      var mappedEntries = $.map(data, function(entry) { 
+      var mappedEntries = $.map(data, function(entry) {
         entry.subject = cell.subject;
         return new TimeEntry(entry);
       });
       self.selectedCell(cell);
       if(mappedEntries.length == 0){
-        var timeEntry = new TimeEntry({issueId: cell.issueId, 
-            day: cell.day, 
-            subject: cell.subject, 
+        var timeEntry = new TimeEntry({issueId: cell.issueId,
+            day: cell.day,
+            subject: cell.subject,
             userId: cell.assigneeId,
             assigneeId: cell.assigneeId});
         self.selectedEntry(timeEntry);
@@ -356,7 +356,7 @@ ko.bindingHandlers.openDialog = {
       if(!value.id()) { $(element).find('#time_entry_user_id').val(value.assigneeId); }
       $(element).dialog("open");
       $(element).dialog({
-        title: value.subject 
+        title: value.subject
       });
     } else {
       $(element).dialog("close");
@@ -433,7 +433,6 @@ jQuery('#ko-table-body-left').last().find("tr").each(function(index,row) {
   jQuery(otherTrs[index]).height(jQuery(row).height());
 })
 // Set table width same
-$('#ko-table-body-right').width($('#ko-table-header-right').width())
 
 // Follow scroll
 $('#ko-body-right').scroll(function() {

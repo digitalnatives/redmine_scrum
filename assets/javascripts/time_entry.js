@@ -220,30 +220,36 @@ function Row(data, assignee) {
     return self.cells().last().left();
   })
 
+  // this gets called by css binding when assignee or status drop down changes
   self.isVisible = function(filter) {
-    returnValue = self.filter(filter);
-    if(!self.isStory) self.setCountable(returnValue);
-    return returnValue;
+    var rowVisible = self.visible(filter);
+    if(!self.isStory) self.recalc(rowVisible);
+    return rowVisible;
   }
 
-  self.filter = function(filter) {
+  self.visible = function(filter) {
     if(self.isStory) return true;
-    if(!filter.byStatus && !filter.byAssignee) return true; 
-    if(!!filter.byStatus && !!filter.byAssignee) {
-      return (self.statusId() == filter.byStatus.id && self.assigneeId() == filter.byAssignee.id) ? true : false;
+    if(!filter.byStatus && !filter.byAssignee && !filter.bySubject) return true; 
+    var rowVisible = true;
+
+    if(!!filter.bySubject) {
+      rowVisible = (self.formattedSubject().toLowerCase().indexOf(filter.bySubject) != -1) ? true : false;
+      if(!rowVisible) return;
     }
     if(!!filter.byStatus) {
-      return (self.statusId() == filter.byStatus.id) ? true : false;
+      rowVisible = (self.statusId() == filter.byStatus.id) ? true : false;
+      if(!rowVisible) return;
     }
     if(!!filter.byAssignee) {
-      return (self.assigneeId() == filter.byAssignee.id) ? true : false;
+      rowVisible = (self.assigneeId() == filter.byAssignee.id) ? true : false;
+      if(!rowVisible) return;
     }
-
+    return rowVisible;
   }
 
-  self.setCountable = function(to) {
+  self.recalc = function(visible) {
     ko.utils.arrayForEach(self.cells(), function(cell) {
-      if(to) {
+      if(visible) {
         cell.countable(true);
       } else {
         cell.countable(false);
@@ -324,6 +330,7 @@ function ViewModel(data) {
   });
   self.filterAssignee = ko.observable();
   self.filterStatus = ko.observable();
+  self.filterSubject = ko.observable().extend({ throttle: 250 });
 
   self.rows = ko.observableArray(
     ko.utils.arrayMap(data.rows, function(row) {

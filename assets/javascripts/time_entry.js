@@ -130,6 +130,7 @@ function Cell(data, prevCell) {
   self.subject = data.subject;
   self.assigneeId = data.assignee_id;
   self.formattedSubject = '#' + self.issueId + ': ' + self.subject;
+  self.countable = ko.observable(true);
 
   self.left = ko.computed({
     read: function() {
@@ -157,7 +158,7 @@ function StoryCell(data) {
   self.spent = ko.computed(function() {
     var sum = 0;
     ko.utils.arrayForEach(self.observedCells(), function(cell) {
-      sum += Number(cell.spent());
+      if(cell.countable()) sum += Number(cell.spent());
     })
     return sum;
   });
@@ -165,11 +166,10 @@ function StoryCell(data) {
   self.left = ko.computed(function() {
     var sum = 0;
     ko.utils.arrayForEach(self.observedCells(), function(cell) {
-      sum += Number(cell.left());
+      if(cell.countable()) sum += Number(cell.left());
     })
     return sum;
   });
-
 }
 
 function Row(data, assignee) {
@@ -221,6 +221,12 @@ function Row(data, assignee) {
   })
 
   self.isVisible = function(filter) {
+    returnValue = self.filter(filter);
+    if(!self.isStory) self.setCountable(returnValue);
+    return returnValue;
+  }
+
+  self.filter = function(filter) {
     if(self.isStory) return true;
     if(!filter.byStatus && !filter.byAssignee) return true; 
     if(!!filter.byStatus && !!filter.byAssignee) {
@@ -232,6 +238,17 @@ function Row(data, assignee) {
     if(!!filter.byAssignee) {
       return (self.assigneeId() == filter.byAssignee.id) ? true : false;
     }
+
+  }
+
+  self.setCountable = function(to) {
+    ko.utils.arrayForEach(self.cells(), function(cell) {
+      if(to) {
+        cell.countable(true);
+      } else {
+        cell.countable(false);
+      }
+    })
   }
 }
 
@@ -276,8 +293,7 @@ function DailyTotalRow(rows, days) {
   self.spent = ko.computed(function() {
     var sum = 0;
     ko.utils.arrayForEach(rows(), function(row){
-      if(row.isStory) return;
-      sum += Number(row.spent());
+      if(row.isStory) sum += Number(row.spent());
     })
     return sum;
   })
@@ -285,12 +301,10 @@ function DailyTotalRow(rows, days) {
   self.left = ko.computed(function() {
     var sum = 0;
     ko.utils.arrayForEach(rows(), function(row){
-      if(row.isStory) return;
-      sum += Number(row.left());
+      if(row.isStory) sum += Number(row.left());
     })
     return sum;
   })
-
 }
 
 function ViewModel(data) {
@@ -473,9 +487,6 @@ jQuery('#ko-table-body-left').last().find("tr").each(function(index,row) {
   jQuery(otherTrs[index]).height(jQuery(row).height());
 })
 
-// Set table width same
-$('#ko-table-body-right').width($('#ko-table-header-right').width())
-
 // Follow scroll
 $('#ko-body-right').scroll(function() {
   $('#ko-header-right').scrollLeft($(this).scrollLeft());
@@ -483,7 +494,12 @@ $('#ko-body-right').scroll(function() {
 });
 
 // scroll to today on page load
-jQuery('#ko-body-right').animate({scrollLeft: jQuery('.today').first().position().left - (jQuery('#ko-body-right').position().left * 1.7)}, 'fast')
+if(jQuery('.today').first()) {
+  var leftPosition = jQuery('.today').first().left
+} else {
+  var leftPosition = 0
+}
+jQuery('#ko-body-right').animate({scrollLeft: leftPosition - (jQuery('#ko-body-right').position().left * 1.7)}, 'fast')
 
 $("#ko-table-body-right").delegate("td.clickable", "click", function() {
   var context = ko.contextFor(this);

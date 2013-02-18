@@ -131,6 +131,7 @@ function Cell(data, prevCell) {
   self.subject = data.subject;
   self.assigneeId = data.assignee_id;
   self.formattedSubject = '#' + self.issueId + ': ' + self.subject;
+  self.countable = ko.observable(true);
 
   self.left = ko.computed({
     read: function() {
@@ -158,7 +159,7 @@ function StoryCell(data) {
   self.spent = ko.computed(function() {
     var sum = 0;
     ko.utils.arrayForEach(self.observedCells(), function(cell) {
-      sum += Number(cell.spent());
+      if(cell.countable()) sum += Number(cell.spent());
     })
     return sum;
   });
@@ -166,11 +167,10 @@ function StoryCell(data) {
   self.left = ko.computed(function() {
     var sum = 0;
     ko.utils.arrayForEach(self.observedCells(), function(cell) {
-      sum += Number(cell.left());
+      if(cell.countable()) sum += Number(cell.left());
     })
     return sum;
   });
-
 }
 
 function Row(data, assignee) {
@@ -221,18 +221,41 @@ function Row(data, assignee) {
     return self.cells().last().left();
   })
 
+  // this gets called by css binding when assignee or status drop down changes
   self.isVisible = function(filter) {
+    var rowVisible = self.visible(filter);
+    if(!self.isStory) self.recalc(rowVisible);
+    return rowVisible;
+  }
+
+  self.visible = function(filter) {
     if(self.isStory) return true;
-    if(!filter.byStatus && !filter.byAssignee) return true; 
-    if(!!filter.byStatus && !!filter.byAssignee) {
-      return (self.statusId() == filter.byStatus.id && self.assigneeId() == filter.byAssignee.id) ? true : false;
+    if(!filter.byStatus && !filter.byAssignee && !filter.bySubject) return true; 
+    var rowVisible = true;
+
+    if(!!filter.bySubject) {
+      rowVisible = (self.formattedSubject().toLowerCase().indexOf(filter.bySubject) != -1) ? true : false;
+      if(!rowVisible) return;
     }
     if(!!filter.byStatus) {
-      return (self.statusId() == filter.byStatus.id) ? true : false;
+      rowVisible = (self.statusId() == filter.byStatus.id) ? true : false;
+      if(!rowVisible) return;
     }
     if(!!filter.byAssignee) {
-      return (self.assigneeId() == filter.byAssignee.id) ? true : false;
+      rowVisible = (self.assigneeId() == filter.byAssignee.id) ? true : false;
+      if(!rowVisible) return;
     }
+    return rowVisible;
+  }
+
+  self.recalc = function(visible) {
+    ko.utils.arrayForEach(self.cells(), function(cell) {
+      if(visible) {
+        cell.countable(true);
+      } else {
+        cell.countable(false);
+      }
+    })
   }
 }
 
@@ -277,8 +300,7 @@ function DailyTotalRow(rows, days) {
   self.spent = ko.computed(function() {
     var sum = 0;
     ko.utils.arrayForEach(rows(), function(row){
-      if(row.isStory) return;
-      sum += Number(row.spent());
+      if(row.isStory) sum += Number(row.spent());
     })
     return sum;
   })
@@ -286,12 +308,10 @@ function DailyTotalRow(rows, days) {
   self.left = ko.computed(function() {
     var sum = 0;
     ko.utils.arrayForEach(rows(), function(row){
-      if(row.isStory) return;
-      sum += Number(row.left());
+      if(row.isStory) sum += Number(row.left());
     })
     return sum;
   })
-
 }
 
 function ViewModel(data) {
@@ -311,6 +331,7 @@ function ViewModel(data) {
   });
   self.filterAssignee = ko.observable();
   self.filterStatus = ko.observable();
+  self.filterSubject = ko.observable().extend({ throttle: 250 });
 
   self.rows = ko.observableArray(
     ko.utils.arrayMap(data.rows, function(row) {
@@ -474,9 +495,6 @@ jQuery('#ko-table-body-left').last().find("tr").each(function(index,row) {
   jQuery(otherTrs[index]).height(jQuery(row).height());
 })
 
-// Set table width same
-$('#ko-table-body-right').width($('#ko-table-header-right').width())
-
 // Follow scroll
 $('#ko-body-right').scroll(function() {
   $('#ko-header-right').scrollLeft($(this).scrollLeft());
@@ -484,7 +502,12 @@ $('#ko-body-right').scroll(function() {
 });
 
 // scroll to today on page load
-jQuery('#ko-body-right').animate({scrollLeft: jQuery('.today').first().position().left - (jQuery('#ko-body-right').position().left * 1.7)}, 'fast')
+if(jQuery('.today').first()) {
+  var leftPosition = jQuery('.today').first().left
+} else {
+  var leftPosition = 0
+}
+jQuery('#ko-body-right').animate({scrollLeft: leftPosition - (jQuery('#ko-body-right').position().left * 1.7)}, 'fast')
 
 $("#ko-table-body-right").delegate("td.clickable", "click", function() {
   var context = ko.contextFor(this);

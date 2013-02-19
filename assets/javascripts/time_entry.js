@@ -186,8 +186,10 @@ function Row(data, assignee) {
   self.statusId = ko.observable(data.status_id);
   self.assignee = assignee;
   self.currentStatus = data.status;
-  self.estimated = Number(data.estimated);
+  self.estimatedValue = ko.observable(Number(data.estimated));
   self.assigneeName = data.assignee_name;
+  self.observedRows = ko.observableArray();
+  self.visible = ko.observable(true);
 
   self.formattedSubject = function () {
     if(self.isStory) {
@@ -221,36 +223,55 @@ function Row(data, assignee) {
     return self.cells().last().left();
   })
 
+  self.estimated = ko.computed(function() {
+    if(self.isStory) {
+      var sum = 0;
+      ko.utils.arrayForEach(self.observedRows(), function(row) {
+        if(row.visible()) sum += Number(row.estimated());
+      })
+      return sum;
+    } else {
+      return self.estimatedValue();
+    }
+  })
+
   // this gets called by css binding when assignee or status drop down changes
   self.isVisible = function(filter) {
-    var rowVisible = self.visible(filter);
-    if(!self.isStory) self.recalc(rowVisible);
-    return rowVisible;
-  }
-
-  self.visible = function(filter) {
     if(self.isStory) return true;
-    if(!filter.byStatus && !filter.byAssignee && !filter.bySubject) return true; 
-    var rowVisible = true;
-
-    if(!!filter.bySubject) {
-      rowVisible = (self.formattedSubject().toLowerCase().indexOf(filter.bySubject) != -1) ? true : false;
-      if(!rowVisible) return;
-    }
-    if(!!filter.byStatus) {
-      rowVisible = (self.statusId() == filter.byStatus.id) ? true : false;
-      if(!rowVisible) return;
-    }
-    if(!!filter.byAssignee) {
-      rowVisible = (self.assigneeId() == filter.byAssignee.id) ? true : false;
-      if(!rowVisible) return;
-    }
-    return rowVisible;
+    self.checkVisible(filter);
+    self.recalc();
+    return self.visible();
   }
 
-  self.recalc = function(visible) {
+  self.checkVisible = function(filter) {
+    if(self.isStory) {
+      self.visible(true);
+      return
+    }
+
+    if(!filter.byStatus && !filter.byAssignee && !filter.bySubject) {
+      self.visible(true);
+      return;
+    }
+
+    if(!!filter.bySubject && self.formattedSubject().toLowerCase().indexOf(filter.bySubject) == -1) {
+      self.visible(false);
+      return;
+    }
+    if(!!filter.byStatus && self.statusId() != filter.byStatus.id) {
+      self.visible(false);
+      return;
+    }
+    if(!!filter.byAssignee && self.assigneeId() != filter.byAssignee.id) {
+      self.visible(false);
+      return;
+    }
+    self.visible(true);
+  }
+
+  self.recalc = function() {
     ko.utils.arrayForEach(self.cells(), function(cell) {
-      if(visible) {
+      if(self.visible()) {
         cell.countable(true);
       } else {
         cell.countable(false);
@@ -309,6 +330,14 @@ function DailyTotalRow(rows, days) {
     var sum = 0;
     ko.utils.arrayForEach(rows(), function(row){
       if(row.isStory) sum += Number(row.left());
+    })
+    return sum;
+  })
+
+  self.estimated = ko.computed(function(){
+    var sum = 0;
+    ko.utils.arrayForEach(rows(), function(row) {
+      if(row.isStory) sum += Number(row.estimated());
     })
     return sum;
   })
@@ -476,6 +505,7 @@ $.each(viewModel.rows(), function(index, row) {
   } 
   else {
     if(row.storyId == storyRow.issueId) {
+      storyRow.observedRows.push(row);
       for(var i = 0; i < row.cells().length; i++) {
         storyRow.cells()[i].observedCells.push(row.cells()[i]);
       }

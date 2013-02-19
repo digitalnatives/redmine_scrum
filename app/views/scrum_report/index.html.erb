@@ -87,14 +87,14 @@
               </div>
           </td>
           <th class="estimated" data-bind="attr: { 'data-task-id': issueId }, css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
-            <span data-bind="text: estimated.toFixed(2)"></span>
+            <span data-bind="text: estimated().toFixed(2)"></span>
             <input type="checkbox" name="ids[]", data-bind="value: issueId" style="display:none">
           </th>
         </tr>
         <!-- /ko -->
         <tr class="subtotal">
           <th><%= l('redmine_scrum.total') %></th>
-          <th><%= @report.data[:sum_estimated_hours] %></th>
+          <th data-bind="text: $root.dailyTotals.estimated"></th>
         </tr>
       </tbody>
     </table>

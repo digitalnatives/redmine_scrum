@@ -319,11 +319,27 @@ function DailyTotalRow(rows, days) {
   var self = this;
 
   self.index = 0;
+  self.days = days
+
+  self.calcLeftLine = function() {
+  }
+
+  self.calcEstimatedLine = function() {
+    var rate = (self.days.length > 1) ? self.estimated / (self.days.length - 1) : 0
+    ko.utils.arrayForEach(self.cells(), function(cell) {
+      window.bdChart.series[0].data[cell.index][1] = cell.index * rate;
+    })
+  }
 
   self.updateChart = function() {
     ko.utils.arrayForEach(self.cells(), function(cell) {
       window.bdChart.series[1].data[cell.index][1] = cell.left();
     })
+    var rate = (self.days.length > 1) ? self.estimated() / (self.days.length - 1) : 0
+    ko.utils.arrayForEach(self.cells(), function(cell) {
+      window.bdChart.series[0].data[cell.index][1] = self.estimated() - cell.index * rate;
+    })
+    //self.calcEstimatedLine;
     window.bdChart.replot();
   }
 
@@ -342,20 +358,20 @@ function DailyTotalRow(rows, days) {
     return sum;
   }).extend({ throttle: 1 });
 
+  self.estimated = ko.computed(function(){
+    var sum = 0;
+    ko.utils.arrayForEach(rows(), function(row) {
+      if(row.isStory) sum += Number(row.estimated());
+    })
+    return sum;
+  }).extend({ throttle: 1 });
+
   self.left = ko.computed(function() {
     var sum = 0;
     ko.utils.arrayForEach(rows(), function(row){
       if(row.isStory) sum += Number(row.left());
     })
     self.updateChart();
-    return sum;
-  }).extend({ throttle: 1 });
-
-  self.estimated = ko.computed(function(){
-    var sum = 0;
-    ko.utils.arrayForEach(rows(), function(row) {
-      if(row.isStory) sum += Number(row.estimated());
-    })
     return sum;
   }).extend({ throttle: 1 });
 

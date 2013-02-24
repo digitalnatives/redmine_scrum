@@ -60,10 +60,6 @@ function TimeEntry(data) {
     self.userName(data.userName);
     self.id(data.id);
     viewModel.selectedEntry(self);
-    ko.utils.arrayForEach(viewModel.dailyTotals.cells(), function(cell) {
-      window.bdChart.series[1].data[cell.index][1] = cell.left();
-    })
-    window.bdChart.replot();
     self.saved = true;
   }
 
@@ -324,6 +320,13 @@ function DailyTotalRow(rows, days) {
 
   self.index = 0;
 
+  self.updateChart = function() {
+    ko.utils.arrayForEach(self.cells(), function(cell) {
+      window.bdChart.series[1].data[cell.index][1] = cell.left();
+    })
+    window.bdChart.replot();
+  }
+
   self.cells = ko.observableArray(
     ko.utils.arrayMap(days, function(day) {
       self.index++;
@@ -337,15 +340,16 @@ function DailyTotalRow(rows, days) {
       if(row.isStory) sum += Number(row.spent());
     })
     return sum;
-  })
+  }).extend({ throttle: 1 });
 
   self.left = ko.computed(function() {
     var sum = 0;
     ko.utils.arrayForEach(rows(), function(row){
       if(row.isStory) sum += Number(row.left());
     })
+    self.updateChart();
     return sum;
-  })
+  }).extend({ throttle: 1 });
 
   self.estimated = ko.computed(function(){
     var sum = 0;
@@ -353,16 +357,17 @@ function DailyTotalRow(rows, days) {
       if(row.isStory) sum += Number(row.estimated());
     })
     return sum;
-  })
+  }).extend({ throttle: 1 });
+
 }
 
 function ViewModel(data) {
   var self = this;
 
   self.days = data.days;
+
   // Set by cellDetails
   self.selectedEntry = ko.observable();
-  // Set by cellDetails
   self.selectedCell = ko.observable();
   self.entries = ko.observableArray();
 
@@ -396,11 +401,11 @@ function ViewModel(data) {
   self.cellDetails = function(cell) {
     if(cell.timeEntryCount() == 0) {
       self.selectedCell(cell);
-      var timeEntry = new TimeEntry({issueId: cell.issueId, 
-        day: cell.day,
-          subject: cell.formattedSubject,
-          userId: cell.assigneeId,
-          assigneeId: cell.assigneeId});
+      var timeEntry = new TimeEntry({ issueId: cell.issueId,
+                                      day: cell.day,
+                                      subject: cell.formattedSubject,
+                                      userId: cell.assigneeId,
+                                      assigneeId: cell.assigneeId });
       self.selectedEntry(timeEntry);
       self.entries([ timeEntry ]);
     } else {
@@ -514,28 +519,27 @@ window.bdChart = jQuery.jqplot('burndown', [data.ideal_line, data.remain_line], 
 
 window.viewModel = new ViewModel(data);
 
-// TODO: optimize performance by using the observableArray underlying array directly and use hasValuMutated.
 var storyRow;
 $.each(viewModel.rows(), function(index, row) {
   if(row.isStory){
     for(var i = 0; i < viewModel.dailyTotals.cells().length; i++) {
-      viewModel.dailyTotals.cells()[i].observedCells.push(row.cells()[i]);
+      viewModel.dailyTotals.cells()[i].observedCells().push(row.cells()[i]);
     }
     storyRow = row;
   } 
   else {
     if(row.storyId == storyRow.issueId) {
       storyRow.observedRows.push(row);
+      // TODO: optimize performance by using the observableArray underlying array directly and use hasValuMutated.
       for(var i = 0; i < row.cells().length; i++) {
         storyRow.cells()[i].observedCells.push(row.cells()[i]);
       }
     }
   }
 });
-ko.utils.arrayForEach(viewModel.dailyTotals.cells(), function(cell) {
-  window.bdChart.series[1].data[cell.index][1] = cell.left();
-})
-window.bdChart.replot();
+$.each(viewModel.dailyTotals.cells(), function(index, cell) {
+  cell.observedCells.valueHasMutated();
+});
 
 ko.applyBindings(viewModel);
 

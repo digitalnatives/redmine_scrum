@@ -6,14 +6,14 @@ module RS
       @project = project
       @version = version
 
-      run
+      run_query
       set_up_day_range
-      set_up_day_data
+      set_data_matrix
     end
 
     private
 
-    def set_up_day_data
+    def set_data_matrix
       @data = {}
       @data[:ideal_line] = []
       @data[:remain_line] = []
@@ -64,7 +64,6 @@ module RS
         @data[:issue_statuses] = IssueStatus.all.map{ |s| { :name => s.to_s, :id => s.id } }
         @data[:sum_estimated_hours] = @sum_estimated_hours
       end
-
     end
 
     def set_cells(issue)
@@ -102,7 +101,7 @@ module RS
       end
     end
 
-    def run
+    def run_query
       default_conditions
       if @version
         @conditions += " AND issues.fixed_version_id = :version_id"

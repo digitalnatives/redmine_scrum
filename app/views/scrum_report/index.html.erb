@@ -79,7 +79,7 @@
               css: { subtotal: $data.isStory, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
           <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
             <div data-bind=", css: { 'task-title': !isStory }">
-              <a data-bind="attr: { href: '/issues/' + issueId }, text: formattedSubject()"></a>
+              <a data-bind="attr: { href: '/issues/' + (issueId || storyId) }, text: formattedSubject()"></a>
             </div>
             <div data-bind="visible: !isStory">
               <span class="task-assignee" data-bind="text: assigneeName"></span> || 

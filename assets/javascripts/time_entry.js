@@ -495,6 +495,7 @@ window.bdChart = jQuery.jqplot('burndown', [data.ideal_line, data.remain_line], 
 
 window.viewModel = new ViewModel(data);
 
+// TODO: optimize performance by using the observableArray underlying array directly and use hasValuMutated.
 var storyRow;
 $.each(viewModel.rows(), function(index, row) {
   if(row.isStory){
@@ -533,7 +534,7 @@ $('#ko-body-right').scroll(function() {
 
 // scroll to today on page load
 if(jQuery('.today').first()) {
-  var leftPosition = jQuery('.today').first().left
+  var leftPosition = jQuery('.today').first().offset().left
 } else {
   var leftPosition = 0
 }

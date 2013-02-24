@@ -1,6 +1,13 @@
 jQuery(function($) {
 
 //----------------------- KNOCKOUT --------------------------------
+function Category(data) {
+  var self = this;
+
+  self.id = data.id
+  self.name = data.name
+}
+
 function Assignee(data) {
   var self = this;
 
@@ -185,6 +192,7 @@ function Row(data, assignee) {
   self.subject = data.subject;
   self.assigneeId = ko.observable(data.assignee_id);
   self.statusId = ko.observable(data.status_id);
+  self.categoryId = ko.observable(data.category_id);
   self.assignee = assignee;
   self.currentStatus = data.status;
   self.estimatedValue = ko.observable(Number(data.estimated));
@@ -250,7 +258,7 @@ function Row(data, assignee) {
       return
     }
 
-    if(!filter.byStatus && !filter.byAssignee && !filter.bySubject) {
+    if(!filter.byStatus && !filter.byAssignee && !filter.byCategory && !filter.bySubject) {
       self.visible(true);
       return;
     }
@@ -260,6 +268,10 @@ function Row(data, assignee) {
       return;
     }
     if(!!filter.byStatus && self.statusId() != filter.byStatus.id) {
+      self.visible(false);
+      return;
+    }
+    if(!!filter.byCategory && self.categoryId() != filter.byCategory.id) {
       self.visible(false);
       return;
     }
@@ -353,14 +365,20 @@ function ViewModel(data) {
   // Set by cellDetails
   self.selectedCell = ko.observable();
   self.entries = ko.observableArray();
+
+  // Filters
   self.assignees = ko.utils.arrayMap(data.assignees, function(assignee) {
       return new Assignee(assignee);
   });
   self.issueStatuses = ko.utils.arrayMap(data.issue_statuses, function(issueStatus) {
       return new IssueStatus(issueStatus);
   });
+  self.categories = ko.utils.arrayMap(data.categories, function(category) {
+      return new Category(category);
+  });
   self.filterAssignee = ko.observable();
   self.filterStatus = ko.observable();
+  self.filterCategory = ko.observable();
   self.filterSubject = ko.observable().extend({ throttle: 250 });
 
   self.rows = ko.observableArray(

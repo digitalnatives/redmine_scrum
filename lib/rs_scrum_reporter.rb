@@ -25,24 +25,25 @@ module RS
       @issues.each do |issue|
         if issue.parent_id.present? && !parents.include?(issue.parent_id)
           parent_row = {}
-          parent = Issue.find(issue.parent_id)
+          @parent = Issue.find(issue.parent_id)
           parent_row[:is_story] = true
-          parent_row[:story_id] = parent.id
-          parent_row[:assignee] = "#{parent.assigned_to}"
-          parent_row[:story_subject] = parent.subject
-          parent_row[:estimated] = parent.estimated_hours
-          parent_row[:status] = "#{parent.status}"
+          parent_row[:story_id] = @parent.id
+          parent_row[:assignee] = "#{@parent.assigned_to}"
+          parent_row[:story_subject] = @parent.subject
+          parent_row[:estimated] = @parent.estimated_hours
+          parent_row[:status] = "#{@parent.status}"
+          parent_row[:category] = "#{@parent.category}"
           parent_row[:cells] = []
           @days.to_a.each_with_index do |day, idx| 
            parent_row[:cells] << {
               :day => day.to_s,
-              :issue_id => parent.id
+              :issue_id => @parent.id
             }
           end
 
           # A story -t is hozzá adjuk az issues tömbhöz
           @data[:rows] << parent_row
-          parents << parent.id
+          parents << @parent.id
         end
 
         row = {
@@ -55,12 +56,14 @@ module RS
           :subject => issue.subject,
           :status => "#{issue.status}",
           :status_id => issue.status_id,
+          :category_id => (issue.category_id || @parent.try(:category_id)),
           :statuses => issue.new_statuses_allowed_to.map { |i| { :id => i.id, :name => i.name } }
         }
         row[:cells] = set_cells(issue)
 
         @data[:rows] << row
-        @data[:assignees] = @project.assignable_users.map{ |u| { :name => u.to_s, :id => u.id }}
+        @data[:assignees] = @project.assignable_users.map{ |u| { :name => u.to_s, :id => u.id } }
+        @data[:categories] = @project.issue_categories.map{ |c| { :name => c.name, :id => c.id } }
         @data[:issue_statuses] = IssueStatus.all.map{ |s| { :name => s.to_s, :id => s.id } }
         @data[:sum_estimated_hours] = @sum_estimated_hours
       end
@@ -112,6 +115,7 @@ module RS
       @issues = Issue.all(:select => "issues.id, 
                            issues.parent_id,
                            issues.status_id, 
+                           issues.category_id,
                            issues.tracker_id,
                            issues.subject, 
                            parents.subject AS parent_subject,
@@ -125,7 +129,7 @@ module RS
                            max(time_entries.spent_on) AS last_time_entry",
                            :joins => "INNER JOIN issues parents ON issues.parent_id = parents.id
                            LEFT JOIN time_entries ON (time_entries.issue_id = issues.id)",# LEFT JOIN versions ON issues.fixed_version_id = versions.id",
-                           :include => [ :status, :assigned_to, :tracker ],
+                           :include => [ :status, :assigned_to, :tracker, :category ],
                            :conditions => [ @conditions, @condition_vars ],
                            :group => 'issues.id',
                            :order => 'parents.position ASC, issues.parent_id ASC, issues.id ASC')

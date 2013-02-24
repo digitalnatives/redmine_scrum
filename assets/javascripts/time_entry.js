@@ -324,13 +324,6 @@ function DailyTotalRow(rows, days) {
   self.calcLeftLine = function() {
   }
 
-  self.calcEstimatedLine = function() {
-    var rate = (self.days.length > 1) ? self.estimated / (self.days.length - 1) : 0
-    ko.utils.arrayForEach(self.cells(), function(cell) {
-      window.bdChart.series[0].data[cell.index][1] = cell.index * rate;
-    })
-  }
-
   self.updateChart = function() {
     ko.utils.arrayForEach(self.cells(), function(cell) {
       window.bdChart.series[1].data[cell.index][1] = cell.left();
@@ -339,8 +332,7 @@ function DailyTotalRow(rows, days) {
     ko.utils.arrayForEach(self.cells(), function(cell) {
       window.bdChart.series[0].data[cell.index][1] = self.estimated() - cell.index * rate;
     })
-    //self.calcEstimatedLine;
-    window.bdChart.replot({ resetAxes: true });
+    window.bdChart.replot({ resetAxes: [ 'yaxis' ], axes: { yaxis: { min: 0, max: self.estimated() } } });
   }
 
   self.cells = ko.observableArray(

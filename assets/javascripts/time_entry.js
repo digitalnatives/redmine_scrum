@@ -340,7 +340,7 @@ function DailyTotalRow(rows, days) {
       window.bdChart.series[0].data[cell.index][1] = self.estimated() - cell.index * rate;
     })
     //self.calcEstimatedLine;
-    window.bdChart.replot();
+    window.bdChart.replot({ resetAxes: true });
   }
 
   self.cells = ko.observableArray(

@@ -43,8 +43,9 @@ function TimeEntry(data) {
   });
 
   self.saveOk = function(data) {
-    // handling null
-    viewModel.selectedCell().left(data.cellLeft || viewModel.selectedCell().left());
+    // handling null and 0
+    var newLeft = (data.cellLeft == undefined) ? viewModel.selectedCell().left() : data.cellLeft;
+    viewModel.selectedCell().left(newLeft);
     viewModel.selectedCell().spent(data.cellSpent);
     self.activityId(data.activityId);
     self.activity(data.activity);

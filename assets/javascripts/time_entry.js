@@ -79,7 +79,7 @@ function TimeEntry(data) {
         user_id: self.userId
       })
     }
-    if(self.id() > 0) { 
+    if(self.id() > 0) {
       type = "put";
       url = "/scrum_report_time_entries/" + self.id();
     } else {
@@ -87,9 +87,9 @@ function TimeEntry(data) {
       url = "/scrum_report_time_entries";
     }
     $('.rsindicator').addClass('rssaving');
-    $.ajax({ 
-      type: type, 
-      url: url, 
+    $.ajax({
+      type: type,
+      url: url,
       data: jsonData,
       success: function(data) {
         self.saveOk(data);
@@ -140,7 +140,7 @@ function Cell(data, prevCell) {
   self.left = ko.computed({
     read: function() {
       if(!!self.timeEntryCount()) return self.leftValue();
-      if(prevCell) return self.prevCell.left(); 
+      if(prevCell) return self.prevCell.left();
       return self.leftValue();
     },
     write: function(value) {
@@ -419,7 +419,7 @@ function ViewModel(data) {
     } else {
       $.getJSON('/scrum_report_time_entries/' + cell.issueId + '?day=' + cell.day, function(serverData){
         var data = $.parseJSON(serverData.entries);
-        var mappedEntries = $.map(data, function(entry) { 
+        var mappedEntries = $.map(data, function(entry) {
           entry.subject = cell.formattedSubject;
           return new TimeEntry(entry);
         });
@@ -440,10 +440,10 @@ function ViewModel(data) {
     today = new Date()
     if(cellDay.getDate() == today.getDate() &&
        cellDay.getMonth() ==  today.getMonth() &&
-       cellDay.getFullYear() == today.getFullYear()) { 
+       cellDay.getFullYear() == today.getFullYear()) {
       return true;
-    } else { 
-      return false; 
+    } else {
+      return false;
     }
   }
 
@@ -474,7 +474,7 @@ ko.bindingHandlers.openDialog = {
       if(!value.id()) { $(element).find('#time_entry_user_id').val(value.assigneeId); }
       $(element).dialog("open");
       $(element).dialog({
-        title: value.subject 
+        title: value.subject
       });
     } else {
       $(element).dialog("close");
@@ -534,7 +534,7 @@ $.each(viewModel.rows(), function(index, row) {
       viewModel.dailyTotals.cells()[i].observedCells().push(row.cells()[i]);
     }
     storyRow = row;
-  } 
+  }
   else {
     if(row.storyId == storyRow.issueId) {
       storyRow.observedRows.push(row);
@@ -564,7 +564,7 @@ $('#ko-body-right').scroll(function() {
 });
 
 // scroll to today on page load
-if(jQuery('.today').first()) {
+if(jQuery('.today').first().offset()) {
   var leftPosition = jQuery('.today').first().offset().left
 } else {
   var leftPosition = 0

@@ -126,6 +126,7 @@ table.list select {
 #ko-body-left {
   overflow-x: hidden;
   overflow-y: hidden;
+  max-height: 700px;
 }
 
 #ko-body-right {

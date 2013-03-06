@@ -65,7 +65,7 @@ table.list tbody tr.subtotal {
 
 table.list td.time-entry:hover, table.list td.no-time-entry:hover {
   background-color: #759fcf;
-} 
+}
 
 table.list td {
   padding: 2px 1px;
@@ -87,7 +87,7 @@ table.list tr {
   height: 24px;
 }
 
-table.list select { 
+table.list select {
   font-size: 10px;
 }
 
@@ -123,15 +123,49 @@ table.list select {
   overflow-x: hidden;
 }
 
+@media all and (max-width: 980px){
+  #ko-body-right, #ko-header-right {
+    max-width: 480px;
+  }
+}
+@media all and (min-width: 1081px) and (max-width: 1180px){
+  #ko-body-right, #ko-header-right {
+    max-width: 570px;
+  }
+}
+@media all and (min-width: 1181px) and (max-width: 1280px){
+  #ko-body-right, #ko-header-right {
+    max-width: 770px;
+  }
+}
+@media all and (min-width: 1281px) and (max-width: 1380px){
+  #ko-body-right, #ko-header-right {
+    max-width: 870px;
+  }
+}
+@media all and (min-width: 1381px) and (max-width: 1480px){
+  #ko-body-right, #ko-header-right {
+    max-width: 970px;
+  }
+}
+@media all and (min-width: 1481px) and (max-width: 1580px){
+  #ko-body-right, #ko-header-right {
+    max-width: 1070px;
+  }
+}
+@media all and (min-width: 1581px) and (max-width: 1680px){
+  #ko-body-right, #ko-header-right {
+    max-width: 1170px;
+  }
+}
+
 #ko-body-left {
-  max-height: 700px;
   overflow-x: hidden;
   overflow-y: hidden;
 }
 
 #ko-body-right {
   max-height: 720px;
-  max-width: 780px;
   overflow-x: scroll;
   overflow-y: scroll;
 }

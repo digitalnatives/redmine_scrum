@@ -4,11 +4,16 @@ en:
   field_te_remaining_hours: Remaining hours
   remaining_hours_on_issue: Remaining hours on issue
   redmine_scrum:
-    label_sprint: Sprint
-    scrum_report: Scrum Report
-    user_story: User Story
-    issue: Issue
     assignee: Assignee
-    status: Status
+    category: Category
+    close: Close
     estimated: Estimated
+    issue: Issue
+    label_sprint: Sprint
+    new_entry: New entry
+    save: Save
+    scrum_report: Scrum Report
+    status: Status
+    subject: Subject
     total: Total
+    user_story: User Story

@@ -24,103 +24,125 @@
       <%= select_tag 'version_id', 
         options_for_select(options, @version.try(:id)), :onchange => "this.form.submit();" %>
   <% end %>
+    <label for="filter-assignee"><%= l('redmine_scrum.assignee') %>:</label>
+    <select id="filter-assignee" data-bind="options: assignees, optionsText: 'name',  value: filterAssignee, optionsCaption: 'All'"></select>
+    <label for="filter-status"><%= l('redmine_scrum.status') %>:</label>
+    <select id="filter-status" data-bind="options: issueStatuses, optionsText: 'name',  value: filterStatus, optionsCaption: 'All'"></select>
+    <label for="filter-status"><%= l('redmine_scrum.category') %>:</label>
+    <select id="filter-status" data-bind="options: categories, optionsText: 'name',  value: filterCategory, optionsCaption: 'All'"></select>
+    <label for="filter-status"><%= l('redmine_scrum.subject') %>:</label>
+    <input id="filter-status" type="text" data-bind="value: filterSubject, valueUpdate: 'keyup'">
   </p>
 <% end %>
 <% form_tag({}) do -%>
 
 <div id="ko-report">
 <div class="ko-report-block">
-<div id="ko-header-left" class="ko-left">
-  <table id="ko-table-header-left" class="list">
-    <thead>
-      <tr>
-        <th><%= l('redmine_scrum.user_story') %>
-        <br /><%= l('redmine_scrum.assignee') %> <%= l('redmine_scrum.status') %>
-        </th>
-        <th><%= l('redmine_scrum.estimated') %></th>
-      </tr>
-    </thead>
-    </table>
-</div>
-<div id="ko-header-right" class="ko-right ko-header-scroller">
-  <table id="ko-table-header-right" class="list">
-    <thead>
-      <tr>
-        <!-- ko foreach: days -->
-        <th class="period-end">
-          <div class="day-title" data-bind="text: $data"></div>
-          <span>&sum;</span>
-          <span>R</span>
-        </th>
-        <!-- /ko -->
-        <th>
-          <div class="day-title"><%= l('redmine_scrum.total') %></div>
-          <span>&sum;</span>
-          <span>R</span>
-        </th>
-      </tr>
-    </thead>
-    </table>
-    </div>
+  <div id="ko-header-left" class="ko-left">
+    <table id="ko-table-header-left" class="list">
+      <thead>
+        <tr>
+          <th><%= l('redmine_scrum.user_story') %>
+          <br /><%= l('redmine_scrum.assignee') %> <%= l('redmine_scrum.status') %>
+          </th>
+          <th><%= l('redmine_scrum.estimated') %></th>
+        </tr>
+      </thead>
+      </table>
   </div>
-  <div class="ko-report-block">
+  <div id="ko-header-right" class="ko-right ko-header-scroller">
+    <table id="ko-table-header-right" class="list">
+      <thead>
+        <tr>
+          <!-- ko foreach: days -->
+          <th class="period-end" data-bind="css: { today: $root.isToday($data) }">
+            <div class="day-title" data-bind="text: $data"></div>
+            <span>&sum;</span>
+            <span>R</span>
+          </th>
+          <!-- /ko -->
+          <th>
+            <div class="day-title"><%= l('redmine_scrum.total') %></div>
+            <span>&sum;</span>
+            <span>R</span>
+          </th>
+        </tr>
+      </thead>
+    </table>
+  </div>
+</div>
+<div class="ko-report-block">
   <div id="ko-body-left" class="ko-left">
     <table id="ko-table-body-left" class="list">
       <tbody>
         <!-- ko foreach: rows -->
         <tr class="hascontextmenu context-menu-selection" data-bind="attr: { id: 'issue-'+ issueId  },
-              css: { subtotal: $data.isStory == true, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }
-              "> 
+              visible: isVisible({ byAssignee: $root.filterAssignee(),
+                                   byStatus: $root.filterStatus(),
+                                   byCategory: $root.filterCategory(),
+                                   bySubject: $root.filterSubject() }),
+              css: { subtotal: $data.isStory, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
           <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
-            <div data-bind="text: formattedSubject(), css: { 'task-title': !isStory }"></div>
+            <div data-bind=", css: { 'task-title': !isStory }">
+              <a data-bind="attr: { href: '/issues/' + (issueId || storyId) }, text: formattedSubject()"></a>
+            </div>
             <div data-bind="visible: !isStory">
               <span class="task-assignee" data-bind="text: assigneeName"></span> || 
               <span data-bind="visible: !isStory, text: currentStatus"></span>
               </div>
           </td>
-          <td class="estimated" data-bind="attr: { 'data-task-id': issueId }, css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
-            <span data-bind="text: estimated.toFixed(2)"></span>
+          <th class="estimated" data-bind="attr: { 'data-task-id': issueId }, css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
+            <span data-bind="text: estimated().toFixed(2)"></span>
             <input type="checkbox" name="ids[]", data-bind="value: issueId" style="display:none">
-          </td>
+          </th>
         </tr>
         <!-- /ko -->
-        <tr>
+        <tr class="subtotal">
           <th><%= l('redmine_scrum.total') %></th>
-          <th><%= @report.data[:sum_estimated_hours] %></th>
+          <th data-bind="text: $root.dailyTotals.estimated"></th>
         </tr>
       </tbody>
-  </table>
-</div>
-<div id="ko-body-right" class="ko-right">
-  <table id="ko-table-body-right" class="list">
-    <tbody>
-      <!-- ko foreach: rows -->
-      <tr data-bind="attr: { id: 'issue-'+ issueId  }, css: { 'no-time-entry': !isStory, subtotal: isStory, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
-        <!-- ko foreach: $data.cells -->
-          <!-- ko if: $parent.isStory -->
-            <td data-bind="text: spent().toFixed(2)"></td>
-            <td data-bind="text: left().toFixed(2)" class="period-end"></td>
+    </table>
+  </div>
+  <div id="ko-body-right" class="ko-right">
+    <table id="ko-table-body-right" class="list">
+      <tbody>
+        <!-- ko foreach: rows -->
+        <tr data-bind="attr: { id: 'issue-'+ issueId  },
+          visible: isVisible({ byAssignee: $root.filterAssignee(),
+                               byStatus: $root.filterStatus(),
+                               byCategory: $root.filterCategory(),
+                               bySubject: $root.filterSubject() }),
+          css: { 'no-time-entry': !isStory, subtotal: isStory, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
+          <!-- ko foreach: $data.cells -->
+              <td data-bind="text: spent().toFixed(2),
+                css:{ 'time-entry': !$parent.isStory && !!timeEntryCount() ,
+                      'no-time-entry': !$parent.isStory && !timeEntryCount(),
+                      'clickable': !$parent.isStory,
+                      'today': $root.isToday(day),
+                      'selected': !$parent.isStory && $root.selectedCell() == $data }"></td>
+              <td data-bind="text: left().toFixed(2),
+                css:{ 'time-entry': !$parent.isStory && !!timeEntryCount() ,
+                      'no-time-entry': !$parent.isStory && !timeEntryCount(),
+                      'clickable': !$parent.isStory,
+                      'today': $root.isToday(day),
+                      'selected': !$parent.isStory && $root.selectedCell() == $data }" class="period-end"></td>
           <!-- /ko -->
-          <!-- ko ifnot: $parent.isStory -->
-            <td data-bind="text: spent().toFixed(2), click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry(), 'no-time-entry': !hasTimeEntry() }"></td>
-            <td data-bind="text: left().toFixed(2), click: $root.cellDetails, css:{ 'time-entry': hasTimeEntry(), 'no-time-entry': !hasTimeEntry() }" class="period-end"></td>
+          <th data-bind="text: spent().toFixed(2)"></th>
+          <th data-bind="text: left().toFixed(2)" class="period-end"></th>
+        </tr>
+        <!-- /ko -->
+        <tr class="subtotal">
+          <!-- ko foreach: $root.dailyTotals.cells -->
+          <th data-bind="text: spent().toFixed(2), css: {'today': $root.isToday(day) }"></th>
+          <th data-bind="text: left().toFixed(2), css: {'today': $root.isToday(day) }" class="period-end"></th>
           <!-- /ko -->
-        <!-- /ko -->
-        <td data-bind="text: spent().toFixed(2)"></td>
-        <td data-bind="text: left().toFixed(2)" class="period-end"></td>
-      </tr>
-      <!-- /ko -->
-      <tr>
-        <!-- ko foreach: $root.dailyTotals.cells -->
-        <th data-bind="text: spent().toFixed(2)"></th>
-        <th data-bind="text: left().toFixed(2)" class="period-end"></th>
-        <!-- /ko -->
-        <th data-bind="text: dailyTotals.spent().toFixed(2)"></th>
-        <th data-bind="text: dailyTotals.left().toFixed(2)" class="period-end"></th>
-      </tr>
-    </tbody>
-  </table>
-</div>
+          <th data-bind="text: dailyTotals.spent().toFixed(2)"></th>
+          <th data-bind="text: dailyTotals.left().toFixed(2)" class="period-end"></th>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 </div>
 <% end %>
@@ -130,7 +152,10 @@
 <pre data-bind="text: previewJsonData"></pre> 
 
 <% other_formats_links do |f| %>
-  <%= f.link_to 'CSV', :url => params %>
+  <%=
+    # TODO: Make it work again
+    #f.link_to 'CSV', :url => params 
+  %>
 <% end %>
 
 <div style="width:650px; height: 300px; margin: 0 auto" class="burndown_chart" id="burndown"></div>

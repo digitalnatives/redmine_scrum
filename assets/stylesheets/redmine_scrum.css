@@ -65,7 +65,7 @@ table.list tbody tr.subtotal {
 
 table.list td.time-entry:hover, table.list td.no-time-entry:hover {
   background-color: #759fcf;
-} 
+}
 
 table.list td {
   padding: 2px 1px;
@@ -87,7 +87,7 @@ table.list tr {
   height: 24px;
 }
 
-table.list select { 
+table.list select {
   font-size: 10px;
 }
 
@@ -116,24 +116,105 @@ table.list select {
 
 .ko-right {
   float:left;
-  max-width: 760px;
 }
 
 #ko-header-right {
   overflow-x: hidden;
+  max-width: 1380px;
 }
 
 #ko-body-left {
-  max-height: 700px;
   overflow-x: hidden;
   overflow-y: hidden;
 }
 
 #ko-body-right {
   max-height: 720px;
-  max-width: 780px;
+  max-width: 1400px;
   overflow-x: scroll;
   overflow-y: scroll;
+}
+
+
+@media all and (max-width: 980px){
+  #ko-header-right {
+    max-width: 480px;
+  }
+  #ko-body-right {
+    max-width: 500px;
+  }
+}
+@media all and (min-width: 980px) and (max-width: 1080px){
+  #ko-header-right {
+    max-width: 480px;
+  }
+  #ko-body-right {
+    max-width: 500px;
+  }
+}
+@media all and (min-width: 1081px) and (max-width: 1180px){
+  #ko-header-right {
+    max-width: 580px;
+  }
+  #ko-body-right {
+    max-width: 600px;
+  }
+}
+@media all and (min-width: 1181px) and (max-width: 1280px){
+  #ko-header-right {
+    max-width: 680px;
+  }
+  #ko-body-right {
+    max-width: 700px;
+  }
+}
+@media all and (min-width: 1281px) and (max-width: 1380px){
+  #ko-header-right {
+    max-width: 780px;
+  }
+  #ko-body-right {
+    max-width: 800px;
+  }
+}
+@media all and (min-width: 1381px) and (max-width: 1480px){
+  #ko-header-right {
+    max-width: 880px;
+  }
+  #ko-body-right {
+    max-width: 900px;
+  }
+}
+@media all and (min-width: 1481px) and (max-width: 1580px){
+  #ko-header-right {
+    max-width: 980px;
+  }
+  #ko-body-right {
+    max-width: 1000px;
+  }
+}
+@media all and (min-width: 1581px) and (max-width: 1680px){
+  #ko-header-right {
+    max-width: 1080px;
+  }
+  #ko-body-right {
+    max-width: 1100px;
+  }
+}
+@media all and (min-width: 1681px) and (max-width: 1780px){
+  #ko-header-right {
+    max-width: 1180px;
+  }
+  #ko-body-right {
+    max-width: 1200px;
+  }
+}
+@media all and (min-width: 1781px) and (max-width: 1880px){
+  #ko-header-right {
+    max-width: 1280px;
+  }
+  #ko-body-right {
+    max-width: 1300px;
+  }
 }
 
 #ko-table-header-right {

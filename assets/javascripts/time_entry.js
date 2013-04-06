@@ -335,6 +335,14 @@ function DailyTotalRow(rows, days) {
     window.bdChart.replot({ resetAxes: [ 'yaxis' ], axes: { yaxis: { min: 0, max: self.estimated() } } });
   }
 
+  self.setTableRowsHeight = function() {
+    // Set row height to same
+    var otherTrs = jQuery('#ko-table-body-right').last().find("tr");
+    jQuery('#ko-table-body-left').last().find("tr").each(function(index,row) {
+      jQuery(otherTrs[index]).height(jQuery(row).height());
+    })
+  }
+
   self.cells = ko.observableArray(
     ko.utils.arrayMap(days, function(day) {
       self.index++;
@@ -364,6 +372,7 @@ function DailyTotalRow(rows, days) {
       if(row.isStory) sum += Number(row.left());
     })
     self.updateChart();
+    self.setTableRowsHeight();
     return sum;
   }).extend({ throttle: 1 });
 
@@ -445,6 +454,13 @@ function ViewModel(data) {
     } else {
       return false;
     }
+  }
+
+  self.dayName = function(day) {
+    var d = ['Sunday','Monday','Tuesday','Wednesday',
+        'Thursday','Friday','Saturday'];
+    day = new Date(Date.parse(day))
+    return d[day.getDay()];
   }
 
   self.previewJsonData = ko.computed(function() {
@@ -551,12 +567,6 @@ $.each(viewModel.dailyTotals.cells(), function(index, cell) {
 
 ko.applyBindings(viewModel);
 
-// Set row height to same
-var otherTrs = jQuery('#ko-table-body-right').last().find("tr");
-jQuery('#ko-table-body-left').last().find("tr").each(function(index,row) {
-  jQuery(otherTrs[index]).height(jQuery(row).height());
-})
-
 // Follow scroll
 $('#ko-body-right').scroll(function() {
   $('#ko-header-right').scrollLeft($(this).scrollLeft());
@@ -579,5 +589,5 @@ $("#ko-table-body-right").delegate("td.clickable", "click", function() {
 });
 
 // cleanup
-window.data = null;
+//window.data = null;
 })

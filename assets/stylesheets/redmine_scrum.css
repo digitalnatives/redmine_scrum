@@ -71,8 +71,12 @@ table.list td {
   padding: 2px 1px;
 }
 
-table.list .today {
-  background-color: #e6f0f2;
+table.list .odd .today {
+  background-color: #dce6e8;
+}
+
+table.list .even .today {
+  background-color: #ebf5f7;
 }
 
 table.list .selected {
@@ -250,6 +254,10 @@ table.list select {
   vertical-align: middle;
   box-sizing: border-box;
   -moz-box-sizing: border-box;
+}
+
+#ko-table-header-left tr {
+  height: 46px;
 }
 
 /* preventing right click context menu hide issue */

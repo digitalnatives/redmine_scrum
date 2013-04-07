@@ -56,6 +56,7 @@
         <tr>
           <!-- ko foreach: days -->
           <th class="period-end" data-bind="css: { today: $root.isToday($data) }">
+            <div class="day-title" data-bind="text: $root.dayName($data)"></div>
             <div class="day-title" data-bind="text: $data"></div>
             <span>&sum;</span>
             <span>R</span>

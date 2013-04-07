@@ -62,11 +62,11 @@ module RS
         row[:cells] = set_cells(issue)
 
         @data[:rows] << row
-        @data[:assignees] = @project.assignable_users.map{ |u| { :name => u.to_s, :id => u.id } }
-        @data[:categories] = @project.issue_categories.map{ |c| { :name => c.name, :id => c.id } }
-        @data[:issue_statuses] = IssueStatus.all.map{ |s| { :name => s.to_s, :id => s.id } }
-        @data[:sum_estimated_hours] = @sum_estimated_hours
       end
+      @data[:assignees] = @project.assignable_users.map{ |u| { :name => u.to_s, :id => u.id } }
+      @data[:categories] = @project.issue_categories.map{ |c| { :name => c.name, :id => c.id } }
+      @data[:issue_statuses] = IssueStatus.all.map{ |s| { :name => s.to_s, :id => s.id } }
+      @data[:sum_estimated_hours] = @sum_estimated_hours
     end
 
     def set_cells(issue)

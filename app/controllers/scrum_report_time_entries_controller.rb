@@ -45,7 +45,8 @@ class ScrumReportTimeEntriesController < ApplicationController
       :activity => te.activity.to_s,
       :userId => te.user_id,
       :userName => te.user.to_s,
-      :assigneeId => issue.assigned_to_id
+      :assigneeId => issue.assigned_to_id,
+      :comments => te.comments
     }
     end
     render :json => { :entries => @entries.to_json }
@@ -83,7 +84,8 @@ class ScrumReportTimeEntriesController < ApplicationController
       :activity => @time_entry.activity.to_s,
       :userId => @time_entry.user_id,
       :userName => @time_entry.user.to_s,
-      :assigneeId => @time_entry.issue.assigned_to_id
+      :assigneeId => @time_entry.issue.assigned_to_id,
+      :comments => @time_entry.comments
     }
   end
 

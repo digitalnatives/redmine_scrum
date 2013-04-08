@@ -34,6 +34,7 @@ function TimeEntry(data) {
   self.activity = ko.observable(data.activity);
   self.userId = ko.observable(data.userId);
   self.userName = ko.observable(data.userName);
+  self.comments = ko.observable(data.comments);
   self.assigneeId = data.assigneeId;
   self.saved = false;
   self.subject = data.subject;
@@ -58,6 +59,7 @@ function TimeEntry(data) {
     self.activity(data.activity);
     self.userId(data.userId);
     self.userName(data.userName);
+    self.comments(data.comments);
     self.id(data.id);
     viewModel.selectedEntry(self);
     self.saved = true;
@@ -76,7 +78,8 @@ function TimeEntry(data) {
         hours: self.spent,
         te_remaining_hours: self.left,
         activity_id: self.activityId,
-        user_id: self.userId
+        user_id: self.userId,
+        comments: self.comments
       })
     }
     if(self.id() > 0) {

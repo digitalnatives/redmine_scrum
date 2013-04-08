@@ -41,6 +41,10 @@
         <label>Remaining time:</label>
         <%= f.text_field :te_remaining_hours, :size => 6, "data-bind" => "value: left" %>
       </p>
+      <p>
+        <label>Comments:</label>
+        <%= f.text_field :comments, :size => 100, "data-bind" => "value: comments" %>
+      </p>
     <% end %>
     <div class="rsindicator"> </div>
   </div>

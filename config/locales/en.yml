@@ -4,6 +4,8 @@ en:
   field_te_remaining_hours: Remaining hours
   remaining_hours_on_issue: Remaining hours on issue
   redmine_scrum:
+    use_secretary: Use Secretary for showing workdays?
+    workday_name: Workday name from MultiCalendar
     assignee: Assignee
     category: Category
     close: Close

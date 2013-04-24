@@ -1,0 +1,12 @@
+<table>
+  <tbody>
+    <tr>
+      <th><%= l('redmine_scrum.use_secretary') %></th>
+      <td><%= check_box_tag 'settings[use_secretary]', 1, Setting.plugin_redmine_scrum['use_secretary'] == '1' %></td>
+    </tr>
+    <tr>
+      <th><%= l('redmine_scrum.workday_name') %>:</th>
+      <td><%= text_field_tag 'settings[workday_name]', Setting.plugin_redmine_scrum['workday_name'] %></td>
+    </tr>
+  </tbody>
+</table>

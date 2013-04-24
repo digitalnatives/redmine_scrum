@@ -521,9 +521,11 @@ window.bdChart = jQuery.jqplot('burndown', [data.ideal_line, data.remain_line], 
       xaxis:{
         label: "Days",
         renderer:$.jqplot.DateAxisRenderer,
+        tickRenderer: $.jqplot.CanvasAxisTickRenderer,
         ticks: data.days,
         tickOptions:{
-          formatString:'%b&nbsp;%#d'
+          angle: -70,
+          formatString:'%b %#d'
         }
       },
       yaxis:{

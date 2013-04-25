@@ -23,4 +23,7 @@ Redmine::Plugin.register :redmine_scrum do
   end
 
   menu(:project_menu, :scrum_report, {:controller => "scrum_report", :action => 'index'}, :caption => 'Scrum Report', :before => :settings, :if => Proc.new{ User.current.logged? && Backlogs.configured? }, :param => :project_id)
+
+  settings :default => {'workday_name' => 'Working day', 'use_secretary' => "0"}, :partial => 'settings/rm_scrum_settings'
+
 end

@@ -264,7 +264,7 @@ function Row(data, assignee) {
   })
 
   self.left = ko.computed(function() {
-    return self.cells().last().left();
+    return $(self.cells()).last()[0].left();
   })
 
   self.estimated = ko.computed(function() {
@@ -361,15 +361,14 @@ function DailyTotalRow(rows, days) {
   self.days = days
 
   self.calcLeftLine = function() {
-    ko.utils.arrayForEach(self.cells(), function(cell) {
-      window.bdChart.series[1].data[cell.index][1] = cell.left();
-    })
+    // ko.utils.arrayForEach(self.cells(), function(cell) {
+    //   window.bdChart.series[1].data[cell.index][1] = cell.left();
+    // })
   }
 
   self.calcIdealLine = function() {
     var sprint_length = data.sprint_end - data.sprint_start;
     var rate = (sprint_length > 1) ? self.estimated() / sprint_length : 0;
-
     for(var i = 0; i < self.cells().length; i++) {
       var cell = self.cells()[i],
           value = 0;
@@ -388,6 +387,12 @@ function DailyTotalRow(rows, days) {
     self.calcLeftLine();
     self.calcIdealLine();
     window.bdChart.replot({ resetAxes: [ 'yaxis' ], axes: { yaxis: { min: 0, max: self.estimated() } } });
+  }
+
+
+  self.updateChart = function() {
+    self.calcLeftLine();
+    self.calcIdealLine();
   }
 
   self.setTableRowsHeight = function() {
@@ -567,38 +572,38 @@ ko.bindingHandlers.jqButton = {
   }
 };
 
-window.bdChart = jQuery.jqplot('burndown', [data.ideal_line, data.remain_line], {
-  title:'Burndown Chart',
-    axes:{
-      xaxis:{
-        label: "Days",
-        renderer:$.jqplot.DateAxisRenderer,
-        tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-        ticks: data.days,
-        tickOptions:{
-          angle: -70,
-          formatString:'%b %#d'
-        }
-      },
-      yaxis:{
-        label: "Remaining",
-        min: 0,
-        max: data.sum_estimated_hours,
-        tickOptions:{
-         formatString:'%.2f'
-        }
-      }
-    },
-    highlighter: {
-      show: true,
-      sizeAdjust: 7.5
-    },
-    cursor: {
-      show: false
-    }
-  });
+// window.bdChart = jQuery.jqplot('burndown', [rs_data.ideal_line, rs_data.remain_line], {
+//   title:'Burndown Chart',
+//     axes:{
+//       xaxis:{
+//         label: "Days",
+//         renderer:$.jqplot.DateAxisRenderer,
+//         tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+//         ticks: data.days,
+//         tickOptions:{
+//           angle: -70,
+//           formatString:'%b %#d'
+//         }
+//       },
+//       yaxis:{
+//         label: "Remaining",
+//         min: 0,
+//         max: data.sum_estimated_hours,
+//         tickOptions:{
+//          formatString:'%.2f'
+//         }
+//       }
+//     },
+//     highlighter: {
+//       show: true,
+//       sizeAdjust: 7.5
+//     },
+//     cursor: {
+//       show: false
+//     }
+//   });
 
-window.viewModel = new ViewModel(data);
+window.viewModel = new ViewModel(rs_data);
 
 var storyRow;
 $.each(viewModel.rows(), function(index, row) {

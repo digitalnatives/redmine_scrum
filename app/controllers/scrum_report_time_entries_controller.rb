@@ -33,7 +33,7 @@ class ScrumReportTimeEntriesController < ApplicationController
   def show
     @entries = []
     issue = Issue.find(params[:id])
-    issue.time_entries.each do |te| 
+    issue.time_entries.each do |te|
       next unless te.spent_on == Date.parse(params[:day])
       @entries << {
       :id => te.id,
@@ -65,16 +65,16 @@ class ScrumReportTimeEntriesController < ApplicationController
 
   def cell_values
     spent = 0
-    left = nil 
+    left = nil
     assignee_present = false
-    @time_entry.issue.time_entries.sort_by(&:updated_on).each do |te| 
+    @time_entry.issue.time_entries.sort_by(&:updated_on).each do |te|
       next unless te.spent_on == @time_entry.spent_on
       spent += te.hours
       assignee_present = true if @time_entry.issue.assigned_to_id == te.user_id
       next if assignee_present && @time_entry.issue.assigned_to_id != te.user_id
-      left = te.te_remaining_hours 
+      left = te.te_remaining_hours
     end
-    { 
+    {
       :id => @time_entry.id,
       :cellSpent => spent,
       :cellLeft => left,

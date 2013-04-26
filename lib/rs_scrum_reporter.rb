@@ -150,8 +150,8 @@ module RS
     def set_up_day_range
       first_time_entry = @issues.map(&:first_time_entry).compact.min
       last_time_entry = @issues.map(&:last_time_entry).compact.max
-      first_time_entry = Date.parse(first_time_entry) if first_time_entry
-      last_time_entry = Date.parse(last_time_entry) if last_time_entry
+      #first_time_entry = Date.parse(first_time_entry) if first_time_entry
+      #last_time_entry = Date.parse(last_time_entry) if last_time_entry
 
       from = []
       to = []

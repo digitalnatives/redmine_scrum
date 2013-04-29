@@ -98,9 +98,11 @@ function TimeEntry(data) {
         self.saveOk(data);
       },
       error: function(data, textStatus, error) {
-        $.parseJSON(data.responseText).errors.each(function(element) {
-          self.errors.push({ id: element[0], name: element[1] })
-        });
+        console.log(data.responseText);
+        var obj = $.parseJSON(data.responseText).errors;
+        for (e in obj){
+          self.errors.push({ id: e, name: obj[e] })
+        }
         console.log(data);
       }
     })

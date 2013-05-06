@@ -3,8 +3,10 @@
   <%= stylesheet_link_tag 'redmine_scrum', :plugin => :redmine_scrum %>
 
   <%= javascript_include_tag 'knockout-2.2.0.js', :plugin => :redmine_scrum %>
+
   <%= javascript_include_tag 'jquery/jquery.jqplot/plugins/jqplot.dateAxisRenderer.min.js', :plugin => 'redmine_backlogs' %>
   <%= javascript_include_tag 'jquery/jquery.jqplot/plugins/jqplot.cursor.min.js', :plugin => 'redmine_backlogs' %>
+
   <%= javascript_include_tag 'time_entry', :plugin => :redmine_scrum %>
   <%= javascript_tag do %>
     var rs_data = <%= @report.data.to_json.html_safe %>

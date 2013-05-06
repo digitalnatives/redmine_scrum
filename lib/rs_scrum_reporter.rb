@@ -100,7 +100,7 @@ module RS
       rate = (@days.to_a.size > 1) ? @sum_estimated_hours / (@days.to_a.size - 1) : 0
       @days.to_a.each_with_index do |day, idx|
         @data[:ideal_line] << [ day.to_s, (@sum_estimated_hours - idx * rate) ]
-        @data[:remain_line] << [ day.to_s, (@sum_estimated_hours - idx * rate) ]
+        @data[:remain_line] << [ day.to_s, 0 ]
       end
     end
 

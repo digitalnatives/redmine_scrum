@@ -56,7 +56,7 @@ function TimeEntry(data) {
     viewModel.selectedCell().left(newLeft);
     viewModel.selectedCell().spent(data.cellSpent);
     self.activityId(data.activityId);
-    self.activit/y(data.activity);
+    self.activity(data.activity);
     self.userId(data.userId);
     self.userName(data.userName);
     self.comments(data.comments);
@@ -337,7 +337,8 @@ function DailyTotalRow(rows, days) {
     ko.utils.arrayForEach(self.cells(), function(cell) {
       window.bdChart.series[0].data[cell.index][1] = self.estimated() - cell.index * rate;
     })
-    window.bdChart.replot({ resetAxes: [ 'yaxis' ], axes: { yaxis: { min: 0, max: self.estimated() } } });
+    //window.bdChart.replot({ resetAxes: [ 'yaxis' ], axes: { yaxis: { min: 0, max: self.estimated() } } });
+    window.bdChart.replot({ resetAxes: true });
   }
 
   self.setTableRowsHeight = function() {

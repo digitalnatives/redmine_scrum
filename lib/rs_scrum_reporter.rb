@@ -1,4 +1,4 @@
-module RS 
+module RS
   class ScrumReporter
     attr_reader :data
 
@@ -108,18 +108,18 @@ module RS
       default_conditions
       if @version
         @conditions += " AND issues.fixed_version_id = :version_id"
-        @condition_vars.merge!({ 
-          :version_id => @version.id 
+        @condition_vars.merge!({
+          :version_id => @version.id
         })
       end
-      @issues = Issue.all(:select => "issues.id, 
+      @issues = Issue.all(:select => "issues.id,
                            issues.parent_id,
-                           issues.status_id, 
+                           issues.status_id,
                            issues.category_id,
                            issues.tracker_id,
-                           issues.subject, 
+                           issues.subject,
                            parents.subject AS parent_subject,
-                           parents.estimated_hours AS parent_estimated_hours, 
+                           parents.estimated_hours AS parent_estimated_hours,
                            COALESCE(issues.remaining_hours, 0) AS remaining_hours,
                            COALESCE(issues.estimated_hours, 0) AS estimated_hours,
                            COALESCE(issues.estimated_hours, 0) AS left_hours,
@@ -133,15 +133,15 @@ module RS
                            :conditions => [ @conditions, @condition_vars ],
                            :group => 'issues.id',
                            :order => 'parents.position ASC, issues.parent_id ASC, issues.id ASC')
-      @sum_estimated_hours = @issues.sum(&:estimated_hours) 
+      @sum_estimated_hours = @issues.sum(&:estimated_hours)
       @sum_spent_hours = @issues.map(&:spent_time).compact.map(&:to_f).sum
     end
 
     def default_conditions
-      @conditions = "issues.project_id = :project_id 
+      @conditions = "issues.project_id = :project_id
                   AND issues.tracker_id = :tracker_id"
                   #AND versions.status != 'closed'"
-      @condition_vars = { 
+      @condition_vars = {
         :project_id => @project.id,
         :tracker_id => RbTask.tracker
       }
@@ -151,11 +151,19 @@ module RS
       sprint_start = @version.try(:sprint_start_date) || Date.today
       sprint_end = @version.try(:effective_date) || Date.today
 
-      @days = (sprint_start..sprint_end).to_a
+      days = (sprint_start..sprint_end).to_a
       @issues.map(&:time_entries).flatten.map(&:spent_on).each do |day|
-        @days << day unless @days.include?(day)
+        days << day unless days.include?(day)
       end
-      @days = @days.sort
+      days = days.sort
+
+      # Use the Secretary lib from RedmineMultiCalendar if enabled
+      @days = if Setting.plugin_redmine_scrum['use_secretary']
+                  Secretary.ask(:interval, @from, @to, :day_type =>Setting.plugin_redmine_scrum['workday_name']).
+                            keys.map(&:to_date).sort rescue days
+              else
+                days
+              end
     end
 
   end

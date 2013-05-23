@@ -18,7 +18,7 @@ module RS
       @data[:ideal_line] = []
       @data[:remain_line] = []
       @data[:issue_ids] = []
-      @data[:days] = @days.to_a.map(&:to_s)
+      @data[:days] = @days.map(&:to_s)
       @data[:rows] = []
       set_ideal_line
       parents = []
@@ -34,7 +34,7 @@ module RS
           parent_row[:status] = "#{@parent.status}"
           parent_row[:category] = "#{@parent.category}"
           parent_row[:cells] = []
-          @days.to_a.each_with_index do |day, idx| 
+          @days.each_with_index do |day, idx| 
            parent_row[:cells] << {
               :day => day.to_s,
               :issue_id => @parent.id
@@ -71,7 +71,7 @@ module RS
 
     def set_cells(issue)
       cells = []
-      @days.to_a.each_with_index do |day, idx|
+      @days.each_with_index do |day, idx|
         cell = {}
 
         issue_entries = issue.time_entries.select{ |te| te.spent_on == day }.sort_by(&:updated_on)
@@ -97,8 +97,8 @@ module RS
     end
 
     def set_ideal_line
-      rate = (@days.to_a.size > 1) ? @sum_estimated_hours / (@days.to_a.size - 1) : 0
-      @days.to_a.each_with_index do |day, idx|
+      rate = (@days.size > 1) ? @sum_estimated_hours / (@days.size - 1) : 0
+      @days.each_with_index do |day, idx|
         @data[:ideal_line] << [ day.to_s, (@sum_estimated_hours - idx * rate) ]
         @data[:remain_line] << [ day.to_s, (@sum_estimated_hours - idx * rate) ]
       end
@@ -148,49 +148,14 @@ module RS
     end
 
     def set_up_day_range
-      first_time_entry = @issues.map(&:first_time_entry).compact.min
-      last_time_entry = @issues.map(&:last_time_entry).compact.max
-      first_time_entry = Date.parse(first_time_entry) if first_time_entry
-      last_time_entry = Date.parse(last_time_entry) if last_time_entry
+      sprint_start = @version.try(:sprint_start_date) || Date.today
+      sprint_end = @version.try(:effective_date) || Date.today
 
-      from = []
-      to = []
-
-      unless @version 
-        sprint_start = @project.versions.open.map(&:sprint_start_date).compact.min
-        sprint_end = @project.versions.open.map(&:effective_date).compact.max
-
-        from << first_time_entry if first_time_entry
-        from << sprint_start if sprint_start
-        @from = from.min
-        unless @from.present?
-          from << @project.versions.min_by(&:created_on).created_on.to_date if @project.versions.min_by(&:created_on).present?
-          @from = from.min || Date.today
-        end
-
-        to << last_time_entry if last_time_entry
-        to << sprint_end if sprint_end
-        @to = to.max
-        unless @to.present?
-          to << @project.versions.max_by(&:created_on).created_on.to_date if @project.versions.max_by(&:created_on).present?
-          @to = to.max || Date.today
-        end
-      else
-        sprint_start = @version.try(:sprint_start_date)
-        sprint_end = @version.try(:effective_date)
-
-        from << first_time_entry if first_time_entry
-        from << sprint_start if sprint_start.present?
-        @from = from.min
-        @from = [ @version.try(:created_on).to_date, Date.today ].min unless @from.present? unless @from.present?
-
-        to << last_time_entry if last_time_entry
-        to << sprint_end if sprint_end.present?
-        @to = to.max
-        @to = [ @version.try(:created_on).to_date, Date.today].max unless @to.present?
-       end
-
-      @days = (@from..@to)
+      @days = (sprint_start..sprint_end).to_a
+      @issues.map(&:time_entries).flatten.map(&:spent_on).each do |day|
+        @days << day unless @days.include?(day)
+      end
+      @days = @days.sort
     end
 
   end

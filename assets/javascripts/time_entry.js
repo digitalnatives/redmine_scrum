@@ -60,7 +60,6 @@ function TimeEntry(data) {
     self.userId(data.userId);
     self.userName(data.userName);
     self.comments(data.comments);
-    self.id(data.id);
     self.saved = true;
   }
 
@@ -95,6 +94,7 @@ function TimeEntry(data) {
       data: jsonData,
       success: function(data) {
         self.saveOk(data);
+        self.id(data.id);
         viewModel.selectedEntry(self);
       },
       error: function(data, textStatus, error) {
@@ -134,8 +134,15 @@ function TimeEntry(data) {
       })
       .done(function(data) {
         self.saveOk(data);
-        var index = $.inArray(self, viewModel.entries);
+        var index = $.inArray(self, viewModel.entries());
         viewModel.entries.splice(index, 1);
+        // This is a mystery...
+        viewModel.selectedCell().timeEntryCount( viewModel.selectedCell().timeEntryCount() - 2 );
+        if(viewModel.selectedCell().timeEntryCount() == 0) {
+          self.close();
+        } else {
+          viewModel.selectedEntry(viewModel.entries()[ index - 1 ])
+        }
       })
       .fail(function(data, textStatus, error) {
         $.parseJSON(data.responseText).errors.each(function(element) {

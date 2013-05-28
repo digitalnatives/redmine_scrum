@@ -36,18 +36,18 @@ class ScrumReportTimeEntriesController < ApplicationController
     issue.time_entries.each do |te| 
       next unless te.spent_on == Date.parse(params[:day])
       @entries << {
-      :id => te.id,
-      :issueId => te.issue_id,
-      :day => te.spent_on,
-      :spent => te.hours,
-      :left => te.te_remaining_hours,
-      :activityId => te.activity_id,
-      :activity => te.activity.to_s,
-      :userId => te.user_id,
-      :userName => te.user.to_s,
-      :assigneeId => issue.assigned_to_id,
-      :comments => te.comments
-    }
+        :id => te.id,
+        :issueId => te.issue_id,
+        :day => te.spent_on,
+        :spent => te.hours,
+        :left => te.te_remaining_hours,
+        :activityId => te.activity_id,
+        :activity => te.activity.to_s,
+        :userId => te.user_id,
+        :userName => te.user.to_s,
+        :assigneeId => issue.assigned_to_id,
+        :comments => te.comments
+      }
     end
     render :json => { :entries => @entries.to_json }
   end

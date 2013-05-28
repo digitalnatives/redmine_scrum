@@ -58,7 +58,7 @@
           </tr>
       </thead>
       <tbody data-bind="foreach: $root.entries">
-        <tr>
+        <tr data-bind="visible: id">
           <td>
             <span data-bind="text: userName"></span>
             <br>

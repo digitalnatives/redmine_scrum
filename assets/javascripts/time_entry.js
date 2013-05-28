@@ -61,7 +61,6 @@ function TimeEntry(data) {
     self.userName(data.userName);
     self.comments(data.comments);
     self.id(data.id);
-    viewModel.selectedEntry(self);
     self.saved = true;
   }
 
@@ -96,6 +95,7 @@ function TimeEntry(data) {
       data: jsonData,
       success: function(data) {
         self.saveOk(data);
+        viewModel.selectedEntry(self);
       },
       error: function(data, textStatus, error) {
         $.parseJSON(data.responseText).errors.each(function(element) {
@@ -122,6 +122,34 @@ function TimeEntry(data) {
     })
     viewModel.entries.push(newEntry);
     viewModel.selectedEntry(newEntry);
+  }
+
+  self.destroy = function() {
+    if(self.id() > 0) {
+      $('.rsindicator').addClass('rssaving');
+      $.ajax({
+        type: "delete",
+        url: "/scrum_report_time_entries/" + self.id(),
+        data: { id: self.id }
+      })
+      .done(function(data) {
+        self.saveOk(data);
+        var index = $.inArray(self, viewModel.entries);
+        viewModel.entries.splice(index, 1);
+      })
+      .fail(function(data, textStatus, error) {
+        $.parseJSON(data.responseText).errors.each(function(element) {
+          self.errors.push({ id: element[0], name: element[1] })
+        });
+        console.log(data);
+      })
+      .always(function() {
+        $('.rsindicator').removeClass('rssaving');
+      });
+    } else {
+      var index = $.inArray(self, viewModel.entries);
+      viewModel.entries.splice(index, 1);
+    }
   }
 }
 

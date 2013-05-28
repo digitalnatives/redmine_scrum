@@ -52,6 +52,18 @@ class ScrumReportTimeEntriesController < ApplicationController
     render :json => { :entries => @entries.to_json }
   end
 
+  def destroy
+    @time_entry = TimeEntry.find(params[:id])
+
+    if @time_entry.editable_by?(User.current) && @time_entry.destroy
+      render :json => cell_values
+    else
+      render :json => {
+        :errors => @time_entry.errors,
+      }, :status => :unprocessable_entity
+    end
+  end
+
   private
 
   def update_issue(issue)

@@ -58,7 +58,7 @@
           </tr>
       </thead>
       <tbody data-bind="foreach: $root.entries">
-        <tr data-bind="click: $root.editEntry">
+        <tr>
           <td>
             <span data-bind="text: userName"></span>
             <br>
@@ -66,6 +66,8 @@
           </td>
           <td data-bind="text: spent"></td>
           <td data-bind="text: left"></td>
+          <td data-bind="click: $root.editEntry">Edit</td>
+          <td data-bind="click: destroy">Destroy</td>
         </tr>
       </tbody>
     </table>

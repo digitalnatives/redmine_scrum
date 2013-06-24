@@ -101,8 +101,8 @@ module RS
     end
 
     def set_ideal_line
-      sprint_cells = (@data[:sprint_start]..@data[:sprint_end]).to_a
-      rate = (sprint_cells.size > 1) ? @sum_estimated_hours / (sprint_cells.size - 1) : 0
+      sprint_cells = @data[:sprint_end] - @data[:sprint_start]
+      rate = (sprint_cells > 1) ? @sum_estimated_hours / (sprint_cells - 1) : 0
       @days.each_with_index do |day, idx|
         value = if idx < @data[:sprint_start]
           @sum_estimated_hours

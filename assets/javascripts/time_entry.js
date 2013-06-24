@@ -361,21 +361,32 @@ function DailyTotalRow(rows, days) {
   self.days = days
 
   self.calcLeftLine = function() {
-  }
-
-  self.updateChart = function() {
     ko.utils.arrayForEach(self.cells(), function(cell) {
       window.bdChart.series[1].data[cell.index][1] = cell.left();
     })
-    var rate = (self.days.length > 1) ? self.estimated() / (self.days.length - 1) : 0
-    var sprint_cells = [];
-    for(var i = data.sprint_start; i <= data.sprint_end; i++) {
-      sprint_cells.push(i);
+  }
+
+  self.calcIdealLine = function() {
+    var sprint_length = data.sprint_end - data.sprint_start;
+    var rate = (sprint_length > 1) ? self.estimated() / (sprint_length - 1) : 0;
+
+    for(var i = 0; i < self.cells().length; i++) {
+      var cell = self.cells()[i],
+          value = 0;
+
+      if(i < data.sprint_start) {
+       value = self.estimated();
+      }
+      else if(data.sprint_start <= i && i <= data.sprint_end) {
+        value = self.estimated() - (i - data.sprint_start) * rate;
+      }
+      window.bdChart.series[0].data[cell.index][1] = value;
     }
-    for(var i = 0; i <= self.cells().length; i++) {
-      cell = self.cells()[i];
-      window.bdChart.series[0].data[cell.index][1] = self.estimated() - cell.index * rate;
-    }
+  }
+
+  self.updateChart = function() {
+    self.calcLeftLine();
+    self.calcIdealLine();
     window.bdChart.replot({ resetAxes: [ 'yaxis' ], axes: { yaxis: { min: 0, max: self.estimated() } } });
   }
 

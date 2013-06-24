@@ -101,20 +101,9 @@ module RS
     end
 
     def set_ideal_line
-      sprint_cells = @data[:sprint_end] - @data[:sprint_start]
-      rate = (sprint_cells > 1) ? @sum_estimated_hours / (sprint_cells - 1) : 0
       @days.each_with_index do |day, idx|
-        value = if idx < @data[:sprint_start]
-          @sum_estimated_hours
-        elsif idx > @data[:sprint_end]
-          0
-        else
-          calc_idx = idx - @data[:sprint_start]
-          @sum_estimated_hours - calc_idx * rate
-        end
-
-        @data[:ideal_line] << [ day.to_s, value ]
-        @data[:remain_line] << [ day.to_s, value ]
+        @data[:ideal_line] << [ day.to_s, 0 ]
+        @data[:remain_line] << [ day.to_s, 0 ]
       end
     end
 

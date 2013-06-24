@@ -410,7 +410,7 @@ function DailyTotalRow(rows, days) {
     ko.utils.arrayForEach(rows(), function(row){
       if(row.isStory) sum += Number(row.left());
     })
-    self.updateChart();
+    //self.updateChart();
     self.setTableRowsHeight();
     return sum;
   }).extend({ throttle: 1 });

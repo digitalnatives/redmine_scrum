@@ -9,6 +9,7 @@ module RS
       run_query
       set_up_day_range
       set_data_matrix
+      set_ideal_line
     end
 
     private
@@ -20,7 +21,6 @@ module RS
       @data[:issue_ids] = []
       @data[:days] = @days.map(&:to_s)
       @data[:rows] = []
-      set_ideal_line
       parents = []
       @issues.each do |issue|
         if issue.parent_id.present? && !parents.include?(issue.parent_id)
@@ -34,7 +34,7 @@ module RS
           parent_row[:status] = "#{@parent.status}"
           parent_row[:category] = "#{@parent.category}"
           parent_row[:cells] = []
-          @days.each_with_index do |day, idx| 
+          @days.each_with_index do |day, idx|
            parent_row[:cells] << {
               :day => day.to_s,
               :issue_id => @parent.id
@@ -67,6 +67,10 @@ module RS
       @data[:categories] = @project.issue_categories.map{ |c| { :name => c.name, :id => c.id } }
       @data[:issue_statuses] = IssueStatus.all.map{ |s| { :name => s.to_s, :id => s.id } }
       @data[:sum_estimated_hours] = @sum_estimated_hours
+      @days.each_with_index do |day, idx|
+        @data[:sprint_start] = idx if day == @sprint_start
+        @data[:sprint_end] = idx if day == @sprint_end
+      end
     end
 
     def set_cells(issue)
@@ -97,10 +101,20 @@ module RS
     end
 
     def set_ideal_line
-      rate = (@days.size > 1) ? @sum_estimated_hours / (@days.size - 1) : 0
+      sprint_cells = (@data[:sprint_start]..@data[:sprint_end]).to_a
+      rate = (sprint_cells.size > 1) ? @sum_estimated_hours / (sprint_cells.size - 1) : 0
       @days.each_with_index do |day, idx|
-        @data[:ideal_line] << [ day.to_s, (@sum_estimated_hours - idx * rate) ]
-        @data[:remain_line] << [ day.to_s, (@sum_estimated_hours - idx * rate) ]
+        value = if idx < @data[:sprint_start]
+          @sum_estimated_hours
+        elsif idx > @data[:sprint_end]
+          0
+        else
+          calc_idx = idx - @data[:sprint_start]
+          @sum_estimated_hours - calc_idx * rate
+        end
+
+        @data[:ideal_line] << [ day.to_s, value ]
+        @data[:remain_line] << [ day.to_s, value ]
       end
     end
 
@@ -148,10 +162,10 @@ module RS
     end
 
     def set_up_day_range
-      sprint_start = @version.try(:sprint_start_date) || Date.today
-      sprint_end = @version.try(:effective_date) || Date.today
+      @sprint_start = @version.try(:sprint_start_date) || Date.today
+      @sprint_end = @version.try(:effective_date) || Date.today
 
-      days = (sprint_start..sprint_end).to_a
+      days = (@sprint_start..@sprint_end).to_a
       @issues.map(&:time_entries).flatten.map(&:spent_on).each do |day|
         days << day unless days.include?(day)
       end

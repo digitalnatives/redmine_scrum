@@ -125,6 +125,7 @@ function TimeEntry(data) {
   }
 
   self.destroy = function() {
+    if(!confirm("Are you sure?")) return;
     if(self.id() > 0) {
       $('.rsindicator').addClass('rssaving');
       $.ajax({

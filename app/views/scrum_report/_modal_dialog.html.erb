@@ -49,7 +49,7 @@
     <div class="rsindicator"> </div>
   </div>
   <div class="dialog-left">
-    <table>
+    <table id="user-entries">
       <thead>
         <tr>
           <th>User / Acitvity</th>
@@ -66,8 +66,8 @@
           </td>
           <td data-bind="text: spent"></td>
           <td data-bind="text: left"></td>
-          <td data-bind="click: $root.editEntry">Edit</td>
-          <td data-bind="click: destroy">Destroy</td>
+          <td data-bind="click: $root.editEntry"><a href="#">Edit</a></td>
+          <td data-bind="click: destroy"><a href="#"><img src="/images/delete.png?1354519224" alt="Delete"></td>
         </tr>
       </tbody>
     </table>

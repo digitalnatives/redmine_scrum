@@ -141,7 +141,7 @@ function TimeEntry(data) {
         if(viewModel.selectedCell().timeEntryCount() == 0) {
           self.close();
         } else {
-          viewModel.selectedEntry(viewModel.entries()[ index - 1 ])
+          viewModel.selectedEntry(viewModel.entries()[0])
         }
       })
       .fail(function(data, textStatus, error) {

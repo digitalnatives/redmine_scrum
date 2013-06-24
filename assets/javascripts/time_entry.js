@@ -368,7 +368,7 @@ function DailyTotalRow(rows, days) {
 
   self.calcIdealLine = function() {
     var sprint_length = data.sprint_end - data.sprint_start;
-    var rate = (sprint_length > 1) ? self.estimated() / (sprint_length - 1) : 0;
+    var rate = (sprint_length > 1) ? self.estimated() / sprint_length : 0;
 
     for(var i = 0; i < self.cells().length; i++) {
       var cell = self.cells()[i],

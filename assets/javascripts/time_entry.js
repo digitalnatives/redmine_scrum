@@ -368,9 +368,14 @@ function DailyTotalRow(rows, days) {
       window.bdChart.series[1].data[cell.index][1] = cell.left();
     })
     var rate = (self.days.length > 1) ? self.estimated() / (self.days.length - 1) : 0
-    ko.utils.arrayForEach(self.cells(), function(cell) {
+    var sprint_cells = [];
+    for(var i = data.sprint_start; i <= data.sprint_end; i++) {
+      sprint_cells.push(i);
+    }
+    for(var i = 0; i <= self.cells().length; i++) {
+      cell = self.cells()[i];
       window.bdChart.series[0].data[cell.index][1] = self.estimated() - cell.index * rate;
-    })
+    }
     window.bdChart.replot({ resetAxes: [ 'yaxis' ], axes: { yaxis: { min: 0, max: self.estimated() } } });
   }
 
@@ -410,7 +415,7 @@ function DailyTotalRow(rows, days) {
     ko.utils.arrayForEach(rows(), function(row){
       if(row.isStory) sum += Number(row.left());
     })
-    //self.updateChart();
+    self.updateChart();
     self.setTableRowsHeight();
     return sum;
   }).extend({ throttle: 1 });

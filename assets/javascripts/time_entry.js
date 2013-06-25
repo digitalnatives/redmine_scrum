@@ -388,12 +388,7 @@ function DailyTotalRow(rows, days) {
   self.updateChart = function() {
     self.calcLeftLine();
     self.calcIdealLine();
-  }
-
-
-  self.updateChart = function() {
-    self.calcLeftLine();
-    self.calcIdealLine();
+    window.bdChart.replot({ resetAxes: [ 'yaxis' ], axes: { yaxis: { min: 0, max: self.estimated() } } });
   }
 
   self.setTableRowsHeight = function() {

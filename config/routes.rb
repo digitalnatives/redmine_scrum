@@ -11,10 +11,8 @@ if Rails::VERSION::MAJOR < 3
 else
 
   RedmineApp::Application.routes.draw do
+    resources :scrum_report_time_entries
     get  '/scrum_report/:project_id' => 'scrum_report#index'
-    get  '/scrum_report_time_entries/:time_entry' => 'scrum_report_time_entries#show'
-    put  '/scrum_report_time_entries/:time_entry' => 'scrum_report_time_entries#update'
-    post '/scrum_report_time_entries'             => 'scrum_report_time_entries#create'
   end
 
 end

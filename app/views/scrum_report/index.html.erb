@@ -6,7 +6,7 @@
   <%= javascript_include_tag 'jquery/jquery.jqplot/plugins/jqplot.dateAxisRenderer.min.js', :plugin => 'redmine_backlogs' %>
   <%= javascript_include_tag 'jquery/jquery.jqplot/plugins/jqplot.cursor.min.js', :plugin => 'redmine_backlogs' %>
   <%= javascript_include_tag 'time_entry', :plugin => :redmine_scrum %>
-  <% javascript_tag do %>
+  <%= javascript_tag do %>
     var data = <%= @report.data.to_json.html_safe %>
   <% end %>
 <% end %>
@@ -16,7 +16,7 @@
 
 <%= render "modal_dialog" %>
 
-<% form_tag({:controller => 'scrum_report', :action => 'index', :project_id => @project},:method => :get, :id => 'query_form') do %>
+<%= form_tag({:controller => 'scrum_report', :action => 'index', :project_id => @project},:method => :get, :id => 'query_form') do %>
   <p>
     <label for='version_id'><%= l('redmine_scrum.label_sprint') %></label>:
     <% if @versions.present? %>
@@ -34,7 +34,7 @@
     <input id="filter-status" type="text" data-bind="value: filterSubject, valueUpdate: 'keyup'">
   </p>
 <% end %>
-<% form_tag({}) do -%>
+<%= form_tag({}) do -%>
 
 <div id="ko-report">
 <div class="ko-report-block">

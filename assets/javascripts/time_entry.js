@@ -98,10 +98,10 @@ function TimeEntry(data) {
         viewModel.selectedEntry(self);
       },
       error: function(data, textStatus, error) {
-        $.parseJSON(data.responseText).errors.each(function(element) {
-          self.errors.push({ id: element[0], name: element[1] })
-        });
-        console.log(data);
+        var obj = $.parseJSON(data.responseText).errors;
+        for (e in obj){
+          self.errors.push({ id: e, name: obj[e] })
+        }
       }
     })
     .always(function() {
@@ -264,7 +264,7 @@ function Row(data, assignee) {
   })
 
   self.left = ko.computed(function() {
-    return self.cells().last().left();
+    return $(self.cells()).last()[0].left();
   })
 
   self.estimated = ko.computed(function() {
@@ -387,7 +387,8 @@ function DailyTotalRow(rows, days) {
   self.updateChart = function() {
     self.calcLeftLine();
     self.calcIdealLine();
-    window.bdChart.replot({ resetAxes: [ 'yaxis' ], axes: { yaxis: { min: 0, max: self.estimated() } } });
+    //window.bdChart.replot({ resetAxes: [ 'yaxis' ], axes: { yaxis: { min: 0, max: self.estimated() } } });
+    window.bdChart.replot({ resetAxes: true });
   }
 
   self.setTableRowsHeight = function() {
@@ -636,7 +637,7 @@ if(jQuery('.today').first().offset()) {
 } else {
   var leftPosition = 0
 }
-jQuery('#ko-body-right').animate({scrollLeft: leftPosition - (jQuery('#ko-body-right').position().left * 1.7)}, 'fast')
+//jQuery('#ko-body-right').animate({scrollLeft: leftPosition - (jQuery('#ko-body-right').position().left * 1.7)}, 'fast')
 
 $("#ko-table-body-right").delegate("td.clickable", "click", function() {
   var context = ko.contextFor(this);

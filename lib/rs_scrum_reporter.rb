@@ -158,15 +158,18 @@ module RS
       @issues.map(&:time_entries).flatten.map(&:spent_on).each do |day|
         days << day unless days.include?(day)
       end
-      days = days.sort
+      days = days.uniq.sort
 
       # Use the Secretary lib from RedmineMultiCalendar if enabled
       @days = if Setting.plugin_redmine_scrum['use_secretary']
-                  Secretary.ask(:interval, @from, @to, :day_type =>Setting.plugin_redmine_scrum['workday_name']).
+                  Secretary.ask(:interval, days.first, days.last, :day_type =>Setting.plugin_redmine_scrum['workday_name']).
                             keys.map(&:to_date).sort rescue days
               else
                 days
               end
+
+      # Cleanup secretary returned days which out of sprint intervall and has no time entry logged.
+      @days.reject!{ |day| day if (day < @sprint_start || @sprint_end < day) && !days.include?(day) }
     end
 
   end

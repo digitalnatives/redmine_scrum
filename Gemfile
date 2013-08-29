@@ -1,4 +1,4 @@
-source :rubygems
+source 'https://rubygems.org'
 
 group :development do
   if RUBY_VERSION =~ /^1\.9\.3/

@@ -135,7 +135,7 @@ module RS
                            :include => [ :status, :assigned_to, :tracker, :category ],
                            :conditions => [ @conditions, @condition_vars ],
                            :group => 'issues.id',
-                           :order => 'parents.position ASC, issues.parent_id ASC, issues.id ASC')
+                           :order => 'parents.position ASC, issues.parent_id ASC, issues.position ASC')
       @sum_estimated_hours = @issues.sum(&:estimated_hours)
       @sum_spent_hours = @issues.map(&:spent_time).compact.map(&:to_f).sum
     end

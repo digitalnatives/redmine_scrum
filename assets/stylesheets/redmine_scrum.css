@@ -260,6 +260,14 @@ table.list select {
   height: 46px;
 }
 
+th.spent-remain-total {
+  width: 73px;
+}
+
+th.spent-remain-total span{
+  padding: 0 122px;
+}
+
 /* preventing right click context menu hide issue */
 tr.context-menu-selection, tr.context-menu-selection:hover {
   color: #484848 !important;

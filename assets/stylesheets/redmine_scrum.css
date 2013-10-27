@@ -265,7 +265,7 @@ th.spent-remain-total {
 }
 
 th.spent-remain-total span{
-  padding: 0 122px;
+  padding: 0 12px;
 }
 
 /* preventing right click context menu hide issue */

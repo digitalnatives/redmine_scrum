@@ -98,9 +98,11 @@ function TimeEntry(data) {
         viewModel.selectedEntry(self);
       },
       error: function(data, textStatus, error) {
-        $.parseJSON(data.responseText).errors.each(function(element) {
-          self.errors.push({ id: element[0], name: element[1] })
-        });
+        console.log(data.responseText);
+        var obj = $.parseJSON(data.responseText).errors;
+        for (e in obj){
+          self.errors.push({ id: e, name: obj[e] })
+        }
         console.log(data);
       }
     })
@@ -264,7 +266,7 @@ function Row(data, assignee) {
   })
 
   self.left = ko.computed(function() {
-    return self.cells().last().left();
+    return $(self.cells()).last()[0].left();
   })
 
   self.estimated = ko.computed(function() {
@@ -367,18 +369,17 @@ function DailyTotalRow(rows, days) {
   }
 
   self.calcIdealLine = function() {
-    var sprint_length = data.sprint_end - data.sprint_start;
+    var sprint_length = rs_data.sprint_end - rs_data.sprint_start;
     var rate = (sprint_length > 1) ? self.estimated() / sprint_length : 0;
-
     for(var i = 0; i < self.cells().length; i++) {
       var cell = self.cells()[i],
           value = 0;
 
-      if(i < data.sprint_start) {
+      if(i < rs_data.sprint_start) {
        value = self.estimated();
       }
-      else if(data.sprint_start <= i && i <= data.sprint_end) {
-        value = self.estimated() - (i - data.sprint_start) * rate;
+      else if(rs_data.sprint_start <= i && i <= rs_data.sprint_end) {
+        value = self.estimated() - (i - rs_data.sprint_start) * rate;
       }
       window.bdChart.series[0].data[cell.index][1] = value;
     }
@@ -567,14 +568,14 @@ ko.bindingHandlers.jqButton = {
   }
 };
 
-window.bdChart = jQuery.jqplot('burndown', [data.ideal_line, data.remain_line], {
+window.bdChart = jQuery.jqplot('burndown', [rs_data.ideal_line, rs_data.remain_line], {
   title:'Burndown Chart',
     axes:{
       xaxis:{
         label: "Days",
         renderer:$.jqplot.DateAxisRenderer,
         tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-        ticks: data.days,
+        ticks: rs_data.days,
         tickOptions:{
           angle: -70,
           formatString:'%b %#d'
@@ -583,7 +584,7 @@ window.bdChart = jQuery.jqplot('burndown', [data.ideal_line, data.remain_line], 
       yaxis:{
         label: "Remaining",
         min: 0,
-        max: data.sum_estimated_hours,
+        max: rs_data.sum_estimated_hours,
         tickOptions:{
          formatString:'%.2f'
         }
@@ -598,7 +599,7 @@ window.bdChart = jQuery.jqplot('burndown', [data.ideal_line, data.remain_line], 
     }
   });
 
-window.viewModel = new ViewModel(data);
+window.viewModel = new ViewModel(rs_data);
 
 var storyRow;
 $.each(viewModel.rows(), function(index, row) {
@@ -646,5 +647,5 @@ $("#ko-table-body-right").delegate("td.clickable", "click", function() {
 });
 
 // cleanup
-//window.data = null;
+//window.rs_data = null;
 })

@@ -16,7 +16,7 @@ Redmine::Plugin.register :redmine_scrum do
   version '0.4.0'
   url 'https://github.com/digitalnatives/redmine_scrum'
   author_url 'http://digitalnatives.hu'
-  requires_redmine_plugin :redmine_backlogs, :version_or_higher => '0.9.26'
+  #requires_redmine_plugin :redmine_backlogs, :version_or_higher => '0.9.26'
 
   project_module :backlogs do
     permission :access_scrum_report, :scrum_report => :index

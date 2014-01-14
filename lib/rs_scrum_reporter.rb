@@ -15,35 +15,22 @@ module RS
     private
 
     def set_data_matrix
+      @bugs_story_id = 0
       @data = {}
       @data[:ideal_line] = []
       @data[:remain_line] = []
       @data[:issue_ids] = []
       @data[:days] = @days.map(&:to_s)
       @data[:rows] = []
-      parents = []
+      @parents = []
       @issues.each do |issue|
-        if issue.parent_id.present? && !parents.include?(issue.parent_id)
-          parent_row = {}
+        if issue.parent_id.present? && !@parents.include?(issue.parent_id)
           @parent = Issue.find(issue.parent_id)
-          parent_row[:is_story] = true
-          parent_row[:story_id] = @parent.id
-          parent_row[:assignee] = "#{@parent.assigned_to}"
-          parent_row[:story_subject] = @parent.subject
-          parent_row[:estimated] = @parent.estimated_hours
-          parent_row[:status] = "#{@parent.status}"
-          parent_row[:category] = "#{@parent.category}"
-          parent_row[:cells] = []
-          @days.each_with_index do |day, idx|
-           parent_row[:cells] << {
-              :day => day.to_s,
-              :issue_id => @parent.id
-            }
-          end
+          set_story_row
+        end
 
-          # A story -t is hozzá adjuk az issues tömbhöz
-          @data[:rows] << parent_row
-          parents << @parent.id
+        if issue.parent_id.blank? && !@parents.include?(@bugs_story_id)
+          set_bugs_story_row
         end
 
         row = {
@@ -73,6 +60,48 @@ module RS
       end
     end
 
+    def set_story_row
+      parent_row = {}
+      parent_row[:is_story] = true
+      parent_row[:story_id] = @parent.id
+      parent_row[:assignee] = "#{@parent.assigned_to}"
+      parent_row[:story_subject] = @parent.subject
+      parent_row[:estimated] = @parent.estimated_hours
+      parent_row[:status] = "#{@parent.status}"
+      parent_row[:category] = "#{@parent.category}"
+      parent_row[:cells] = []
+      @days.each_with_index do |day, idx|
+        parent_row[:cells] << {
+          :day => day.to_s,
+          :issue_id => @parent.id
+        }
+      end
+
+      # A story -t is hozzá adjuk az issues tömbhöz
+      @data[:rows] << parent_row
+      @parents << @parent.id
+    end
+
+    def set_bugs_story_row
+      parent_row = {}
+      parent_row[:is_story] = true
+      parent_row[:story_id] = @bugs_story_id
+      parent_row[:assignee] = "Bug Fixer"
+      parent_row[:story_subject] =  "Bugs"
+      parent_row[:estimated] = 0
+      parent_row[:status] = "Status"
+      parent_row[:category] = "Bug"
+      parent_row[:cells] = []
+      @days.each_with_index do |day, idx|
+        parent_row[:cells] << {
+          :day => day.to_s,
+          :issue_id => @bugs_story_id
+        }
+      end
+      @data[:rows] << parent_row
+      @parents << @bugs_story_id
+    end
+
     def set_cells(issue)
       cells = []
       @days.each_with_index do |day, idx|
@@ -92,7 +121,7 @@ module RS
         cell[:time_entry_count] = issue_entries.size || 0
         cell[:assignee_te] = issue_entries.find{ |te| te.user_id == issue.assigned_to_id }
         cell[:assignee_id] = issue.assigned_to_id
-        cell[:story_id] = issue.parent_id
+        cell[:story_id] = issue.parent_id || @bugs_story_id
         cell[:subject] = issue.subject
         cell[:day] = day.to_s
         cells << cell
@@ -130,7 +159,7 @@ module RS
                            sum(time_entries.hours) AS spent_time,
                            min(time_entries.spent_on) AS first_time_entry,
                            max(time_entries.spent_on) AS last_time_entry",
-                           :joins => "INNER JOIN issues parents ON issues.parent_id = parents.id
+                           :joins => "LEFT JOIN issues parents ON issues.parent_id = parents.id
                            LEFT JOIN time_entries ON (time_entries.issue_id = issues.id)",# LEFT JOIN versions ON issues.fixed_version_id = versions.id",
                            :include => [ :status, :assigned_to, :tracker, :category ],
                            :conditions => [ @conditions, @condition_vars ],
@@ -142,11 +171,11 @@ module RS
 
     def default_conditions
       @conditions = "issues.project_id = :project_id
-                  AND issues.tracker_id = :tracker_id"
+                  AND issues.tracker_id IN (:tracker_id)"
                   #AND versions.status != 'closed'"
       @condition_vars = {
         :project_id => @project.id,
-        :tracker_id => RbTask.tracker
+        :tracker_id => [ RbTask.tracker, Setting.plugin_redmine_scrum['bug_tracker'].to_i ]
       }
     end
 

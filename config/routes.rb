@@ -4,7 +4,7 @@
 if Rails::VERSION::MAJOR < 3
 
   ActionController::Routing::Routes.draw do |map|
-    map.connect  '/scrum_report/:project_id', :controller => 'scrum_report', :action => 'index' 
+    map.connect  '/scrum_report/:project_id', :controller => 'scrum_report', :action => 'index'
     map.resources :scrum_report_time_entries
   end
 

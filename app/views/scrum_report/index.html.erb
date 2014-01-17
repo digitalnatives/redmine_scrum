@@ -3,8 +3,10 @@
   <%= stylesheet_link_tag 'redmine_scrum', :plugin => :redmine_scrum %>
 
   <%= javascript_include_tag 'knockout-2.2.0.js', :plugin => :redmine_scrum %>
+
   <%= javascript_include_tag 'jquery/jquery.jqplot/plugins/jqplot.dateAxisRenderer.min.js', :plugin => 'redmine_backlogs' %>
   <%= javascript_include_tag 'jquery/jquery.jqplot/plugins/jqplot.cursor.min.js', :plugin => 'redmine_backlogs' %>
+
   <%= javascript_include_tag 'time_entry', :plugin => :redmine_scrum %>
   <%= javascript_tag do %>
     var data = <%= @report.data.to_json.html_safe %>
@@ -21,7 +23,7 @@
     <label for='version_id'><%= l('redmine_scrum.label_sprint') %></label>:
     <% if @versions.present? %>
       <% options = ['' ] + @versions.map {|v| ["#{v.name} (#{v.sprint_start_date} - #{v.effective_date})", v.id] } %>
-      <%= select_tag 'version_id', 
+      <%= select_tag 'version_id',
         options_for_select(options, @version.try(:id)), :onchange => "this.form.submit();" %>
   <% end %>
     <label for="filter-assignee"><%= l('redmine_scrum.assignee') %>:</label>
@@ -46,6 +48,11 @@
           <br /><%= l('redmine_scrum.assignee') %> <%= l('redmine_scrum.status') %>
           </th>
           <th><%= l('redmine_scrum.estimated') %></th>
+          <th class="spent-remain-total">
+            <div class="day-title"><%= l('redmine_scrum.total') %></div>
+            <span>&sum;</span>
+            <span>R</span>
+          </th>
         </tr>
       </thead>
       </table>
@@ -62,11 +69,6 @@
             <span>R</span>
           </th>
           <!-- /ko -->
-          <th>
-            <div class="day-title"><%= l('redmine_scrum.total') %></div>
-            <span>&sum;</span>
-            <span>R</span>
-          </th>
         </tr>
       </thead>
     </table>
@@ -82,13 +84,13 @@
                                    byStatus: $root.filterStatus(),
                                    byCategory: $root.filterCategory(),
                                    bySubject: $root.filterSubject() }),
-              css: { subtotal: $data.isStory, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
+              css: { subtotal: $data.isStory, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
           <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
             <div data-bind=", css: { 'task-title': !isStory }">
               <a data-bind="attr: { href: '/issues/' + (issueId || storyId) }, text: formattedSubject()"></a>
             </div>
             <div data-bind="visible: !isStory">
-              <span class="task-assignee" data-bind="text: assigneeName"></span> || 
+              <span class="task-assignee" data-bind="text: assigneeName"></span> ||
               <span data-bind="visible: !isStory, text: currentStatus"></span>
               </div>
           </td>
@@ -96,11 +98,15 @@
             <span data-bind="text: estimated().toFixed(2)"></span>
             <input type="checkbox" name="ids[]", data-bind="value: issueId" style="display:none">
           </th>
+          <th data-bind="text: spent().toFixed(2)"></th>
+          <th data-bind="text: left().toFixed(2)" class="period-end"></th>
         </tr>
         <!-- /ko -->
         <tr class="subtotal">
           <th><%= l('redmine_scrum.total') %></th>
           <th data-bind="text: $root.dailyTotals.estimated"></th>
+          <th data-bind="text: dailyTotals.spent().toFixed(2)"></th>
+          <th data-bind="text: dailyTotals.left().toFixed(2)" class="period-end"></th>
         </tr>
       </tbody>
     </table>
@@ -114,7 +120,7 @@
                                byStatus: $root.filterStatus(),
                                byCategory: $root.filterCategory(),
                                bySubject: $root.filterSubject() }),
-          css: { 'no-time-entry': !isStory, subtotal: isStory, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }"> 
+          css: { 'no-time-entry': !isStory, subtotal: isStory, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
           <!-- ko foreach: $data.cells -->
               <td data-bind="text: spent().toFixed(2),
                 css:{ 'time-entry': !$parent.isStory && !!timeEntryCount() ,
@@ -129,8 +135,6 @@
                       'today': $root.isToday(day),
                       'selected': !$parent.isStory && $root.selectedCell() == $data }" class="period-end"></td>
           <!-- /ko -->
-          <th data-bind="text: spent().toFixed(2)"></th>
-          <th data-bind="text: left().toFixed(2)" class="period-end"></th>
         </tr>
         <!-- /ko -->
         <tr class="subtotal">
@@ -138,8 +142,6 @@
           <th data-bind="text: spent().toFixed(2), css: {'today': $root.isToday(day) }"></th>
           <th data-bind="text: left().toFixed(2), css: {'today': $root.isToday(day) }" class="period-end"></th>
           <!-- /ko -->
-          <th data-bind="text: dailyTotals.spent().toFixed(2)"></th>
-          <th data-bind="text: dailyTotals.left().toFixed(2)" class="period-end"></th>
         </tr>
       </tbody>
     </table>
@@ -150,12 +152,12 @@
 
 <div style="clear: both;"></div>
 
-<pre data-bind="text: previewJsonData"></pre> 
+<pre data-bind="text: previewJsonData"></pre>
 
 <% other_formats_links do |f| %>
   <%=
     # TODO: Make it work again
-    #f.link_to 'CSV', :url => params 
+    #f.link_to 'CSV', :url => params
   %>
 <% end %>
 

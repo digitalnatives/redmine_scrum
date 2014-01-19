@@ -10,7 +10,7 @@
     </tr>
     <tr>
       <th><%= l('redmine_scrum.bug_tracker') %>:</th>
-      <td> <%= select_tag("settings[bug_tracker]", options_from_collection_for_select(Tracker.all, :id, :name, settings['bug_tracker'])) %>
+      <td> <%= select_tag("settings[bug_tracker]", options_from_collection_for_select(Tracker.all, :id, :name, settings['bug_tracker']), :include_blank => true) %>
     </tr>
   </tbody>
 </table>

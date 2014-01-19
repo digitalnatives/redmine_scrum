@@ -29,9 +29,11 @@ module RS
           set_story_row
         end
 
-        if issue.parent_id.blank? && !@parents.include?(@bugs_story_id)
+        if issue.parent_id.blank? && !@parents.include?(@bugs_story_id) && issue.tracker_id == Setting.plugin_redmine_scrum['bug_tracker'].to_i
           set_bugs_story_row
         end
+
+        next if issue.parent_id.blank? && issue.tracker_id == RbTask.tracker
 
         row = {
           :issue_id => issue.id,

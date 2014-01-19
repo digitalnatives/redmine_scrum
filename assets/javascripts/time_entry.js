@@ -1,4 +1,7 @@
 jQuery(function($) {
+if(window.userAgent =~ /Safari/) {
+  $('body').addClass("safari-scroll-fix")
+}
 
 //----------------------- KNOCKOUT --------------------------------
 function Category(data) {
@@ -645,6 +648,7 @@ $("#ko-table-body-right").delegate("td.clickable", "click", function() {
     context.$root.cellDetails(context.$data);
   }
 });
+
 
 // cleanup
 //window.data = null;

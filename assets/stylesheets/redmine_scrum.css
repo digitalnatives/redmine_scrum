@@ -133,6 +133,10 @@ table.list select {
   max-height: 700px;
 }
 
+.safari-scroll-fix #ko-body-left {
+  max-height: 720px;
+}
+
 #ko-body-right {
   max-height: 720px;
   max-width: 1400px;

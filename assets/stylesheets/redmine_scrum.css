@@ -300,8 +300,11 @@ table.list select {
   width: 263px;
 }
 
+th.user-story-and-assignee-header {
+  width: 263px;
+}
 th.spent-remain-total {
-  width: 73px;
+  width: 70px;
 }
 
 th.spent-remain-total span{
@@ -315,4 +318,13 @@ tr.context-menu-selection, tr.context-menu-selection:hover {
 
 tr.context-menu-selection a, tr.context-menu-selection a:hover {
   color: #005782 !important;
+}
+
+#ko-table-body-left {
+  table-layout: fixed;
+}
+
+#ko-table-body-left th.two-digits-max {
+  width: 31px;
+  overflow: hidden;
 }

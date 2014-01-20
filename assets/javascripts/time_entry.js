@@ -1,6 +1,6 @@
 jQuery(function($) {
-if(window.userAgent =~ /Safari/) {
-  $('body').addClass("safari-scroll-fix")
+if(navigator.platform.indexOf("Mac") != -1) {
+  $('body').addClass("mac-fix")
 }
 
 //----------------------- KNOCKOUT --------------------------------

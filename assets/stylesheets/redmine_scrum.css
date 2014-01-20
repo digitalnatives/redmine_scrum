@@ -133,7 +133,7 @@ table.list select {
   max-height: 700px;
 }
 
-.safari-scroll-fix #ko-body-left {
+.mac-fix #ko-body-left {
   max-height: 720px;
 }
 
@@ -262,6 +262,9 @@ table.list select {
 
 #ko-table-header-left tr {
   height: 46px;
+}
+#ko-table-body-left td.issue-desc {
+  width: 263px;
 }
 
 th.spent-remain-total {

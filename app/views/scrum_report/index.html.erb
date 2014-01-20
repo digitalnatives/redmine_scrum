@@ -85,7 +85,7 @@
                                    byCategory: $root.filterCategory(),
                                    bySubject: $root.filterSubject() }),
               css: { subtotal: $data.isStory, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
-          <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
+          <td data-bind="css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }" class="issue-desc">
             <div data-bind=", css: { 'task-title': !isStory }">
               <a data-bind="attr: { href: '/issues/' + (issueId || storyId) }, text: formattedSubject()"></a>
             </div>

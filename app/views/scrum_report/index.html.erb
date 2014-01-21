@@ -44,7 +44,7 @@
     <table id="ko-table-header-left" class="list">
       <thead>
         <tr>
-          <th><%= l('redmine_scrum.user_story') %>
+          <th class="user-story-and-assignee-header"><%= l('redmine_scrum.user_story') %>
           <br /><%= l('redmine_scrum.assignee') %> <%= l('redmine_scrum.status') %>
           </th>
           <th><%= l('redmine_scrum.estimated') %></th>
@@ -94,19 +94,19 @@
               <span data-bind="visible: !isStory, text: currentStatus"></span>
               </div>
           </td>
-          <th class="estimated" data-bind="attr: { 'data-task-id': issueId }, css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
+          <th class="estimated two-digits-max" data-bind="attr: { 'data-task-id': issueId }, css: { 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
             <span data-bind="text: estimated().toFixed(2)"></span>
             <input type="checkbox" name="ids[]", data-bind="value: issueId" style="display:none">
           </th>
-          <th data-bind="text: spent().toFixed(2)"></th>
-          <th data-bind="text: left().toFixed(2)" class="period-end"></th>
+          <th data-bind="text: spent().toFixed(2)" class="two-digits-max"></th>
+          <th data-bind="text: left().toFixed(2)" class="period-end two-digits-max"></th>
         </tr>
         <!-- /ko -->
         <tr class="subtotal">
           <th><%= l('redmine_scrum.total') %></th>
-          <th data-bind="text: $root.dailyTotals.estimated"></th>
-          <th data-bind="text: dailyTotals.spent().toFixed(2)"></th>
-          <th data-bind="text: dailyTotals.left().toFixed(2)" class="period-end"></th>
+          <th data-bind="text: $root.dailyTotals.estimated" class="two-digits-max"></th>
+          <th data-bind="text: dailyTotals.spent().toFixed(2)" class="two-digits-max"></th>
+          <th data-bind="text: dailyTotals.left().toFixed(2)" class="period-end two-digits-max"></th>
         </tr>
       </tbody>
     </table>

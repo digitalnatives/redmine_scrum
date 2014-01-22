@@ -115,7 +115,7 @@ table.list select {
 
 .ko-left {
   float:left;
-  width: 384px;
+  width: 410px;
 }
 
 .ko-right {
@@ -297,14 +297,14 @@ table.list select {
   height: 46px;
 }
 #ko-table-body-left td.issue-desc {
-  width: 263px;
+  width: 216px;
 }
 
 th.user-story-and-assignee-header {
-  width: 263px;
+  width: 234px;
 }
 th.spent-remain-total {
-  width: 70px;
+  width: 95px;
 }
 
 th.spent-remain-total span{
@@ -324,7 +324,8 @@ tr.context-menu-selection a, tr.context-menu-selection a:hover {
   table-layout: fixed;
 }
 
-#ko-table-body-left th.two-digits-max {
-  width: 31px;
+#ko-table-body-left th.three-digits-max {
+  width: 36px;
   overflow: hidden;
+  text-align: right;
 }

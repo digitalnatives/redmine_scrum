@@ -1,8 +1,4 @@
 jQuery(function($) {
-if(navigator.platform.indexOf("Mac") != -1) {
-  $('body').addClass("mac-fix")
-}
-
 //----------------------- KNOCKOUT --------------------------------
 function Category(data) {
   var self = this;
@@ -648,6 +644,8 @@ $("#ko-table-body-right").delegate("td.clickable", "click", function() {
     context.$root.cellDetails(context.$data);
   }
 });
+
+$('#ko-body-right').niceScroll()
 
 
 // cleanup

@@ -10,8 +10,8 @@ function Category(data) {
 function Assignee(data) {
   var self = this;
 
-  self.id = data.id
-  self.name = data.name
+  self.id = data.id;
+  self.name = data.name;
 }
 
 function IssueStatus(data) {
@@ -19,6 +19,7 @@ function IssueStatus(data) {
 
   self.id = data.id;
   self.name = data.name;
+  self.count = data.count;
 }
 
 function TimeEntry(data) {
@@ -448,6 +449,9 @@ function ViewModel(data) {
       return new Assignee(assignee);
   });
   self.issueStatuses = ko.utils.arrayMap(data.issue_statuses, function(issueStatus) {
+      issueStatus.count = data.rows.filter(function(row) {
+        return row.status_id == issueStatus.id;
+      }).length;
       return new IssueStatus(issueStatus);
   });
   self.categories = ko.utils.arrayMap(data.categories, function(category) {

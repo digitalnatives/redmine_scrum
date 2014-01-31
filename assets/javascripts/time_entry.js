@@ -292,7 +292,7 @@ function Row(data, assignee) {
       return
     }
 
-    if(!filter.byStatus && !filter.byAssignee && !filter.byCategory && !filter.bySubject) {
+    if(!filter.byStatuses.length && !filter.byAssignee && !filter.byCategory && !filter.bySubject) {
       self.visible(true);
       return;
     }
@@ -301,7 +301,7 @@ function Row(data, assignee) {
       self.visible(false);
       return;
     }
-    if(!!filter.byStatus && self.statusId() != filter.byStatus.id) {
+    if(!!filter.byStatuses.length && filter.byStatuses.indexOf(self.statusId().toString()) == -1) {
       self.visible(false);
       return;
     }
@@ -454,7 +454,7 @@ function ViewModel(data) {
       return new Category(category);
   });
   self.filterAssignee = ko.observable();
-  self.filterStatus = ko.observable();
+  self.filterStatuses = ko.observableArray();
   self.filterCategory = ko.observable();
   self.filterSubject = ko.observable().extend({ throttle: 250 });
 

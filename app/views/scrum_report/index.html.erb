@@ -30,11 +30,22 @@
     <label for="filter-assignee"><%= l('redmine_scrum.assignee') %>:</label>
     <select id="filter-assignee" data-bind="options: assignees, optionsText: 'name',  value: filterAssignee, optionsCaption: 'All'"></select>
     <label for="filter-status"><%= l('redmine_scrum.status') %>:</label>
-    <select id="filter-status" data-bind="options: issueStatuses, optionsText: 'name',  value: filterStatus, optionsCaption: 'All'"></select>
-    <label for="filter-status"><%= l('redmine_scrum.category') %>:</label>
-    <select id="filter-status" data-bind="options: categories, optionsText: 'name',  value: filterCategory, optionsCaption: 'All'"></select>
-    <label for="filter-status"><%= l('redmine_scrum.subject') %>:</label>
-    <input id="filter-status" type="text" data-bind="value: filterSubject, valueUpdate: 'keyup'">
+    <div>
+      <p>
+        <input type="checkbox" id="all-statuses" />
+        <span>All</span>
+      </p>
+      <!-- ko foreach: issueStatuses -->
+      <p>
+        <input type="checkbox" data-bind="value: id, checked: $root.filterStatuses" />
+        <span data-bind="text: name"></span>
+      </p>
+      <!-- /ko -->
+    </div>
+    <label for="filter-category"><%= l('redmine_scrum.category') %>:</label>
+    <select id="filter-category" data-bind="options: categories, optionsText: 'name',  value: filterCategory, optionsCaption: 'All'"></select>
+    <label for="filter-subject"><%= l('redmine_scrum.subject') %>:</label>
+    <input id="filter-subject" type="text" data-bind="value: filterSubject, valueUpdate: 'keyup'">
   </p>
 <% end %>
 <%= form_tag({}) do -%>
@@ -82,7 +93,7 @@
         <!-- ko foreach: rows -->
         <tr class="hascontextmenu context-menu-selection" data-bind="attr: { id: 'issue-'+ issueId  },
               visible: isVisible({ byAssignee: $root.filterAssignee(),
-                                   byStatus: $root.filterStatus(),
+                                   byStatuses: $root.filterStatuses(),
                                    byCategory: $root.filterCategory(),
                                    bySubject: $root.filterSubject() }),
               css: { subtotal: $data.isStory, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">
@@ -118,7 +129,7 @@
         <!-- ko foreach: rows -->
         <tr data-bind="attr: { id: 'issue-'+ issueId  },
           visible: isVisible({ byAssignee: $root.filterAssignee(),
-                               byStatus: $root.filterStatus(),
+                               byStatuses: $root.filterStatuses(),
                                byCategory: $root.filterCategory(),
                                bySubject: $root.filterSubject() }),
           css: { 'no-time-entry': !isStory, subtotal: isStory, 'odd': $index() % 2 == 0, 'even': $index() % 2 != 0 }">

@@ -32,7 +32,7 @@
     <label for="filter-status"><%= l('redmine_scrum.status') %>:</label>
     <div>
       <p>
-        <input type="checkbox" id="all-statuses" />
+        <input type="checkbox" id="all-statuses" data-bind="checked: $root.selectAllStatuses" />
         <span>All</span>
       </p>
       <!-- ko foreach: issueStatuses -->

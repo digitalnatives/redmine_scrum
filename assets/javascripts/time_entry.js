@@ -292,7 +292,7 @@ function Row(data, assignee) {
       return
     }
 
-    if(!filter.byStatuses.length && !filter.byAssignee && !filter.byCategory && !filter.bySubject) {
+    if(window.viewModel.selectAllStatuses() && !filter.byAssignee && !filter.byCategory && !filter.bySubject) {
       self.visible(true);
       return;
     }
@@ -301,7 +301,7 @@ function Row(data, assignee) {
       self.visible(false);
       return;
     }
-    if(!!filter.byStatuses.length && filter.byStatuses.indexOf(self.statusId().toString()) == -1) {
+    if(!window.viewModel.selectAllStatuses() && filter.byStatuses.indexOf(self.statusId().toString()) == -1) {
       self.visible(false);
       return;
     }
@@ -454,10 +454,26 @@ function ViewModel(data) {
       return new Category(category);
   });
   self.filterAssignee = ko.observable();
-  self.filterStatuses = ko.observableArray();
+  self.filterStatuses = ko.observableArray(ko.utils.arrayMap(self.issueStatuses, function(issueStatus) {
+      return issueStatus.id.toString();
+  }));
   self.filterCategory = ko.observable();
   self.filterSubject = ko.observable().extend({ throttle: 250 });
-
+  self.selectAllStatuses = ko.computed({
+    read: function() {
+      return self.filterStatuses().length == self.issueStatuses.length;
+    },
+    write: function(value) {
+      if (value) {
+        self.filterStatuses(ko.utils.arrayMap(self.issueStatuses, function(issueStatus) {
+            return issueStatus.id.toString();
+        }));
+      }
+      else {
+        self.filterStatuses([]);
+      }
+    }
+  });
   self.rows = ko.observableArray(
     ko.utils.arrayMap(data.rows, function(row) {
       var assignee = $.grep(self.assignees, function(a) {

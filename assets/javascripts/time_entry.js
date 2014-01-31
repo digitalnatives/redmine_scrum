@@ -5,6 +5,7 @@ function Category(data) {
 
   self.id = data.id
   self.name = data.name
+  self.count = data.count;
 }
 
 function Assignee(data) {
@@ -19,7 +20,6 @@ function IssueStatus(data) {
 
   self.id = data.id;
   self.name = data.name;
-  self.count = data.count;
 }
 
 function TimeEntry(data) {
@@ -293,7 +293,7 @@ function Row(data, assignee) {
       return
     }
 
-    if(window.viewModel.selectAllStatuses() && !filter.byAssignee && !filter.byCategory && !filter.bySubject) {
+    if(!filter.byStatus && !filter.byAssignee && window.viewModel.selectAllCategories() && !filter.bySubject) {
       self.visible(true);
       return;
     }
@@ -302,11 +302,11 @@ function Row(data, assignee) {
       self.visible(false);
       return;
     }
-    if(!window.viewModel.selectAllStatuses() && filter.byStatuses.indexOf(self.statusId().toString()) == -1) {
+    if(!!filter.byStatus && self.statusId() != filter.byStatus.id) {
       self.visible(false);
       return;
     }
-    if(!!filter.byCategory && self.categoryId() != filter.byCategory.id) {
+    if(!window.viewModel.selectAllCategories() && filter.byCategories.indexOf(self.categoryId().toString()) == -1) {
       self.visible(false);
       return;
     }
@@ -449,35 +449,36 @@ function ViewModel(data) {
       return new Assignee(assignee);
   });
   self.issueStatuses = ko.utils.arrayMap(data.issue_statuses, function(issueStatus) {
-      issueStatus.count = data.rows.filter(function(row) {
-        return row.status_id == issueStatus.id;
-      }).length;
       return new IssueStatus(issueStatus);
   });
   self.categories = ko.utils.arrayMap(data.categories, function(category) {
+      category.count = data.rows.filter(function(row) {
+        return row.category_id == category.id;
+      }).length;
       return new Category(category);
   });
   self.filterAssignee = ko.observable();
-  self.filterStatuses = ko.observableArray(ko.utils.arrayMap(self.issueStatuses, function(issueStatus) {
-      return issueStatus.id.toString();
+  self.filterStatus = ko.observable();
+  self.filterCategories = ko.observableArray(ko.utils.arrayMap(self.categories, function(issueCategory) {
+      return issueCategory.id.toString();
   }));
-  self.filterCategory = ko.observable();
-  self.filterSubject = ko.observable().extend({ throttle: 250 });
-  self.selectAllStatuses = ko.computed({
+  self.selectAllCategories = ko.computed({
     read: function() {
-      return self.filterStatuses().length == self.issueStatuses.length;
+      return self.filterCategories().length == self.categories.length;
     },
     write: function(value) {
       if (value) {
-        self.filterStatuses(ko.utils.arrayMap(self.issueStatuses, function(issueStatus) {
-            return issueStatus.id.toString();
+        self.filterCategories(ko.utils.arrayMap(self.categories, function(category) {
+            return category.id.toString();
         }));
       }
       else {
-        self.filterStatuses([]);
+        self.filterCategories([]);
       }
     }
   });
+  self.filterSubject = ko.observable().extend({ throttle: 250 });
+
   self.rows = ko.observableArray(
     ko.utils.arrayMap(data.rows, function(row) {
       var assignee = $.grep(self.assignees, function(a) {

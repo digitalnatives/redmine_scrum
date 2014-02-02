@@ -5,13 +5,14 @@ function Category(data) {
 
   self.id = data.id
   self.name = data.name
+  self.count = data.count;
 }
 
 function Assignee(data) {
   var self = this;
 
-  self.id = data.id
-  self.name = data.name
+  self.id = data.id;
+  self.name = data.name;
 }
 
 function IssueStatus(data) {
@@ -292,7 +293,7 @@ function Row(data, assignee) {
       return
     }
 
-    if(!filter.byStatus && !filter.byAssignee && !filter.byCategory && !filter.bySubject) {
+    if(!filter.byStatus && !filter.byAssignee && window.viewModel.selectAllCategories() && !filter.bySubject) {
       self.visible(true);
       return;
     }
@@ -305,7 +306,7 @@ function Row(data, assignee) {
       self.visible(false);
       return;
     }
-    if(!!filter.byCategory && self.categoryId() != filter.byCategory.id) {
+    if(!window.viewModel.selectAllCategories() && filter.byCategories.indexOf(self.categoryId().toString()) == -1) {
       self.visible(false);
       return;
     }
@@ -451,11 +452,31 @@ function ViewModel(data) {
       return new IssueStatus(issueStatus);
   });
   self.categories = ko.utils.arrayMap(data.categories, function(category) {
+      category.count = data.rows.filter(function(row) {
+        return row.category_id == category.id;
+      }).length;
       return new Category(category);
   });
   self.filterAssignee = ko.observable();
   self.filterStatus = ko.observable();
-  self.filterCategory = ko.observable();
+  self.filterCategories = ko.observableArray(ko.utils.arrayMap(self.categories, function(issueCategory) {
+      return issueCategory.id.toString();
+  }));
+  self.selectAllCategories = ko.computed({
+    read: function() {
+      return self.filterCategories().length == self.categories.length;
+    },
+    write: function(value) {
+      if (value) {
+        self.filterCategories(ko.utils.arrayMap(self.categories, function(category) {
+            return category.id.toString();
+        }));
+      }
+      else {
+        self.filterCategories([]);
+      }
+    }
+  });
   self.filterSubject = ko.observable().extend({ throttle: 250 });
 
   self.rows = ko.observableArray(

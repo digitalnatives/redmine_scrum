@@ -26,11 +26,13 @@
       <% options = ['' ] + @versions.map {|v| ["#{v.name} (#{v.sprint_start_date} - #{v.effective_date})", v.id] } %>
       <%= select_tag 'version_id',
         options_for_select(options, @version.try(:id)), :onchange => "this.form.submit();" %>
-  <% end %>
+    <% end %>
     <label for="filter-assignee"><%= l('redmine_scrum.assignee') %>:</label>
     <select id="filter-assignee" data-bind="options: assignees, optionsText: 'name',  value: filterAssignee, optionsCaption: 'All'"></select>
     <label for="filter-status"><%= l('redmine_scrum.status') %>:</label>
     <select id="filter-status" data-bind="options: issueStatuses, optionsText: 'name',  value: filterStatus, optionsCaption: 'All'"></select>
+    <label for="filter-subject"><%= l('redmine_scrum.subject') %>:</label>
+    <input id="filter-subject" type="text" data-bind="value: filterSubject, valueUpdate: 'keyup'">
     <div>
       <label for="filter-category"><%= l('redmine_scrum.category') %>:</label>
       <input type="checkbox" id="all-categories" data-bind="checked: $root.selectAllCategories" />
@@ -41,8 +43,6 @@
       (<span data-bind="text: count"></span>)
       <!-- /ko -->
     </div>
-    <label for="filter-subject"><%= l('redmine_scrum.subject') %>:</label>
-    <input id="filter-subject" type="text" data-bind="value: filterSubject, valueUpdate: 'keyup'">
   </p>
 <% end %>
 <%= form_tag({}) do -%>

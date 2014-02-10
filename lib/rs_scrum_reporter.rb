@@ -209,9 +209,7 @@ module RS
     end
 
     def days_with_hours
-      @days_with_hours ||= TimeEntry.select("spent_on, hours").where(:issue_id => @issues.map(&:id)).map do |te|
-        te.spent_on if te.hours > 0
-      end
+      @days_with_hours ||= TimeEntry.where("issue_id IN(:issue_ids) && hours > :hour", issue_ids: @issues.map(&:id), hour: 0).pluck("spent_on")
     end
 
   end

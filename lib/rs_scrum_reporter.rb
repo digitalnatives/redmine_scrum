@@ -56,7 +56,7 @@ module RS
           :subject => issue.subject,
           :status => "#{issue.status}",
           :status_id => issue.status_id,
-          :category_id => (issue.category_id || @parent.try(:category_id)),
+          :category_id => (issue.category_id || @parent.try(:category_id) || ""),
           :statuses => issue.new_statuses_allowed_to.map { |i| { :id => i.id, :name => i.name } }
         }
         row[:cells] = set_cells(issue)
@@ -64,7 +64,7 @@ module RS
         @data[:rows] << row
       end
       @data[:assignees] = @project.assignable_users.map{ |u| { :name => u.to_s, :id => u.id } }
-      @data[:categories] = @project.issue_categories.map{ |c| { :name => c.name, :id => c.id } }
+      @data[:categories] = @project.issue_categories.map{ |c| { :name => c.name, :id => c.id } } << { name: "No category", id: "" }
       @data[:issue_statuses] = IssueStatus.all.map{ |s| { :name => s.to_s, :id => s.id } }
       @data[:sum_estimated_hours] = @sum_estimated_hours
       @days.each_with_index do |day, idx|

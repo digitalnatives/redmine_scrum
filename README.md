@@ -1,3 +1,7 @@
+# Deprecation notice
+
+This repository is not maintained.
+
 # Redmine Scrum Plugin
 
 Redmine Scrum is a plugin to display sprint spent and remaining hours in a table and on a burndown chart.
